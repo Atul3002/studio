@@ -88,5 +88,23 @@
     "dimensionMeasureReason": "",
     "problem": "Failure",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-22T11:00:34.347Z",
+    "machine": "Unselected",
+    "productType": "ET",
+    "station": "2",
+    "operatorName": "weref",
+    "serialNumber": "435",
+    "machineSpeed": "245",
+    "machineFeed": "24",
+    "vibrationLevel": "24",
+    "coolantStatus": "24",
+    "toolWearStatus": "not-ok",
+    "toolWearReason": "1ef",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Tool breakdown",
+    "otherProblemReason": ""
   }
 ]
