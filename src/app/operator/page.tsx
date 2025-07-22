@@ -148,27 +148,27 @@ function OperatorWorkflow() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="operatorName">Operator Name</Label>
-                    <Input id="operatorName" value={formData.operatorName} onChange={handleInputChange} required />
+                    <Input id="operatorName" value={formData.operatorName} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="serialNumber">Serial Number of Breaker</Label>
-                    <Input id="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required />
+                    <Input id="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="machineSpeed">Machine Speed</Label>
-                    <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} required />
+                    <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="machineFeed">Machine Feed</Label>
-                    <Input id="machineFeed" type="number" value={formData.machineFeed} onChange={handleInputChange} required />
+                    <Input id="machineFeed" type="number" value={formData.machineFeed} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="vibrationLevel">Vibration Level</Label>
-                    <Input id="vibrationLevel" type="number" value={formData.vibrationLevel} onChange={handleInputChange} required />
+                    <Input id="vibrationLevel" type="number" value={formData.vibrationLevel} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="coolantStatus">Coolant Status</Label>
-                    <Input id="coolantStatus" value={formData.coolantStatus} onChange={handleInputChange} required />
+                    <Input id="coolantStatus" value={formData.coolantStatus} onChange={handleInputChange} required className="text-lg" />
                 </div>
             </div>
 
@@ -192,7 +192,7 @@ function OperatorWorkflow() {
                      {formData.toolWearStatus === 'not-ok' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="toolWearReason">Reason if not OK</Label>
-                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required />
+                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required className="text-lg" />
                         </div>
                     )}
                 </div>
@@ -215,14 +215,14 @@ function OperatorWorkflow() {
                      {formData.dimensionMeasureStatus === 'not-ok' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="dimensionMeasureReason">Reason if not OK</Label>
-                           <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required />
+                           <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required className="text-lg" />
                         </div>
                     )}
                 </div>
                  <div className="space-y-3">
                     <Label className="font-bold">Problem</Label>
                      <Select onValueChange={(value) => handleSelectChange("problem", value)} value={formData.problem}>
-                        <SelectTrigger>
+                        <SelectTrigger className="text-lg">
                             <SelectValue placeholder="Select a problem if any" />
                         </SelectTrigger>
                         <SelectContent>
@@ -234,7 +234,7 @@ function OperatorWorkflow() {
                      {formData.problem === 'Other' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="otherProblemReason">Please specify</Label>
-                           <Textarea id="otherProblemReason" value={formData.otherProblemReason} onChange={handleInputChange} required />
+                           <Textarea id="otherProblemReason" value={formData.otherProblemReason} onChange={handleInputChange} required className="text-lg" />
                         </div>
                     )}
                 </div>
@@ -368,5 +368,7 @@ export default function OperatorPage() {
 
     return <OperatorWorkflow />;
 }
+
+    
 
     
