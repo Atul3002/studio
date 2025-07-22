@@ -11,7 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle, Package, Hash, KeyRound } from "lucide-react";
+import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 
 
 function OperatorWorkflow() {
@@ -20,26 +22,60 @@ function OperatorWorkflow() {
   const productType = searchParams.get('productType') || 'Unselected';
   const station = searchParams.get('station') || 'Unselected';
   
-  const [productionCount, setProductionCount] = useState("");
+  const [formData, setFormData] = useState({
+    operatorName: "",
+    serialNumber: "",
+    machineSpeed: "",
+    machineFeed: "",
+    vibrationLevel: "",
+    coolantStatus: "",
+    toolWearOk: false,
+    toolWearReason: "",
+    dimensionMeasureOk: false,
+    dimensionMeasureReason: "",
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleCheckboxChange = (id: "toolWearOk" | "dimensionMeasureOk", checked: boolean) => {
+    setFormData(prev => ({ ...prev, [id]: checked }));
+  };
+  
   const handleDataSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (parseInt(productionCount, 10) >= 0) {
-      console.log(`Machine: ${machine}, Product Type: ${productType}, Station: ${station}, Production: ${productionCount}`);
-      setIsSubmitted(true);
-    }
+    console.log({
+        machine,
+        productType,
+        station,
+        ...formData
+    });
+    setIsSubmitted(true);
   };
   
   const resetAll = () => {
-      setProductionCount("");
+      setFormData({
+        operatorName: "",
+        serialNumber: "",
+        machineSpeed: "",
+        machineFeed: "",
+        vibrationLevel: "",
+        coolantStatus: "",
+        toolWearOk: false,
+        toolWearReason: "",
+        dimensionMeasureOk: false,
+        dimensionMeasureReason: "",
+      });
       setIsSubmitted(false);
   }
 
   if (isSubmitted) {
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-             <Card className="w-full max-w-md text-center shadow-lg">
+             <Card className="w-full max-w-lg text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-green-100 p-4 rounded-full w-fit mb-4">
                         <CheckCircle className="w-12 h-12 text-green-600" />
@@ -47,11 +83,20 @@ function OperatorWorkflow() {
                     <CardTitle className="font-headline text-2xl">Submission Successful</CardTitle>
                     <CardDescription>Your production data has been recorded.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2 text-left">
-                    <p className="text-lg"><strong>Machine:</strong> {machine}</p>
-                    <p className="text-lg"><strong>Product Type:</strong> {productType}</p>
-                    <p className="text-lg"><strong>Station:</strong> {station}</p>
-                    <p className="text-lg"><strong>Breakers Produced:</strong> {productionCount}</p>
+                <CardContent className="space-y-2 text-left text-sm overflow-auto max-h-[50vh]">
+                    <p><strong>Machine:</strong> {machine}</p>
+                    <p><strong>Product Type:</strong> {productType}</p>
+                    <p><strong>Station:</strong> {station}</p>
+                    <p><strong>Operator Name:</strong> {formData.operatorName}</p>
+                    <p><strong>Serial Number:</strong> {formData.serialNumber}</p>
+                    <p><strong>Machine Speed:</strong> {formData.machineSpeed}</p>
+                    <p><strong>Machine Feed:</strong> {formData.machineFeed}</p>
+                    <p><strong>Vibration Level:</strong> {formData.vibrationLevel}</p>
+                    <p><strong>Coolant Status:</strong> {formData.coolantStatus}</p>
+                    <p><strong>Tool Wear & Tear:</strong> {formData.toolWearOk ? 'OK' : 'Not OK'}</p>
+                    {!formData.toolWearOk && <p><strong>Reason:</strong> {formData.toolWearReason}</p>}
+                    <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureOk ? 'OK' : 'Not OK'}</p>
+                    {!formData.dimensionMeasureOk && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
                     <Button onClick={resetAll} className="w-full">
@@ -68,32 +113,79 @@ function OperatorWorkflow() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="w-full max-w-2xl shadow-lg">
         <form onSubmit={handleDataSubmit}>
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Log Production</CardTitle>
+            <CardTitle className="font-headline text-2xl flex items-center gap-2"><Wrench />Operator Data Entry</CardTitle>
             <CardDescription>
-                Enter the number of breakers produced for <span className="font-bold text-primary">{machine}</span>.
+                Enter production data for <span className="font-bold text-primary">{machine}</span>.
             </CardDescription>
             <div className="text-sm text-muted-foreground pt-2">
-                <div><strong>Product:</strong> {productType}</div>
-                <div><strong>Station:</strong> {station}</div>
+                <div><strong>Product:</strong> {productType} | <strong>Station:</strong> {station}</div>
             </div>
           </CardHeader>
-          <CardContent>
-            <Label htmlFor="production-count" className="text-base">Breakers Produced Today</Label>
-            <Input
-              id="production-count"
-              type="number"
-              min="0"
-              value={productionCount}
-              onChange={(e) => setProductionCount(e.target.value)}
-              placeholder="e.g., 1540"
-              required
-              className="mt-2 h-14 text-center text-3xl font-bold"
-            />
+          <CardContent className="space-y-4 max-h-[65vh] overflow-y-auto pr-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="operatorName">Operator Name</Label>
+                    <Input id="operatorName" value={formData.operatorName} onChange={handleInputChange} required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="serialNumber">Serial Number of Breaker</Label>
+                    <Input id="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="machineSpeed">Machine Speed</Label>
+                    <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="machineFeed">Machine Feed</Label>
+                    <Input id="machineFeed" type="number" value={formData.machineFeed} onChange={handleInputChange} required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="vibrationLevel">Vibration Level</Label>
+                    <Input id="vibrationLevel" type="number" value={formData.vibrationLevel} onChange={handleInputChange} required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="coolantStatus">Coolant Status</Label>
+                    <Input id="coolantStatus" value={formData.coolantStatus} onChange={handleInputChange} required />
+                </div>
+            </div>
+
+            <div className="space-y-4 pt-4">
+                <div className="space-y-3">
+                    <Label className="font-bold">Tool Wear and Tear</Label>
+                     <div className="flex items-center space-x-2">
+                        <Checkbox id="toolWearOk" checked={formData.toolWearOk} onCheckedChange={(checked) => handleCheckboxChange("toolWearOk", checked as boolean)} />
+                        <label htmlFor="toolWearOk" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            OK
+                        </label>
+                    </div>
+                     {!formData.toolWearOk && (
+                        <div className="pl-6 space-y-2">
+                           <Label htmlFor="toolWearReason">Reason</Label>
+                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required />
+                        </div>
+                    )}
+                </div>
+                 <div className="space-y-3">
+                    <Label className="font-bold">Dimension Measure</Label>
+                     <div className="flex items-center space-x-2">
+                        <Checkbox id="dimensionMeasureOk" checked={formData.dimensionMeasureOk} onCheckedChange={(checked) => handleCheckboxChange("dimensionMeasureOk", checked as boolean)} />
+                        <label htmlFor="dimensionMeasureOk" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            OK
+                        </label>
+                    </div>
+                     {!formData.dimensionMeasureOk && (
+                        <div className="pl-6 space-y-2">
+                           <Label htmlFor="dimensionMeasureReason">Reason</Label>
+                           <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required />
+                        </div>
+                    )}
+                </div>
+            </div>
           </CardContent>
-          <CardFooter className="flex-col gap-4">
+          <CardFooter className="flex-col gap-4 pt-6">
             <Button type="submit" className="w-full font-bold">Submit Data</Button>
             <Button asChild variant="outline" className="w-full">
                 <Link href="/machine"><ArrowLeft className="h-4 w-4 mr-2" /> Change Machine</Link>
