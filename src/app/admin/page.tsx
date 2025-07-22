@@ -114,7 +114,7 @@ function AdminDashboard() {
                       </TableCell>
                     </TableRow>
                   ))}
-                </Body>
+                </TableBody>
               </Table>
             </CardContent>
           </Card>

@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "id": "2025-07-22T09:03:41.328Z",
+    "machine": "Unselected",
+    "productType": "VCB",
+    "station": "3",
+    "operatorName": "vedant",
+    "serialNumber": "4232412",
+    "machineSpeed": "21323",
+    "machineFeed": "12",
+    "vibrationLevel": "213123",
+    "coolantStatus": "213",
+    "toolWearStatus": "ok",
+    "toolWearReason": "",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Material not available",
+    "otherProblemReason": ""
+  }
+]
