@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { saveSubmission } from "@/app/actions";
 
 
 function OperatorWorkflow() {
@@ -38,6 +39,7 @@ function OperatorWorkflow() {
     otherProblemReason: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -49,17 +51,19 @@ function OperatorWorkflow() {
   };
   
   const handleSelectChange = (id: "problem", value: string) => {
-    setFormData(prev => ({ ...prev, [id]: value }));
+    setFormData(prev => ({ ...prev, [id]: value, otherProblemReason: '' }));
   }
 
-  const handleDataSubmit = (e: FormEvent) => {
+  const handleDataSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log({
+    setIsSubmitting(true);
+    await saveSubmission({
         machine,
         productType,
         station,
         ...formData
     });
+    setIsSubmitting(false);
     setIsSubmitted(true);
   };
   
@@ -192,7 +196,7 @@ function OperatorWorkflow() {
                      {formData.toolWearStatus === 'not-ok' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="toolWearReason">Reason if not OK</Label>
-                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required className="text-lg" />
+                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required={formData.toolWearStatus === 'not-ok'} className="text-lg" />
                         </div>
                     )}
                 </div>
@@ -215,7 +219,7 @@ function OperatorWorkflow() {
                      {formData.dimensionMeasureStatus === 'not-ok' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="dimensionMeasureReason">Reason if not OK</Label>
-                           <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required className="text-lg" />
+                           <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required={formData.dimensionMeasureStatus === 'not-ok'} className="text-lg" />
                         </div>
                     )}
                 </div>
@@ -234,14 +238,16 @@ function OperatorWorkflow() {
                      {formData.problem === 'Other' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="otherProblemReason">Please specify</Label>
-                           <Textarea id="otherProblemReason" value={formData.otherProblemReason} onChange={handleInputChange} required className="text-lg" />
+                           <Textarea id="otherProblemReason" value={formData.otherProblemReason} onChange={handleInputChange} required={formData.problem === 'Other'} className="text-lg" />
                         </div>
                     )}
                 </div>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4 pt-6">
-            <Button type="submit" className="w-full font-bold">Submit Data</Button>
+            <Button type="submit" className="w-full font-bold" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Submit Data'}
+            </Button>
           </CardFooter>
         </form>
       </Card>
@@ -368,7 +374,3 @@ export default function OperatorPage() {
 
     return <OperatorWorkflow />;
 }
-
-    
-
-    

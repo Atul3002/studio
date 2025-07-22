@@ -1,8 +1,10 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, PlusCircle, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, PlusCircle, MoreHorizontal, Download } from "lucide-react";
+import Papa from "papaparse";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { getSubmissions } from "@/app/actions";
 
 const users = [
   { id: 'USR001', name: 'John Doe', email: 'john.doe@example.com', role: 'Operator' },
@@ -32,6 +35,25 @@ const users = [
 ];
 
 function AdminDashboard() {
+    const [submissions, setSubmissions] = useState<any[]>([]);
+    
+    useEffect(() => {
+        getSubmissions().then(setSubmissions);
+    }, [])
+
+    const downloadCSV = () => {
+        const csv = Papa.unparse(submissions);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'submissions.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4">
@@ -90,6 +112,53 @@ function AdminDashboard() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
+                    </TableRow>
+                  ))}
+                </Body>
+              </Table>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <div className="flex items-center">
+                <div className="flex-1">
+                  <CardTitle>Operator Submissions</CardTitle>
+                  <CardDescription>Data submitted by operators.</CardDescription>
+                </div>
+                <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
+                    <Download className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Download CSV</span>
+                 </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Operator</TableHead>
+                    <TableHead>Machine</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Station</TableHead>
+                    <TableHead>Serial #</TableHead>
+                    <TableHead>Problem</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {submissions.length === 0 && (
+                    <TableRow>
+                        <TableCell colSpan={7} className="text-center">No submissions yet.</TableCell>
+                    </TableRow>
+                  )}
+                  {submissions.map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
+                      <TableCell>{s.operatorName}</TableCell>
+                      <TableCell>{s.machine}</TableCell>
+                      <TableCell>{s.productType}</TableCell>
+                      <TableCell>{s.station}</TableCell>
+                      <TableCell>{s.serialNumber}</TableCell>
+                      <TableCell>{s.problem}{s.problem === 'Other' ? ` (${s.otherProblemReason})` : ''}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
