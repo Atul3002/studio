@@ -35,6 +35,7 @@ function OperatorWorkflow() {
     dimensionMeasureStatus: "ok",
     dimensionMeasureReason: "",
     problem: "",
+    otherProblemReason: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -75,6 +76,7 @@ function OperatorWorkflow() {
         dimensionMeasureStatus: "ok",
         dimensionMeasureReason: "",
         problem: "",
+        otherProblemReason: "",
       });
       setIsSubmitted(false);
   }
@@ -105,6 +107,7 @@ function OperatorWorkflow() {
                     <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureStatus}</p>
                     {formData.dimensionMeasureStatus === 'not-ok' && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
                     {formData.problem && <p><strong>Problem:</strong> {formData.problem}</p>}
+                    {formData.problem === 'Other' && <p><strong>Other Reason:</strong> {formData.otherProblemReason}</p>}
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
                     <Button onClick={resetAll} className="w-full">
@@ -228,14 +231,17 @@ function OperatorWorkflow() {
                             ))}
                         </SelectContent>
                     </Select>
+                     {formData.problem === 'Other' && (
+                        <div className="pl-2 pt-2 space-y-2">
+                           <Label htmlFor="otherProblemReason">Please specify</Label>
+                           <Textarea id="otherProblemReason" value={formData.otherProblemReason} onChange={handleInputChange} required />
+                        </div>
+                    )}
                 </div>
             </div>
           </CardContent>
-          <CardFooter className="flex-col gap-4 pt-6">
+          <CardFooter className="flex flex-col gap-4 pt-6">
             <Button type="submit" className="w-full font-bold">Submit Data</Button>
-            <Button asChild variant="outline" className="w-full">
-                <Link href="/machine"><ArrowLeft className="h-4 w-4 mr-2" /> Change Machine</Link>
-            </Button>
           </CardFooter>
         </form>
       </Card>
@@ -362,3 +368,5 @@ export default function OperatorPage() {
 
     return <OperatorWorkflow />;
 }
+
+    
