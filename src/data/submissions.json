@@ -34,5 +34,23 @@
     "dimensionMeasureReason": "",
     "problem": "Tool breakdown",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-22T09:12:34.821Z",
+    "machine": "Unselected",
+    "productType": "VCB",
+    "station": "2",
+    "operatorName": "karan",
+    "serialNumber": "21323",
+    "machineSpeed": "13",
+    "machineFeed": "3",
+    "vibrationLevel": "13",
+    "coolantStatus": "213",
+    "toolWearStatus": "not-ok",
+    "toolWearReason": "3233r",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Other",
+    "otherProblemReason": "nothing"
   }
 ]

@@ -48,7 +48,6 @@ function AdminDashboard() {
                 Date: date.toLocaleDateString(),
                 Time: date.toLocaleTimeString(),
                 Operator: s.operatorName,
-                Machine: s.machine,
                 Product: s.productType,
                 Station: s.station,
                 'Serial #': s.serialNumber,
