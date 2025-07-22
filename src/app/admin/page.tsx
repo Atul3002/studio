@@ -42,7 +42,30 @@ function AdminDashboard() {
     }, [])
 
     const downloadCSV = () => {
-        const csv = Papa.unparse(submissions);
+        const dataForCSV = submissions.map(s => {
+            const date = new Date(s.id);
+            return {
+                Date: date.toLocaleDateString(),
+                Time: date.toLocaleTimeString(),
+                Operator: s.operatorName,
+                Machine: s.machine,
+                Product: s.productType,
+                Station: s.station,
+                'Serial #': s.serialNumber,
+                'Machine Speed': s.machineSpeed,
+                'Machine Feed': s.machineFeed,
+                'Vibration Level': s.vibrationLevel,
+                'Coolant Status': s.coolantStatus,
+                'Tool Wear Status': s.toolWearStatus,
+                'Tool Wear Reason': s.toolWearStatus === 'not-ok' ? s.toolWearReason : '',
+                'Dimension Measure Status': s.dimensionMeasureStatus,
+                'Dimension Measure Reason': s.dimensionMeasureStatus === 'not-ok' ? s.dimensionMeasureReason : '',
+                Problem: s.problem,
+                'Other Problem Reason': s.problem === 'Other' ? s.otherProblemReason : '',
+            }
+        });
+
+        const csv = Papa.unparse(dataForCSV);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);

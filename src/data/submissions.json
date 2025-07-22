@@ -16,5 +16,23 @@
     "dimensionMeasureReason": "",
     "problem": "Material not available",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-22T09:05:37.271Z",
+    "machine": "Unselected",
+    "productType": "VCB",
+    "station": "2",
+    "operatorName": "shivam",
+    "serialNumber": "23244",
+    "machineSpeed": "24",
+    "machineFeed": "234",
+    "vibrationLevel": "24",
+    "coolantStatus": "24",
+    "toolWearStatus": "ok",
+    "toolWearReason": "",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Tool breakdown",
+    "otherProblemReason": ""
   }
 ]
