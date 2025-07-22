@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { ShieldCheck, BarChart3, Wrench, ArrowRight } from 'lucide-react';
+import { ShieldCheck, BarChart3, Wrench, ArrowRight, Cog } from 'lucide-react';
 
 export default function Home() {
   const navItems = [
@@ -17,6 +17,12 @@ export default function Home() {
       icon: <BarChart3 className="w-8 h-8 text-primary" />,
     },
     {
+      title: 'Machine Selection',
+      description: 'Select a machine to operate.',
+      href: '/machine',
+      icon: <Cog className="w-8 h-8 text-primary" />,
+    },
+    {
       title: 'Operator',
       description: 'Input daily production data.',
       href: '/operator',
@@ -30,7 +36,7 @@ export default function Home() {
         <h1 className="font-headline text-5xl font-bold text-primary">BreakerTrack</h1>
         <p className="text-muted-foreground mt-2 text-lg">Daily Production Monitoring System</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
         {navItems.map((item) => (
           <Link href={item.href} key={item.title} legacyBehavior passHref>
             <a className="block transform hover:scale-105 transition-transform duration-300">

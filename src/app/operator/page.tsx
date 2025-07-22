@@ -11,23 +11,21 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, ChevronRight, Cog } from "lucide-react";
 
-const machines = ['Breaker Press A1', 'Breaker Press A2', 'CNC Mill B1', 'Assembly Line 3', 'Molding Machine X5', 'Molding Machine X6'];
 
 function OperatorWorkflow() {
-  const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
   const [productionCount, setProductionCount] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [machine] = useState('Unselected');
 
   const handleDataSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (parseInt(productionCount, 10) >= 0) {
-      console.log(`Machine: ${selectedMachine}, Production: ${productionCount}`);
+      console.log(`Machine: ${machine}, Production: ${productionCount}`);
       setIsSubmitted(true);
     }
   };
   
   const resetAll = () => {
-      setSelectedMachine(null);
       setProductionCount("");
       setIsSubmitted(false);
   }
@@ -44,7 +42,7 @@ function OperatorWorkflow() {
                     <CardDescription>Your production data has been recorded.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-lg"><strong>Machine:</strong> {selectedMachine}</p>
+                    <p className="text-lg"><strong>Machine:</strong> {machine}</p>
                     <p className="text-lg"><strong>Breakers Produced:</strong> {productionCount}</p>
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
@@ -60,45 +58,13 @@ function OperatorWorkflow() {
     )
   }
 
-  if (!selectedMachine) {
-    return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-        <Card className="w-full max-w-lg shadow-lg">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Selection</CardTitle>
-            <CardDescription>Choose the machine you are operating.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-3">
-            {machines.map((machine) => (
-              <Button
-                key={machine}
-                variant="outline"
-                size="lg"
-                className="justify-between"
-                onClick={() => setSelectedMachine(machine)}
-              >
-                {machine}
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </Button>
-            ))}
-          </CardContent>
-            <CardFooter>
-                 <Button asChild variant="link" className="p-0 h-auto">
-                    <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back to Home</Link>
-                </Button>
-            </CardFooter>
-        </Card>
-      </main>
-    );
-  }
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md shadow-lg">
         <form onSubmit={handleDataSubmit}>
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Log Production</CardTitle>
-            <CardDescription>Enter the number of breakers produced for <span className="font-bold text-primary">{selectedMachine}</span>.</CardDescription>
+            <CardDescription>Enter the number of breakers produced for <span className="font-bold text-primary">{machine}</span>.</CardDescription>
           </CardHeader>
           <CardContent>
             <Label htmlFor="production-count" className="text-base">Breakers Produced Today</Label>
@@ -115,8 +81,8 @@ function OperatorWorkflow() {
           </CardContent>
           <CardFooter className="flex-col gap-4">
             <Button type="submit" className="w-full font-bold">Submit Data</Button>
-            <Button variant="outline" onClick={() => setSelectedMachine(null)} className="w-full">
-                <ArrowLeft className="h-4 w-4 mr-2" /> Change Machine
+            <Button asChild variant="outline" className="w-full">
+                <Link href="/machine"><ArrowLeft className="h-4 w-4 mr-2" /> Change Machine</Link>
             </Button>
           </CardFooter>
         </form>
