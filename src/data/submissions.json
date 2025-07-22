@@ -112,5 +112,29 @@
     "machine": "CNC machine",
     "machineNumber": "3423",
     "machinePower": "213"
+  },
+  {
+    "id": "2025-07-22T11:08:11.894Z",
+    "machine": "CNC machine",
+    "machineNumber": "1",
+    "machinePower": "1"
+  },
+  {
+    "id": "2025-07-22T11:08:44.024Z",
+    "machine": "Unselected",
+    "productType": "GIS",
+    "station": "3",
+    "operatorName": "om",
+    "serialNumber": "12",
+    "machineSpeed": "12",
+    "machineFeed": "12",
+    "vibrationLevel": "12",
+    "coolantStatus": "12",
+    "toolWearStatus": "not-ok",
+    "toolWearReason": "edew",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Failure",
+    "otherProblemReason": ""
   }
 ]
