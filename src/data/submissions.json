@@ -136,5 +136,11 @@
     "dimensionMeasureReason": "",
     "problem": "Failure",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-22T11:12:15.093Z",
+    "machine": "milling",
+    "machineNumber": "33",
+    "machinePower": "33"
   }
 ]
