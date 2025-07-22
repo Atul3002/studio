@@ -34,6 +34,7 @@ function OperatorWorkflow() {
     toolWearReason: "",
     dimensionMeasureOk: true,
     dimensionMeasureReason: "",
+    problem: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -46,6 +47,10 @@ function OperatorWorkflow() {
     setFormData(prev => ({ ...prev, [id]: checked }));
   };
   
+  const handleSelectChange = (id: "problem", value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
+  }
+
   const handleDataSubmit = (e: FormEvent) => {
     e.preventDefault();
     console.log({
@@ -69,6 +74,7 @@ function OperatorWorkflow() {
         toolWearReason: "",
         dimensionMeasureOk: true,
         dimensionMeasureReason: "",
+        problem: "",
       });
       setIsSubmitted(false);
   }
@@ -98,6 +104,7 @@ function OperatorWorkflow() {
                     {!formData.toolWearOk && <p><strong>Reason:</strong> {formData.toolWearReason}</p>}
                     <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureOk ? 'OK' : 'Not OK'}</p>
                     {!formData.dimensionMeasureOk && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
+                    {formData.problem && <p><strong>Problem:</strong> {formData.problem}</p>}
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
                     <Button onClick={resetAll} className="w-full">
@@ -111,6 +118,15 @@ function OperatorWorkflow() {
         </main>
     )
   }
+
+  const problemOptions = [
+    'Operator not available',
+    'Tool breakdown',
+    'Power failure',
+    'Material not available',
+    'Failure',
+    'Other'
+  ];
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
@@ -183,6 +199,19 @@ function OperatorWorkflow() {
                            <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required />
                         </div>
                     )}
+                </div>
+                 <div className="space-y-3">
+                    <Label className="font-bold">Problem</Label>
+                     <Select onValueChange={(value) => handleSelectChange("problem", value)} value={formData.problem}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select a problem if any" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {problemOptions.map((option) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
           </CardContent>
