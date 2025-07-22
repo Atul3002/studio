@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
       <div className="text-center mb-12">
-        <h1 className="font-headline text-5xl font-bold text-primary">BreakerTrack</h1>
+        <h1 className="font-headline text-5xl font-bold text-primary">Breaker Tracker</h1>
         <p className="text-muted-foreground mt-2 text-lg">Daily Production Monitoring System</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
