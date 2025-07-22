@@ -3,14 +3,43 @@
 
 import { useState } from "react";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, ChevronRight, Cog } from "lucide-react";
+import LoginForm from "@/components/login-form";
 
 const machines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
 
+const getPasswordForMachine = (machine: string) => {
+    return machine.toLowerCase().replace(/\s/g, '') + '123';
+}
+
 export default function MachinePage() {
+    const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
+    const router = useRouter();
+
+    const handleMachineSelect = (machine: string) => {
+        setSelectedMachine(machine);
+    };
+
+    const handleLoginSuccess = () => {
+        if (selectedMachine) {
+            router.push(`/operator?machine=${encodeURIComponent(selectedMachine)}`);
+        }
+    };
+    
+    if (selectedMachine) {
+        return (
+            <LoginForm
+                role={`${selectedMachine} Login`}
+                correctPassword={getPasswordForMachine(selectedMachine)}
+                onLoginSuccess={handleLoginSuccess}
+            />
+        )
+    }
+
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
         <Card className="w-full max-w-lg shadow-lg">
@@ -25,13 +54,11 @@ export default function MachinePage() {
                     variant="outline"
                     size="lg"
                     className="justify-between"
-                    asChild
+                    onClick={() => handleMachineSelect(machine)}
                 >
-                    <Link href={`/operator?machine=${encodeURIComponent(machine)}`}>
-                        {machine}
-                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                    </Link>
-              </Button>
+                    {machine}
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Button>
             ))}
           </CardContent>
             <CardFooter>
