@@ -30,9 +30,9 @@ function OperatorWorkflow() {
     machineFeed: "",
     vibrationLevel: "",
     coolantStatus: "",
-    toolWearOk: false,
+    toolWearOk: true,
     toolWearReason: "",
-    dimensionMeasureOk: false,
+    dimensionMeasureOk: true,
     dimensionMeasureReason: "",
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -65,9 +65,9 @@ function OperatorWorkflow() {
         machineFeed: "",
         vibrationLevel: "",
         coolantStatus: "",
-        toolWearOk: false,
+        toolWearOk: true,
         toolWearReason: "",
-        dimensionMeasureOk: false,
+        dimensionMeasureOk: true,
         dimensionMeasureReason: "",
       });
       setIsSubmitted(false);
@@ -164,7 +164,7 @@ function OperatorWorkflow() {
                     </div>
                      {!formData.toolWearOk && (
                         <div className="pl-6 space-y-2">
-                           <Label htmlFor="toolWearReason">Reason</Label>
+                           <Label htmlFor="toolWearReason">Reason if not OK</Label>
                            <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required />
                         </div>
                     )}
@@ -179,7 +179,7 @@ function OperatorWorkflow() {
                     </div>
                      {!formData.dimensionMeasureOk && (
                         <div className="pl-6 space-y-2">
-                           <Label htmlFor="dimensionMeasureReason">Reason</Label>
+                           <Label htmlFor="dimensionMeasureReason">Reason if not OK</Label>
                            <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required />
                         </div>
                     )}
