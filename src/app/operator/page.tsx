@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, ChevronRight, Cog } from "lucide-react";
 
-const machines = ['Breaker Press A1', 'Breaker Press A2', 'CNC Mill B1', 'Assembly Line 3', 'Molding Machine X5'];
+const machines = ['Breaker Press A1', 'Breaker Press A2', 'CNC Mill B1', 'Assembly Line 3', 'Molding Machine X5', 'Molding Machine X6'];
 
 function OperatorWorkflow() {
   const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
