@@ -52,5 +52,41 @@
     "dimensionMeasureReason": "",
     "problem": "Other",
     "otherProblemReason": "nothing"
+  },
+  {
+    "id": "2025-07-22T09:14:39.224Z",
+    "machine": "Unselected",
+    "productType": "VCB",
+    "station": "2",
+    "operatorName": "aditya",
+    "serialNumber": "11111111",
+    "machineSpeed": "243",
+    "machineFeed": "2",
+    "vibrationLevel": "24",
+    "coolantStatus": "24",
+    "toolWearStatus": "ok",
+    "toolWearReason": "",
+    "dimensionMeasureStatus": "not-ok",
+    "dimensionMeasureReason": "4",
+    "problem": "Other",
+    "otherProblemReason": "anything"
+  },
+  {
+    "id": "2025-07-22T09:16:02.141Z",
+    "machine": "Unselected",
+    "productType": "GIS",
+    "station": "4",
+    "operatorName": "gaurav",
+    "serialNumber": "312",
+    "machineSpeed": "123",
+    "machineFeed": "32",
+    "vibrationLevel": "3",
+    "coolantStatus": "213",
+    "toolWearStatus": "not-ok",
+    "toolWearReason": "2333",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Failure",
+    "otherProblemReason": ""
   }
 ]

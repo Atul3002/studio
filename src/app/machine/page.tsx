@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { ArrowLeft, ChevronRight, Cog } from "lucide-react";
 
-const machines = ['Breaker Press A1', 'Breaker Press A2', 'CNC Mill B1', 'Assembly Line 3', 'Molding Machine X5', 'Molding Machine X6'];
+const machines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
 
 export default function MachinePage() {
     return (
