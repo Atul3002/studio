@@ -11,9 +11,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
 
@@ -30,9 +30,9 @@ function OperatorWorkflow() {
     machineFeed: "",
     vibrationLevel: "",
     coolantStatus: "",
-    toolWearOk: true,
+    toolWearStatus: "ok",
     toolWearReason: "",
-    dimensionMeasureOk: true,
+    dimensionMeasureStatus: "ok",
     dimensionMeasureReason: "",
     problem: "",
   });
@@ -43,8 +43,8 @@ function OperatorWorkflow() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleCheckboxChange = (id: "toolWearOk" | "dimensionMeasureOk", checked: boolean) => {
-    setFormData(prev => ({ ...prev, [id]: checked }));
+  const handleRadioChange = (id: "toolWearStatus" | "dimensionMeasureStatus", value: string) => {
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
   
   const handleSelectChange = (id: "problem", value: string) => {
@@ -70,9 +70,9 @@ function OperatorWorkflow() {
         machineFeed: "",
         vibrationLevel: "",
         coolantStatus: "",
-        toolWearOk: true,
+        toolWearStatus: "ok",
         toolWearReason: "",
-        dimensionMeasureOk: true,
+        dimensionMeasureStatus: "ok",
         dimensionMeasureReason: "",
         problem: "",
       });
@@ -100,10 +100,10 @@ function OperatorWorkflow() {
                     <p><strong>Machine Feed:</strong> {formData.machineFeed}</p>
                     <p><strong>Vibration Level:</strong> {formData.vibrationLevel}</p>
                     <p><strong>Coolant Status:</strong> {formData.coolantStatus}</p>
-                    <p><strong>Tool Wear & Tear:</strong> {formData.toolWearOk ? 'OK' : 'Not OK'}</p>
-                    {!formData.toolWearOk && <p><strong>Reason:</strong> {formData.toolWearReason}</p>}
-                    <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureOk ? 'OK' : 'Not OK'}</p>
-                    {!formData.dimensionMeasureOk && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
+                    <p><strong>Tool Wear & Tear:</strong> {formData.toolWearStatus}</p>
+                    {formData.toolWearStatus === 'not-ok' && <p><strong>Reason:</strong> {formData.toolWearReason}</p>}
+                    <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureStatus}</p>
+                    {formData.dimensionMeasureStatus === 'not-ok' && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
                     {formData.problem && <p><strong>Problem:</strong> {formData.problem}</p>}
                 </CardContent>
                 <CardFooter className="flex-col gap-2">
@@ -172,14 +172,22 @@ function OperatorWorkflow() {
             <div className="space-y-4 pt-4">
                 <div className="space-y-3">
                     <Label className="font-bold">Tool Wear and Tear</Label>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="toolWearOk" checked={formData.toolWearOk} onCheckedChange={(checked) => handleCheckboxChange("toolWearOk", checked as boolean)} />
-                        <label htmlFor="toolWearOk" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            OK
-                        </label>
-                    </div>
-                     {!formData.toolWearOk && (
-                        <div className="pl-6 space-y-2">
+                     <RadioGroup 
+                        value={formData.toolWearStatus} 
+                        onValueChange={(value) => handleRadioChange("toolWearStatus", value)} 
+                        className="flex space-x-4"
+                     >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="ok" id="tool-ok" />
+                            <Label htmlFor="tool-ok">OK</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="not-ok" id="tool-not-ok" />
+                            <Label htmlFor="tool-not-ok">Not OK</Label>
+                        </div>
+                    </RadioGroup>
+                     {formData.toolWearStatus === 'not-ok' && (
+                        <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="toolWearReason">Reason if not OK</Label>
                            <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required />
                         </div>
@@ -187,14 +195,22 @@ function OperatorWorkflow() {
                 </div>
                  <div className="space-y-3">
                     <Label className="font-bold">Dimension Measure</Label>
-                     <div className="flex items-center space-x-2">
-                        <Checkbox id="dimensionMeasureOk" checked={formData.dimensionMeasureOk} onCheckedChange={(checked) => handleCheckboxChange("dimensionMeasureOk", checked as boolean)} />
-                        <label htmlFor="dimensionMeasureOk" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            OK
-                        </label>
-                    </div>
-                     {!formData.dimensionMeasureOk && (
-                        <div className="pl-6 space-y-2">
+                    <RadioGroup 
+                        value={formData.dimensionMeasureStatus} 
+                        onValueChange={(value) => handleRadioChange("dimensionMeasureStatus", value)}
+                        className="flex space-x-4"
+                    >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="ok" id="dim-ok" />
+                            <Label htmlFor="dim-ok">OK</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="not-ok" id="dim-not-ok" />
+                            <Label htmlFor="dim-not-ok">Not OK</Label>
+                        </div>
+                    </RadioGroup>
+                     {formData.dimensionMeasureStatus === 'not-ok' && (
+                        <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="dimensionMeasureReason">Reason if not OK</Label>
                            <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required />
                         </div>
