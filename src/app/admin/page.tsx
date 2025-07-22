@@ -44,23 +44,39 @@ function AdminDashboard() {
     const downloadCSV = () => {
         const dataForCSV = submissions.map(s => {
             const date = new Date(s.id);
-            return {
+            const baseData = {
                 Date: date.toLocaleDateString(),
                 Time: date.toLocaleTimeString(),
-                Operator: s.operatorName,
-                Product: s.productType,
-                Station: s.station,
-                'Serial #': s.serialNumber,
-                'Machine Speed': s.machineSpeed,
-                'Machine Feed': s.machineFeed,
-                'Vibration Level': s.vibrationLevel,
-                'Coolant Status': s.coolantStatus,
-                'Tool Wear Status': s.toolWearStatus,
-                'Tool Wear Reason': s.toolWearStatus === 'not-ok' ? s.toolWearReason : '',
-                'Dimension Measure Status': s.dimensionMeasureStatus,
-                'Dimension Measure Reason': s.dimensionMeasureStatus === 'not-ok' ? s.dimensionMeasureReason : '',
-                Problem: s.problem,
-                'Other Problem Reason': s.problem === 'Other' ? s.otherProblemReason : '',
+            };
+
+            if (s.machineNumber) { // This is a machine entry
+                return {
+                    ...baseData,
+                    'Entry Type': 'Machine Data',
+                    Machine: s.machine,
+                    'Machine Number': s.machineNumber,
+                    'Machine Power (kW)': s.machinePower,
+                };
+            } else { // This is an operator entry
+                return {
+                    ...baseData,
+                    'Entry Type': 'Operator Data',
+                    Machine: s.machine,
+                    Operator: s.operatorName,
+                    Product: s.productType,
+                    Station: s.station,
+                    'Serial #': s.serialNumber,
+                    'Machine Speed': s.machineSpeed,
+                    'Machine Feed': s.machineFeed,
+                    'Vibration Level': s.vibrationLevel,
+                    'Coolant Status': s.coolantStatus,
+                    'Tool Wear Status': s.toolWearStatus,
+                    'Tool Wear Reason': s.toolWearStatus === 'not-ok' ? s.toolWearReason : '',
+                    'Dimension Measure Status': s.dimensionMeasureStatus,
+                    'Dimension Measure Reason': s.dimensionMeasureStatus === 'not-ok' ? s.dimensionMeasureReason : '',
+                    Problem: s.problem,
+                    'Other Problem Reason': s.problem === 'Other' ? s.otherProblemReason : '',
+                }
             }
         });
 

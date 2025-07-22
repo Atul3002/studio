@@ -106,5 +106,11 @@
     "dimensionMeasureReason": "",
     "problem": "Tool breakdown",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-22T11:05:18.159Z",
+    "machine": "CNC machine",
+    "machineNumber": "3423",
+    "machinePower": "213"
   }
 ]
