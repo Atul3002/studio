@@ -297,6 +297,7 @@ export default function OperatorPage() {
     const [step, setStep] = useState('productType'); // productType, station, login, workflow
     const [productType, setProductType] = useState('');
     const [station, setStation] = useState('');
+    const searchParams = useSearchParams();
 
     const handleProductSelect = (product: string) => {
         setProductType(product);
@@ -334,7 +335,8 @@ export default function OperatorPage() {
     // but we can't just pass props directly to the page component.
     // A common pattern is to wrap the page content in another component that can receive the state.
     // Or, more simply for this case, we'll construct a new search param string and append it.
-    const workflowUrl = `/operator?machine=${encodeURIComponent(useSearchParams().get('machine') || '')}&productType=${encodeURIComponent(productType)}&station=${encodeURIComponent(station)}`;
+    const machine = searchParams.get('machine') || '';
+    const workflowUrl = `/operator?machine=${encodeURIComponent(machine)}&productType=${encodeURIComponent(productType)}&station=${encodeURIComponent(station)}`;
     
     // This is a bit of a hack to update the URL for the workflow component
     // A more robust solution would use Next.js's router to push the new URL state.
