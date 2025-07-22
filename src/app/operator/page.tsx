@@ -201,8 +201,8 @@ export default function OperatorPage() {
     if (step === 'login') {
         return (
             <LoginForm
-                role="Operator"
-                correctPassword="op123"
+                role={`Operator (Station ${station})`}
+                correctPassword={`op${station}123`}
                 onLoginSuccess={handleLoginSuccess}
             />
         );
