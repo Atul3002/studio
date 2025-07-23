@@ -42,10 +42,11 @@ export default function Home() {
           <Link href={item.href} key={item.title} legacyBehavior passHref>
             <a className={cn(
               "block transform hover:scale-105 transition-transform duration-300 rounded-lg",
-              item.title === 'Admin' && "animated-border-hover"
+              "animated-border-hover"
             )}>
               <Card className={cn(
-                "h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden relative z-10",
+                "h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden",
+                "relative z-10"
                 )}>
                 <CardHeader className="flex flex-row items-center gap-4">
                   {item.icon}
