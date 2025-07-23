@@ -65,4 +65,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  .animated-border {
+    animation: pulse-border 2s infinite;
+  }
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { ShieldCheck, BarChart3, Wrench, ArrowRight, Cog } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function Home() {
   const navItems = [
@@ -40,7 +41,10 @@ export default function Home() {
         {navItems.map((item) => (
           <Link href={item.href} key={item.title} legacyBehavior passHref>
             <a className="block transform hover:scale-105 transition-transform duration-300">
-              <Card className="h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden">
+              <Card className={cn(
+                "h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden",
+                 item.title === 'Admin' && 'animated-border'
+                )}>
                 <CardHeader className="flex flex-row items-center gap-4">
                   {item.icon}
                   <div>
