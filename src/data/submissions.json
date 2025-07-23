@@ -142,5 +142,23 @@
     "machine": "milling",
     "machineNumber": "33",
     "machinePower": "33"
+  },
+  {
+    "id": "2025-07-22T14:08:32.856Z",
+    "machine": "Unselected",
+    "productType": "VCB",
+    "station": "1",
+    "operatorName": "hadg",
+    "serialNumber": "2134",
+    "machineSpeed": "24",
+    "machineFeed": "24124",
+    "vibrationLevel": "4234",
+    "coolantStatus": "24",
+    "toolWearStatus": "not-ok",
+    "toolWearReason": "ddfds",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Material not available",
+    "otherProblemReason": ""
   }
 ]
