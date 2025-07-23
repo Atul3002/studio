@@ -1,43 +1,82 @@
+
+"use client";
+
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { ShieldCheck, BarChart3, Wrench, ArrowRight, Cog } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+
+const navItems = [
+  {
+    title: 'Admin',
+    description: 'Manage users and settings.',
+    href: '/admin',
+    icon: <ShieldCheck className="w-8 h-8 text-primary" />,
+  },
+  {
+    title: 'Production Team',
+    description: 'View production reports.',
+    href: '/production',
+    icon: <BarChart3 className="w-8 h-8 text-primary" />,
+  },
+  {
+    title: 'Machine Selection',
+    description: 'Select a machine to operate.',
+    href: '/machine',
+    icon: <Cog className="w-8 h-8 text-primary" />,
+  },
+  {
+    title: 'Operator',
+    description: 'Input daily production data.',
+    href: '/operator',
+    icon: <Wrench className="w-8 h-8 text-primary" />,
+  },
+];
+
+const baseText = "Breaker ";
+const wordToAnimate = "Tracker";
+
+function Typewriter() {
+    const [text, setText] = useState(baseText);
+    const [index, setIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    useEffect(() => {
+        const typeSpeed = isDeleting ? 100 : 200;
+        const timeout = setTimeout(() => {
+            if (isDeleting) {
+                if (index > 0) {
+                    setText(baseText + wordToAnimate.substring(0, index - 1));
+                    setIndex(index - 1);
+                } else {
+                    setIsDeleting(false);
+                }
+            } else {
+                if (index < wordToAnimate.length) {
+                    setText(baseText + wordToAnimate.substring(0, index + 1));
+                    setIndex(index + 1);
+                } else {
+                    setTimeout(() => setIsDeleting(true), 1500); // Pause before deleting
+                }
+            }
+        }, typeSpeed);
+
+        return () => clearTimeout(timeout);
+    }, [index, isDeleting, text]);
+
+    return (
+      <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
+        <h1 className="font-calligraphy text-7xl font-bold text-primary">{text}</h1>
+      </div>
+    );
+}
 
 export default function Home() {
-  const navItems = [
-    {
-      title: 'Admin',
-      description: 'Manage users and settings.',
-      href: '/admin',
-      icon: <ShieldCheck className="w-8 h-8 text-primary" />,
-    },
-    {
-      title: 'Production Team',
-      description: 'View production reports.',
-      href: '/production',
-      icon: <BarChart3 className="w-8 h-8 text-primary" />,
-    },
-    {
-      title: 'Machine Selection',
-      description: 'Select a machine to operate.',
-      href: '/machine',
-      icon: <Cog className="w-8 h-8 text-primary" />,
-    },
-    {
-      title: 'Operator',
-      description: 'Input daily production data.',
-      href: '/operator',
-      icon: <Wrench className="w-8 h-8 text-primary" />,
-    },
-  ];
-
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-8">
-      <div className="text-center mb-12">
-        <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-typing">
-          <h1 className="font-calligraphy text-7xl font-bold text-primary">Breaker Tracker</h1>
-        </div>
-        <p className="text-muted-foreground mt-2 text-lg">Daily Production Monitoring System</p>
+      <div className="text-center mb-12 h-24 flex items-center">
+        <Typewriter />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
         {navItems.map((item) => (

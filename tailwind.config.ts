@@ -101,12 +101,17 @@ export default {
         "blink-caret": {
           "from, to": { "border-color": "transparent" },
           "50%": { "border-color": "hsl(var(--primary))" },
+        },
+        "blink-caret-end": {
+           "0%, 50%, 100%": { "border-color": "hsl(var(--primary))" },
+           "25%, 75%": { "border-color": "transparent" },
         }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        typing: "typing 2s steps(20, end), blink-caret .75s step-end infinite"
+        typing: "typing 2s steps(20, end), blink-caret .75s step-end infinite",
+        "blink-caret-end": "blink-caret-end 1s infinite"
       },
     },
   },
