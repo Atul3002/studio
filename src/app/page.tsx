@@ -38,9 +38,9 @@ const baseText = "Breaker ";
 const wordToAnimate = "Tracker";
 
 function Typewriter() {
-    const [text, setText] = useState(baseText);
-    const [index, setIndex] = useState(0);
-    const [isDeleting, setIsDeleting] = useState(false);
+    const [text, setText] = useState(baseText + wordToAnimate);
+    const [index, setIndex] = useState(wordToAnimate.length);
+    const [isDeleting, setIsDeleting] = useState(true);
 
     useEffect(() => {
         const typeSpeed = isDeleting ? 100 : 200;
@@ -63,7 +63,7 @@ function Typewriter() {
         }, typeSpeed);
 
         return () => clearTimeout(timeout);
-    }, [index, isDeleting, text]);
+    }, [index, isDeleting]);
 
     return (
       <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
