@@ -44,7 +44,8 @@ function Typewriter() {
     const [index, setIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isInitialPhase, setIsInitialPhase] = useState(true);
-    const [showDots, setShowDots] = useState(false);
+    const [isTypingDots, setIsTypingDots] = useState(false);
+    const [dotIndex, setDotIndex] = useState(0);
 
     useEffect(() => {
         if (isInitialPhase) {
@@ -60,14 +61,28 @@ function Typewriter() {
                 setTimeout(() => {
                     setIsInitialPhase(false);
                     setIsDeleting(true);
-                    setIndex(wordToAnimate.length); // Set index for deleting "Tracker"
+                    setIndex(wordToAnimate.length);
+                }, 1500);
+            }
+        } else if (isTypingDots) {
+            if (dotIndex < dots.length) {
+                const timeout = setTimeout(() => {
+                    setText(fullText + dots.substring(0, dotIndex + 1));
+                    setDotIndex(dotIndex + 1);
+                }, 200);
+                return () => clearTimeout(timeout);
+            } else {
+                 setTimeout(() => {
+                    setIsTypingDots(false);
+                    setIsDeleting(true);
+                    setDotIndex(0);
+                    setIndex(wordToAnimate.length)
                 }, 1500);
             }
         } else {
             // Loop phase for "Tracker"
             const typeSpeed = isDeleting ? 100 : 200;
             const timeout = setTimeout(() => {
-                setShowDots(false);
                 if (isDeleting) {
                     if (index > 0) {
                         setText(baseText + wordToAnimate.substring(0, index - 1));
@@ -80,24 +95,30 @@ function Typewriter() {
                         setText(baseText + wordToAnimate.substring(0, index + 1));
                         setIndex(index + 1);
                     } else {
-                        setShowDots(true);
-                        setTimeout(() => setIsDeleting(true), 1500); // Pause before deleting
+                        setIsTypingDots(true);
                     }
                 }
             }, typeSpeed);
             return () => clearTimeout(timeout);
         }
-    }, [index, isDeleting, isInitialPhase]);
+    }, [index, isDeleting, isInitialPhase, isTypingDots, dotIndex]);
 
     const breakerText = text.substring(0, baseText.length);
-    const trackerText = text.substring(baseText.length);
+    let trackerText = text.substring(baseText.length);
+    let dotsText = '';
+
+    if (text.length > fullText.length && !isInitialPhase) {
+        trackerText = wordToAnimate;
+        dotsText = text.substring(fullText.length);
+    }
+    
 
     return (
       <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
         <h1 className="font-calligraphy text-7xl font-bold">
             <span className="text-primary">{isInitialPhase ? text : breakerText}</span>
             {!isInitialPhase && <span className="animate-text-gradient">{trackerText}</span>}
-            {showDots && <span className="animate-text-gradient">{dots}</span>}
+            {dotsText && <span className="animate-text-gradient">{dotsText}</span>}
         </h1>
       </div>
     );
