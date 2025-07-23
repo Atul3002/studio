@@ -85,9 +85,15 @@ function Typewriter() {
         }
     }, [index, isDeleting, isInitialPhase]);
 
+    const breakerText = text.substring(0, baseText.length);
+    const trackerText = text.substring(baseText.length);
+
     return (
       <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
-        <h1 className="font-calligraphy text-7xl font-bold text-primary">{text}</h1>
+        <h1 className="font-calligraphy text-7xl font-bold">
+            <span className="text-primary">{isInitialPhase ? text : breakerText}</span>
+            {!isInitialPhase && <span className="text-accent-foreground">{trackerText}</span>}
+        </h1>
       </div>
     );
 }
