@@ -74,7 +74,7 @@
 
   .animated-border-hover::before {
     content: '';
-    @apply absolute -top-[9950%] -left-[9950%] w-[20000%] h-[20000%] bg-no-repeat opacity-0 transition-opacity duration-500;
+    @apply absolute -top-[99950%] -left-[99950%] w-[200000%] h-[200000%] bg-no-repeat opacity-0 transition-opacity duration-500;
     background-image: conic-gradient(
       from 180deg at 50% 50%,
       #ff2a2a 0deg,
