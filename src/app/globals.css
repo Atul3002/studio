@@ -74,19 +74,16 @@
 
   .animated-border-hover::before {
     content: '';
-    @apply absolute -top-full -left-full w-[400%] h-[400%] bg-no-repeat opacity-0 transition-opacity duration-500;
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-no-repeat opacity-0 transition-opacity duration-500;
     background-image: conic-gradient(
       from 180deg at 50% 50%,
       #ff2a2a 0deg,
-      #ff7a2a 20deg,
-      #f5ff2a 40deg,
-      #2aff5e 60deg,
-      #2addff 80deg,
-      #702aff 100deg,
-      #ff2aef 120deg,
-      #ff2a2a 140deg,
-      transparent 180deg,
-      transparent 360deg
+      #ff7a2a 60deg,
+      #f5ff2a 120deg,
+      #2aff5e 180deg,
+      #2addff 240deg,
+      #702aff 300deg,
+      #ff2aef 360deg
     );
     animation: rotate 4s linear infinite;
   }
