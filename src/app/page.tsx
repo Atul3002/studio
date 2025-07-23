@@ -37,12 +37,14 @@ const navItems = [
 const fullText = "Breaker Tracker";
 const baseText = "Breaker ";
 const wordToAnimate = "Tracker";
+const dots = ".....";
 
 function Typewriter() {
     const [text, setText] = useState('');
     const [index, setIndex] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isInitialPhase, setIsInitialPhase] = useState(true);
+    const [showDots, setShowDots] = useState(false);
 
     useEffect(() => {
         if (isInitialPhase) {
@@ -65,6 +67,7 @@ function Typewriter() {
             // Loop phase for "Tracker"
             const typeSpeed = isDeleting ? 100 : 200;
             const timeout = setTimeout(() => {
+                setShowDots(false);
                 if (isDeleting) {
                     if (index > 0) {
                         setText(baseText + wordToAnimate.substring(0, index - 1));
@@ -77,6 +80,7 @@ function Typewriter() {
                         setText(baseText + wordToAnimate.substring(0, index + 1));
                         setIndex(index + 1);
                     } else {
+                        setShowDots(true);
                         setTimeout(() => setIsDeleting(true), 1500); // Pause before deleting
                     }
                 }
@@ -93,6 +97,7 @@ function Typewriter() {
         <h1 className="font-calligraphy text-7xl font-bold">
             <span className="text-primary">{isInitialPhase ? text : breakerText}</span>
             {!isInitialPhase && <span className="animate-text-gradient">{trackerText}</span>}
+            {showDots && <span className="animate-text-gradient">{dots}</span>}
         </h1>
       </div>
     );
