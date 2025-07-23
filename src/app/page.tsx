@@ -34,36 +34,56 @@ const navItems = [
   },
 ];
 
+const fullText = "Breaker Tracker";
 const baseText = "Breaker ";
 const wordToAnimate = "Tracker";
 
 function Typewriter() {
-    const [text, setText] = useState(baseText + wordToAnimate);
-    const [index, setIndex] = useState(wordToAnimate.length);
-    const [isDeleting, setIsDeleting] = useState(true);
+    const [text, setText] = useState('');
+    const [index, setIndex] = useState(0);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isInitialPhase, setIsInitialPhase] = useState(true);
 
     useEffect(() => {
-        const typeSpeed = isDeleting ? 100 : 200;
-        const timeout = setTimeout(() => {
-            if (isDeleting) {
-                if (index > 0) {
-                    setText(baseText + wordToAnimate.substring(0, index - 1));
-                    setIndex(index - 1);
-                } else {
-                    setIsDeleting(false);
-                }
-            } else {
-                if (index < wordToAnimate.length) {
-                    setText(baseText + wordToAnimate.substring(0, index + 1));
+        if (isInitialPhase) {
+            // Initial typing of "Breaker Tracker"
+            if (index < fullText.length) {
+                const timeout = setTimeout(() => {
+                    setText(fullText.substring(0, index + 1));
                     setIndex(index + 1);
-                } else {
-                    setTimeout(() => setIsDeleting(true), 1500); // Pause before deleting
-                }
+                }, 150);
+                return () => clearTimeout(timeout);
+            } else {
+                // End of initial phase, pause and then start the loop
+                setTimeout(() => {
+                    setIsInitialPhase(false);
+                    setIsDeleting(true);
+                    setIndex(wordToAnimate.length); // Set index for deleting "Tracker"
+                }, 1500);
             }
-        }, typeSpeed);
-
-        return () => clearTimeout(timeout);
-    }, [index, isDeleting]);
+        } else {
+            // Loop phase for "Tracker"
+            const typeSpeed = isDeleting ? 100 : 200;
+            const timeout = setTimeout(() => {
+                if (isDeleting) {
+                    if (index > 0) {
+                        setText(baseText + wordToAnimate.substring(0, index - 1));
+                        setIndex(index - 1);
+                    } else {
+                        setIsDeleting(false);
+                    }
+                } else {
+                    if (index < wordToAnimate.length) {
+                        setText(baseText + wordToAnimate.substring(0, index + 1));
+                        setIndex(index + 1);
+                    } else {
+                        setTimeout(() => setIsDeleting(true), 1500); // Pause before deleting
+                    }
+                }
+            }, typeSpeed);
+            return () => clearTimeout(timeout);
+        }
+    }, [index, isDeleting, isInitialPhase]);
 
     return (
       <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
