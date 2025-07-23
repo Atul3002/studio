@@ -40,10 +40,12 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
         {navItems.map((item) => (
           <Link href={item.href} key={item.title} legacyBehavior passHref>
-            <a className="block transform hover:scale-105 transition-transform duration-300">
+            <a className={cn(
+              "block transform hover:scale-105 transition-transform duration-300 rounded-lg",
+              item.title === 'Admin' && "animated-border-hover"
+            )}>
               <Card className={cn(
-                "h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden",
-                 item.title === 'Admin' && 'animated-border'
+                "h-full flex flex-col justify-between hover:shadow-xl transition-shadow duration-300 cursor-pointer overflow-hidden relative z-10",
                 )}>
                 <CardHeader className="flex flex-row items-center gap-4">
                   {item.icon}

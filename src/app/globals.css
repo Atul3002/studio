@@ -65,7 +65,34 @@
   body {
     @apply bg-background text-foreground;
   }
-  .animated-border {
-    animation: pulse-border 2s infinite;
+}
+
+@layer utilities {
+  .animated-border-hover {
+    @apply relative overflow-hidden;
+  }
+
+  .animated-border-hover::before {
+    content: '';
+    @apply absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-no-repeat opacity-0 transition-opacity duration-500;
+    background-image: conic-gradient(
+      from 180deg at 50% 50%,
+      hsl(var(--primary)) 0%,
+      hsl(var(--primary) / 0.7) 10%,
+      hsl(var(--primary) / 0.4) 30%,
+      transparent 50%,
+      transparent 100%
+    );
+    animation: rotate 4s linear infinite;
+  }
+
+  .animated-border-hover:hover::before {
+    @apply opacity-100;
+  }
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
   }
 }
