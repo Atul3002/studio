@@ -92,7 +92,7 @@ function Typewriter() {
       <div className="overflow-hidden whitespace-nowrap border-r-4 border-r-primary pr-2 text-5xl font-bold text-primary animate-blink-caret-end">
         <h1 className="font-calligraphy text-7xl font-bold">
             <span className="text-primary">{isInitialPhase ? text : breakerText}</span>
-            {!isInitialPhase && <span className="text-accent-foreground">{trackerText}</span>}
+            {!isInitialPhase && <span className="animate-text-gradient">{trackerText}</span>}
         </h1>
       </div>
     );

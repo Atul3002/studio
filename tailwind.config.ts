@@ -111,7 +111,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         typing: "typing 2s steps(20, end), blink-caret .75s step-end infinite",
-        "blink-caret-end": "blink-caret-end 1s infinite"
+        "blink-caret-end": "blink-caret-end 1s infinite",
       },
     },
   },
