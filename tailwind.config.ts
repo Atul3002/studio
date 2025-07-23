@@ -89,10 +89,24 @@ export default {
             height: '0',
           },
         },
+        typing: {
+          "0%": {
+            width: "0%",
+            visibility: "hidden",
+          },
+          "100%": {
+            width: "100%",
+          },
+        },
+        "blink-caret": {
+          "from, to": { "border-color": "transparent" },
+          "50%": { "border-color": "hsl(var(--primary))" },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        typing: "typing 2s steps(20, end), blink-caret .75s step-end infinite"
       },
     },
   },
