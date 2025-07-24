@@ -304,5 +304,26 @@
     "machine": "forging",
     "machineNumber": "345",
     "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:15:18.168Z",
+    "machine": "CNC machine - 1",
+    "machineNumber": "9479",
+    "machinePower": "24",
+    "tonnage": "2424"
+  },
+  {
+    "id": "2025-07-24T01:15:18.424Z",
+    "machine": "CNC machine - 2",
+    "machineNumber": "4",
+    "machinePower": "24",
+    "tonnage": "24"
+  },
+  {
+    "id": "2025-07-24T01:16:21.161Z",
+    "machine": "CNC machine - 1",
+    "machineNumber": "1",
+    "machinePower": "1",
+    "tonnage": "1"
   }
 ]

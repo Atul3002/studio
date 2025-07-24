@@ -3,12 +3,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, PlusCircle, MoreHorizontal, Download } from "lucide-react";
+import { ArrowLeft, PlusCircle, MoreHorizontal, Download, BarChart, PieChart } from "lucide-react";
 import Papa from "papaparse";
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell } from "recharts";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import {
   Table,
   TableBody,
@@ -34,11 +36,32 @@ const users = [
   { id: 'USR004', name: 'Peter Jones', email: 'peter.jones@example.com', role: 'Operator' },
 ];
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
+
 function AdminDashboard() {
     const [submissions, setSubmissions] = useState<any[]>([]);
-    
+    const [machineChartData, setMachineChartData] = useState<any[]>([]);
+    const [operatorProblemData, setOperatorProblemData] = useState<any[]>([]);
+
     useEffect(() => {
-        getSubmissions().then(setSubmissions);
+        getSubmissions().then(data => {
+            setSubmissions(data);
+
+            const machineSubmissions = data.filter(s => s.tonnage !== undefined);
+            const machineCounts = machineSubmissions.reduce((acc, curr) => {
+                const machineType = curr.machine.split(' - ')[0];
+                acc[machineType] = (acc[machineType] || 0) + 1;
+                return acc;
+            }, {});
+            setMachineChartData(Object.keys(machineCounts).map(key => ({ name: key, count: machineCounts[key] })));
+            
+            const operatorSubmissions = data.filter(s => s.operatorName && s.problem);
+            const problemCounts = operatorSubmissions.reduce((acc, curr) => {
+                acc[curr.problem] = (acc[curr.problem] || 0) + 1;
+                return acc;
+            }, {});
+            setOperatorProblemData(Object.keys(problemCounts).map(key => ({ name: key, value: problemCounts[key] })));
+        });
     }, [])
 
     const downloadCSV = () => {
@@ -49,13 +72,14 @@ function AdminDashboard() {
                 Time: date.toLocaleTimeString(),
             };
 
-            if (s.machineNumber) { // This is a machine entry
+            if (s.tonnage !== undefined) { // This is a machine entry
                 return {
                     ...baseData,
                     'Entry Type': 'Machine Data',
                     Machine: s.machine,
                     'Machine Number': s.machineNumber,
                     'Machine Power (kW)': s.machinePower,
+                    'Tonnage': s.tonnage,
                     Operator: '',
                     Product: '',
                     Station: '',
@@ -78,6 +102,7 @@ function AdminDashboard() {
                     Machine: s.machine,
                     'Machine Number': '',
                     'Machine Power (kW)': '',
+                    'Tonnage': '',
                     Operator: s.operatorName,
                     Product: s.productType,
                     Station: s.station,
@@ -118,6 +143,58 @@ function AdminDashboard() {
           <h1 className="font-headline text-2xl font-semibold">Admin Dashboard</h1>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart />Machine Submissions</CardTitle>
+                        <CardDescription>Count of each machine type submitted.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="min-h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height={300}>
+                                <RechartsBarChart data={machineChartData}>
+                                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false}/>
+                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                    <Tooltip content={<ChartTooltipContent />} />
+                                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                                </RechartsBarChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><PieChart />Operator Reported Problems</CardTitle>
+                        <CardDescription>Distribution of problems reported by operators.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={{}} className="min-h-[300px] w-full">
+                             <ResponsiveContainer width="100%" height={300}>
+                                <RechartsPieChart>
+                                    <Pie
+                                        data={operatorProblemData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                        nameKey="name"
+                                        label={(props) => `${props.name} (${props.value})`}
+                                    >
+                                        {operatorProblemData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip content={<ChartTooltipContent />} />
+                                    <Legend />
+                                </RechartsPieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+
           <Card>
             <CardHeader>
               <div className="flex items-center">
@@ -204,13 +281,14 @@ function AdminDashboard() {
                   {submissions.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
-                      {s.machineNumber ? (
+                      {s.tonnage !== undefined ? (
                         <>
                             <TableCell><Badge variant="secondary">Machine Data</Badge></TableCell>
                             <TableCell>{s.machine}</TableCell>
                             <TableCell>
                                 <div className="text-sm">Number: {s.machineNumber}</div>
                                 <div className="text-sm">Power: {s.machinePower} kW</div>
+                                <div className="text-sm">Tonnage: {s.tonnage}</div>
                             </TableCell>
                         </>
                       ) : (
@@ -253,3 +331,5 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
+
+    
