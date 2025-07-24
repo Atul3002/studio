@@ -9,90 +9,121 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle } from "lucide-react";
-import LoginForm from "@/components/login-form";
+import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle, ChevronsLeft } from "lucide-react";
 import { saveSubmission } from "@/app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const allMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
+const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
 
-const getPasswordForMachine = (machine: string) => {
-    return machine.toLowerCase().replace(/\s/g, '') + '123';
+interface MachineSelection {
+    name: string;
+    quantity: number;
 }
 
-function MachineDataEntry({ machine, onSubmitted }: { machine: string, onSubmitted: () => void }) {
-    const [machineNumber, setMachineNumber] = useState('');
-    const [machinePower, setMachinePower] = useState('');
+interface MachineData {
+    machineName: string;
+    machineNumber: string;
+    machinePower: string;
+}
+
+function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
+    const initialData = selections.flatMap(s => 
+        Array.from({ length: s.quantity }, (_, i) => ({
+            machineName: s.name,
+            machineNumber: '',
+            machinePower: '',
+        }))
+    );
+    const [machineData, setMachineData] = useState<MachineData[]>(initialData);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const handleInputChange = (index: number, field: 'machineNumber' | 'machinePower', value: string) => {
+        const newData = [...machineData];
+        newData[index][field] = value;
+        setMachineData(newData);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        await saveSubmission({
-            machine: machine,
-            machineNumber: machineNumber,
-            machinePower: machinePower,
-        });
+        for (const data of machineData) {
+             await saveSubmission({
+                machine: data.machineName,
+                machineNumber: data.machineNumber,
+                machinePower: data.machinePower,
+            });
+        }
         setIsSubmitting(false);
         onSubmitted();
     }
-    
+
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-        <Card className="w-full max-w-lg shadow-lg">
-            <form onSubmit={handleSubmit}>
-              <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Details</CardTitle>
-                <CardDescription>Enter the details for the selected machine: <span className="font-bold text-primary">{machine}</span></CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="machineNumber">Machine Number</Label>
-                  <Input 
-                    id="machineNumber" 
-                    value={machineNumber} 
-                    onChange={(e) => setMachineNumber(e.target.value)} 
-                    required 
-                    className="text-lg"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="machinePower">Machine Power (kW)</Label>
-                  <Input 
-                    id="machinePower" 
-                    type="number" 
-                    value={machinePower} 
-                    onChange={(e) => setMachinePower(e.target.value)} 
-                    required 
-                    className="text-lg"
-                  />
-                </div>
-              </CardContent>
-              <CardFooter>
-                 <Button type="submit" className="w-full font-bold" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit'}
-                </Button>
-              </CardFooter>
-            </form>
-        </Card>
-      </main>
+        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+             <Card className="w-full max-w-2xl shadow-lg">
+                <form onSubmit={handleSubmit}>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Details</CardTitle>
+                        <CardDescription>Enter the details for each selected machine.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6 max-h-[60vh] overflow-y-auto p-6">
+                        {machineData.map((data, index) => (
+                             <div key={index} className="p-4 border rounded-lg space-y-4 bg-background/50">
+                                <h3 className="font-semibold text-lg">{data.machineName} - Instance {index - machineData.findIndex(d => d.machineName === data.machineName) + 1}</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`machineNumber-${index}`}>Machine Number</Label>
+                                        <Input
+                                            id={`machineNumber-${index}`}
+                                            value={data.machineNumber}
+                                            onChange={(e) => handleInputChange(index, 'machineNumber', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`machinePower-${index}`}>Machine Power (kW)</Label>
+                                        <Input
+                                            id={`machinePower-${index}`}
+                                            type="number"
+                                            value={data.machinePower}
+                                            onChange={(e) => handleInputChange(index, 'machinePower', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </CardContent>
+                    <CardFooter className="flex justify-between items-center">
+                        <Button type="button" variant="outline" onClick={onBack}>
+                           <ChevronsLeft className="h-4 w-4 mr-2" /> Back to Selection
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? 'Submitting...' : 'Submit All'}
+                        </Button>
+                    </CardFooter>
+                </form>
+            </Card>
+        </main>
     )
 }
+
 
 function SubmissionSuccess({ onReset }: { onReset: () => void }) {
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <Card className="w-full max-w-lg text-center shadow-lg">
                 <CardHeader>
-                    <div className="mx-auto bg-green-100 p-4 rounded-full w-fit mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-600" />
+                    <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
+                        <CheckCircle className="w-12 h-12 text-primary" />
                     </div>
                     <CardTitle className="font-headline text-2xl">Submission Successful</CardTitle>
-                    <CardDescription>Your machine data has been recorded.</CardDescription>
+                    <CardDescription>All machine data has been recorded.</CardDescription>
                 </CardHeader>
                 <CardFooter className="flex-col gap-2">
                     <Button onClick={onReset} className="w-full">
-                        Enter Data for Another Machine
+                        Enter Data for More Machines
                     </Button>
                     <Button asChild variant="outline" className="w-full">
                         <Link href="/">Back to Home</Link>
@@ -103,15 +134,9 @@ function SubmissionSuccess({ onReset }: { onReset: () => void }) {
     );
 }
 
-const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
-
-interface MachineSelection {
-    name: string;
-    quantity: number;
-}
-
 export default function MachinePage() {
-    const [selections, setSelections] = useState<MachineSelection[]>([{ name: 'CNC machine', quantity: 0 }]);
+    const [selections, setSelections] = useState<MachineSelection[]>([{ name: availableMachines[0], quantity: 0 }]);
+    const [step, setStep] = useState<'selection' | 'dataEntry' | 'success'>('selection');
 
     const handleAddMachine = () => {
         const nextMachineIndex = selections.length;
@@ -129,9 +154,33 @@ export default function MachinePage() {
         });
     };
     
-    // The rest of the page logic for login and data entry is removed for this new UI
-    // If needed, the logic for handling machine login can be re-integrated.
-    // For now, focusing on the new selection UI.
+    const handleNext = () => {
+        const hasQuantity = selections.some(s => s.quantity > 0);
+        if (hasQuantity) {
+            setStep('dataEntry');
+        } else {
+            // Maybe show a toast or alert here
+            alert("Please select a quantity for at least one machine.");
+        }
+    }
+
+    const resetFlow = () => {
+        setSelections([{ name: availableMachines[0], quantity: 0 }]);
+        setStep('selection');
+    }
+
+    if (step === 'success') {
+        return <SubmissionSuccess onReset={resetFlow} />;
+    }
+    
+    if (step === 'dataEntry') {
+        const filteredSelections = selections.filter(s => s.quantity > 0);
+        return <MachineDataEntry 
+                    selections={filteredSelections} 
+                    onBack={() => setStep('selection')} 
+                    onSubmitted={() => setStep('success')}
+                />;
+    }
 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
@@ -144,7 +193,7 @@ export default function MachinePage() {
             {selections.map((selection, index) => (
                 <div key={index} className="flex items-center gap-4">
                     <div className="flex-1">
-                        <Input value={selection.name} readOnly className="text-lg font-semibold" />
+                        <Input value={selection.name} readOnly className="text-lg font-semibold bg-input" />
                     </div>
                     <div className="w-48">
                        <Select
@@ -165,7 +214,8 @@ export default function MachinePage() {
                         variant="ghost" 
                         size="icon" 
                         onClick={handleAddMachine}
-                        disabled={selections.length >= availableMachines.length && index !== selections.length - 1}
+                        disabled={selections.length >= availableMachines.length}
+                        className={index === selections.length - 1 ? 'opacity-100' : 'opacity-0'}
                      >
                         <PlusCircle className="h-6 w-6" />
                     </Button>
@@ -176,7 +226,7 @@ export default function MachinePage() {
              <Button asChild variant="link" className="p-0 h-auto">
                 <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back to Home</Link>
             </Button>
-            <Button>
+            <Button onClick={handleNext}>
                 Next <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
           </CardFooter>
