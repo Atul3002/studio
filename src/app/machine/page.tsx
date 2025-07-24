@@ -151,14 +151,19 @@ function SubmissionSuccess({ onReset }: { onReset: () => void }) {
 }
 
 export default function MachinePage() {
-    const [selections, setSelections] = useState<MachineSelection[]>([{ name: availableMachines[0], quantity: 0 }]);
+    const [selections, setSelections] = useState<MachineSelection[]>([{ name: '', quantity: 0 }]);
     const [step, setStep] = useState<'selection' | 'dataEntry' | 'success'>('selection');
 
     const handleAddMachine = () => {
-        const nextMachineIndex = selections.length;
-        if (nextMachineIndex < availableMachines.length) {
-            setSelections(prev => [...prev, { name: availableMachines[nextMachineIndex], quantity: 0 }]);
-        }
+        setSelections(prev => [...prev, { name: '', quantity: 0 }]);
+    };
+
+    const handleMachineTypeChange = (index: number, name: string) => {
+        setSelections(prev => {
+            const newSelections = [...prev];
+            newSelections[index].name = name;
+            return newSelections;
+        });
     };
 
     const handleQuantityChange = (index: number, quantity: string) => {
@@ -171,17 +176,17 @@ export default function MachinePage() {
     };
     
     const handleNext = () => {
-        const hasQuantity = selections.some(s => s.quantity > 0);
+        const hasQuantity = selections.some(s => s.quantity > 0 && s.name !== '');
         if (hasQuantity) {
             setStep('dataEntry');
         } else {
             // Maybe show a toast or alert here
-            alert("Please select a quantity for at least one machine.");
+            alert("Please select a machine and quantity for at least one entry.");
         }
     }
 
     const resetFlow = () => {
-        setSelections([{ name: availableMachines[0], quantity: 0 }]);
+        setSelections([{ name: '', quantity: 0 }]);
         setStep('selection');
     }
 
@@ -190,7 +195,7 @@ export default function MachinePage() {
     }
     
     if (step === 'dataEntry') {
-        const filteredSelections = selections.filter(s => s.quantity > 0);
+        const filteredSelections = selections.filter(s => s.quantity > 0 && s.name !== '');
         return <MachineDataEntry 
                     selections={filteredSelections} 
                     onBack={() => setStep('selection')} 
@@ -209,7 +214,19 @@ export default function MachinePage() {
             {selections.map((selection, index) => (
                 <div key={index} className="flex items-center gap-4">
                     <div className="flex-1">
-                        <Input value={selection.name} readOnly className="text-lg font-semibold bg-input" />
+                        <Select
+                            value={selection.name}
+                            onValueChange={(value) => handleMachineTypeChange(index, value)}
+                        >
+                            <SelectTrigger className="text-lg">
+                                <SelectValue placeholder="Select machine type..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {availableMachines.map((machine) => (
+                                    <SelectItem key={machine} value={machine}>{machine}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="w-48">
                        <Select
@@ -230,7 +247,6 @@ export default function MachinePage() {
                         variant="ghost" 
                         size="icon" 
                         onClick={handleAddMachine}
-                        disabled={selections.length >= availableMachines.length}
                         className={index === selections.length - 1 ? 'opacity-100' : 'opacity-0'}
                      >
                         <PlusCircle className="h-6 w-6" />
