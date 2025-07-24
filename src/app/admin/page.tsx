@@ -176,8 +176,8 @@ function AdminDashboard() {
             <CardHeader>
               <div className="flex items-center">
                 <div className="flex-1">
-                  <CardTitle>Operator Submissions</CardTitle>
-                  <CardDescription>Data submitted by operators.</CardDescription>
+                  <CardTitle>All Submissions</CardTitle>
+                  <CardDescription>Data submitted by operators and for machines.</CardDescription>
                 </div>
                 <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
                     <Download className="h-3.5 w-3.5" />
@@ -190,29 +190,41 @@ function AdminDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Timestamp</TableHead>
-                    <TableHead>Operator</TableHead>
+                    <TableHead>Entry Type</TableHead>
                     <TableHead>Machine</TableHead>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Station</TableHead>
-                    <TableHead>Serial #</TableHead>
-                    <TableHead>Problem</TableHead>
+                    <TableHead>Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {submissions.length === 0 && (
                     <TableRow>
-                        <TableCell colSpan={7} className="text-center">No submissions yet.</TableCell>
+                        <TableCell colSpan={4} className="text-center">No submissions yet.</TableCell>
                     </TableRow>
                   )}
                   {submissions.map((s) => (
                     <TableRow key={s.id}>
                       <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
-                      <TableCell>{s.operatorName}</TableCell>
-                      <TableCell>{s.machine}</TableCell>
-                      <TableCell>{s.productType}</TableCell>
-                      <TableCell>{s.station}</TableCell>
-                      <TableCell>{s.serialNumber}</TableCell>
-                      <TableCell>{s.problem}{s.problem === 'Other' ? ` (${s.otherProblemReason})` : ''}</TableCell>
+                      {s.machineNumber ? (
+                        <>
+                            <TableCell><Badge variant="secondary">Machine Data</Badge></TableCell>
+                            <TableCell>{s.machine}</TableCell>
+                            <TableCell>
+                                <div className="text-sm">Number: {s.machineNumber}</div>
+                                <div className="text-sm">Power: {s.machinePower} kW</div>
+                            </TableCell>
+                        </>
+                      ) : (
+                        <>
+                            <TableCell><Badge>Operator Data</Badge></TableCell>
+                            <TableCell>{s.machine}</TableCell>
+                            <TableCell>
+                                <div><strong>Operator:</strong> {s.operatorName}</div>
+                                <div><strong>Product:</strong> {s.productType}</div>
+                                <div><strong>Station:</strong> {s.station}</div>
+                                <div><strong>Problem:</strong> {s.problem}{s.problem === 'Other' ? ` (${s.otherProblemReason})` : ''}</div>
+                            </TableCell>
+                        </>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>

@@ -160,5 +160,149 @@
     "dimensionMeasureReason": "",
     "problem": "Material not available",
     "otherProblemReason": ""
+  },
+  {
+    "id": "2025-07-24T01:06:35.738Z",
+    "machine": "CNC machine",
+    "machineNumber": "876432",
+    "machinePower": "1247"
+  },
+  {
+    "id": "2025-07-24T01:06:36.006Z",
+    "machine": "Press machine",
+    "machineNumber": "432",
+    "machinePower": "345"
+  },
+  {
+    "id": "2025-07-24T01:06:36.479Z",
+    "machine": "Press machine",
+    "machineNumber": "35325",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:36.725Z",
+    "machine": "VMC machine",
+    "machineNumber": "5",
+    "machinePower": "5"
+  },
+  {
+    "id": "2025-07-24T01:06:36.958Z",
+    "machine": "VMC machine",
+    "machineNumber": "5",
+    "machinePower": "5"
+  },
+  {
+    "id": "2025-07-24T01:06:37.207Z",
+    "machine": "VMC machine",
+    "machineNumber": "5",
+    "machinePower": "5"
+  },
+  {
+    "id": "2025-07-24T01:06:37.466Z",
+    "machine": "milling",
+    "machineNumber": "5",
+    "machinePower": "4"
+  },
+  {
+    "id": "2025-07-24T01:06:37.880Z",
+    "machine": "milling",
+    "machineNumber": "55",
+    "machinePower": "5"
+  },
+  {
+    "id": "2025-07-24T01:06:38.132Z",
+    "machine": "milling",
+    "machineNumber": "5",
+    "machinePower": "55"
+  },
+  {
+    "id": "2025-07-24T01:06:38.391Z",
+    "machine": "milling",
+    "machineNumber": "5",
+    "machinePower": "5"
+  },
+  {
+    "id": "2025-07-24T01:06:38.629Z",
+    "machine": "milling",
+    "machineNumber": "55",
+    "machinePower": "6"
+  },
+  {
+    "id": "2025-07-24T01:06:38.901Z",
+    "machine": "Casting",
+    "machineNumber": "3",
+    "machinePower": "3"
+  },
+  {
+    "id": "2025-07-24T01:06:39.163Z",
+    "machine": "Casting",
+    "machineNumber": "3",
+    "machinePower": "3"
+  },
+  {
+    "id": "2025-07-24T01:06:39.520Z",
+    "machine": "Casting",
+    "machineNumber": "33",
+    "machinePower": "3"
+  },
+  {
+    "id": "2025-07-24T01:06:39.762Z",
+    "machine": "Casting",
+    "machineNumber": "3",
+    "machinePower": "3535"
+  },
+  {
+    "id": "2025-07-24T01:06:39.998Z",
+    "machine": "Casting",
+    "machineNumber": "35",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:40.348Z",
+    "machine": "Casting",
+    "machineNumber": "35",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:40.581Z",
+    "machine": "forging",
+    "machineNumber": "3535",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:40.818Z",
+    "machine": "forging",
+    "machineNumber": "3535",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:41.060Z",
+    "machine": "forging",
+    "machineNumber": "3535",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:41.298Z",
+    "machine": "forging",
+    "machineNumber": "35",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:41.527Z",
+    "machine": "forging",
+    "machineNumber": "35",
+    "machinePower": "35"
+  },
+  {
+    "id": "2025-07-24T01:06:41.972Z",
+    "machine": "forging",
+    "machineNumber": "3",
+    "machinePower": "34"
+  },
+  {
+    "id": "2025-07-24T01:06:42.227Z",
+    "machine": "forging",
+    "machineNumber": "345",
+    "machinePower": "35"
   }
 ]
