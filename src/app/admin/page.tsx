@@ -141,6 +141,12 @@ function AdminDashboard() {
              <Link href="/"><ArrowLeft className="h-4 w-4" /></Link>
            </Button>
           <h1 className="font-headline text-2xl font-semibold">Admin Dashboard</h1>
+           <div className="ml-auto">
+             <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
+                <Download className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Download CSV</span>
+             </Button>
+           </div>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -249,66 +255,6 @@ function AdminDashboard() {
               </Table>
             </CardContent>
           </Card>
-           <Card>
-            <CardHeader>
-              <div className="flex items-center">
-                <div className="flex-1">
-                  <CardTitle>All Submissions</CardTitle>
-                  <CardDescription>Data submitted by operators and for machines.</CardDescription>
-                </div>
-                <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
-                    <Download className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Download CSV</span>
-                 </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Timestamp</TableHead>
-                    <TableHead>Entry Type</TableHead>
-                    <TableHead>Machine</TableHead>
-                    <TableHead>Details</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {submissions.length === 0 && (
-                    <TableRow>
-                        <TableCell colSpan={4} className="text-center">No submissions yet.</TableCell>
-                    </TableRow>
-                  )}
-                  {submissions.map((s) => (
-                    <TableRow key={s.id}>
-                      <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
-                      {s.tonnage !== undefined ? (
-                        <>
-                            <TableCell><Badge variant="secondary">Machine Data</Badge></TableCell>
-                            <TableCell>{s.machine}</TableCell>
-                            <TableCell>
-                                <div className="text-sm">Number: {s.machineNumber}</div>
-                                <div className="text-sm">Power: {s.machinePower} kW</div>
-                                <div className="text-sm">Tonnage: {s.tonnage}</div>
-                            </TableCell>
-                        </>
-                      ) : (
-                        <>
-                            <TableCell><Badge>Operator Data</Badge></TableCell>
-                            <TableCell>{s.machine}</TableCell>
-                            <TableCell>
-                                <div><strong>Operator:</strong> {s.operatorName}</div>
-                                <div><strong>Product:</strong> {s.productType}</div>
-                                <div><strong>Station:</strong> {s.station}</div>
-                                <div><strong>Problem:</strong> {s.problem}{s.problem === 'Other' ? ` (${s.otherProblemReason})` : ''}</div>
-                            </TableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
         </main>
       </div>
     </div>
@@ -331,5 +277,3 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
-
-    
