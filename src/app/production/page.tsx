@@ -4,13 +4,14 @@
 import { useState } from "react";
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Tool } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -21,7 +22,10 @@ import { cn } from "@/lib/utils";
 import { saveSubmission } from "@/app/actions";
 
 function ProductionDashboard() {
+  const [dailyProductionTarget, setDailyProductionTarget] = useState("");
   const [rejectionQuantity, setRejectionQuantity] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [toolWearDetails, setToolWearDetails] = useState("");
   const [maintenanceDate, setMaintenanceDate] = useState<Date | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -31,12 +35,18 @@ function ProductionDashboard() {
     setIsSubmitting(true);
     await saveSubmission({
         entryType: 'productionData',
+        dailyProductionTarget,
         rejectionQuantity,
+        rejectionReason,
+        toolWearDetails,
         maintenanceDate: maintenanceDate ? format(maintenanceDate, "PPP") : "",
     });
     setIsSubmitting(false);
     setIsSubmitted(true);
+    setDailyProductionTarget("");
     setRejectionQuantity("");
+    setRejectionReason("");
+    setToolWearDetails("");
     setMaintenanceDate(undefined);
     setTimeout(() => setIsSubmitted(false), 3000);
   }
@@ -58,6 +68,17 @@ function ProductionDashboard() {
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="daily-production-target" className="flex items-center gap-2"><Target />Daily Production Target</Label>
+                                <Input 
+                                    id="daily-production-target"
+                                    type="number"
+                                    value={dailyProductionTarget}
+                                    onChange={(e) => setDailyProductionTarget(e.target.value)}
+                                    placeholder="Enter target quantity"
+                                    required
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="rejection-quantity" className="flex items-center gap-2"><Hash />Rejection Quantity</Label>
                                 <Input 
@@ -67,6 +88,25 @@ function ProductionDashboard() {
                                     onChange={(e) => setRejectionQuantity(e.target.value)}
                                     placeholder="Enter quantity of rejected items"
                                     required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="rejection-reason" className="flex items-center gap-2"><FileText />Reason for Rejection</Label>
+                                <Textarea 
+                                    id="rejection-reason"
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                    placeholder="Describe why items were rejected"
+                                    required={parseInt(rejectionQuantity) > 0}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="tool-wear-details" className="flex items-center gap-2"><Tool />Tool Wear Out Details</Label>
+                                <Textarea 
+                                    id="tool-wear-details"
+                                    value={toolWearDetails}
+                                    onChange={(e) => setToolWearDetails(e.target.value)}
+                                    placeholder="Describe any tool wear and tear"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -97,7 +137,7 @@ function ProductionDashboard() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex-col items-stretch">
-                             <Button type="submit" disabled={isSubmitting || (!rejectionQuantity && !maintenanceDate)}>
+                             <Button type="submit" disabled={isSubmitting || !dailyProductionTarget || !rejectionQuantity}>
                                 {isSubmitting ? "Submitting..." : "Submit Data"}
                             </Button>
                             {isSubmitted && <p className="text-green-600 text-center text-sm mt-2">Data submitted successfully!</p>}
