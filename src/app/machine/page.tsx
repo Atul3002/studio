@@ -24,6 +24,7 @@ interface MachineData {
     machineName: string;
     machineNumber: string;
     machinePower: string;
+    tonnage: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -32,12 +33,13 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             machineName: s.name,
             machineNumber: '',
             machinePower: '',
+            tonnage: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const handleInputChange = (index: number, field: 'machineNumber' | 'machinePower', value: string) => {
+    const handleInputChange = (index: number, field: 'machineNumber' | 'machinePower' | 'tonnage', value: string) => {
         const newData = [...machineData];
         newData[index][field] = value;
         setMachineData(newData);
@@ -51,6 +53,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 machine: data.machineName,
                 machineNumber: data.machineNumber,
                 machinePower: data.machinePower,
+                tonnage: data.tonnage,
             });
         }
         setIsSubmitting(false);
@@ -68,8 +71,8 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                     <CardContent className="space-y-6 max-h-[60vh] overflow-y-auto p-6">
                         {machineData.map((data, index) => (
                              <div key={index} className="p-4 border rounded-lg space-y-4 bg-background/50">
-                                <h3 className="font-semibold text-lg">{data.machineName} - Instance {index - machineData.findIndex(d => d.machineName === data.machineName) + 1}</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <h3 className="font-semibold text-lg">{data.machineName}</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor={`machineNumber-${index}`}>Machine Number</Label>
                                         <Input
@@ -87,6 +90,17 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             type="number"
                                             value={data.machinePower}
                                             onChange={(e) => handleInputChange(index, 'machinePower', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor={`tonnage-${index}`}>Tonnage</Label>
+                                        <Input
+                                            id={`tonnage-${index}`}
+                                            type="number"
+                                            value={data.tonnage}
+                                            onChange={(e) => handleInputChange(index, 'tonnage', e.target.value)}
                                             required
                                             className="text-lg"
                                         />
