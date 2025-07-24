@@ -58,7 +58,7 @@ function ProductionDashboard() {
                 <Button asChild variant="outline" size="icon" className="h-8 w-8">
                     <Link href="/"><ArrowLeft className="h-4 w-4" /></Link>
                 </Button>
-                <h1 className="font-headline text-2xl font-semibold">Production Dashboard</h1>
+                <h1 className="font-headline text-2xl font-semibold">Production Team</h1>
             </header>
             <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
                 <Card>
