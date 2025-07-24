@@ -38,6 +38,23 @@ const users = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
 
+const productionChartData = [
+  { day: "Monday", produced: Math.floor(Math.random() * 1000) + 1500 },
+  { day: "Tuesday", produced: Math.floor(Math.random() * 1000) + 1500 },
+  { day: "Wednesday", produced: Math.floor(Math.random() * 1000) + 1500 },
+  { day: "Thursday", produced: Math.floor(Math.random() * 1000) + 1500 },
+  { day: "Friday", produced: Math.floor(Math.random() * 1000) + 1500 },
+  { day: "Saturday", produced: Math.floor(Math.random() * 500) + 500 },
+];
+
+const productionChartConfig = {
+  produced: {
+    label: "Breakers Produced",
+    color: "hsl(var(--primary))",
+  },
+};
+
+
 function AdminDashboard() {
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [machineChartData, setMachineChartData] = useState<any[]>([]);
@@ -149,7 +166,7 @@ function AdminDashboard() {
            </div>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                  <Card>
                     <CardHeader>
                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart />Machine Submissions</CardTitle>
@@ -195,6 +212,39 @@ function AdminDashboard() {
                                     <Tooltip content={<ChartTooltipContent />} />
                                     <Legend />
                                 </RechartsPieChart>
+                            </ResponsiveContainer>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline text-2xl">Daily Production Report</CardTitle>
+                        <CardDescription>Total breakers produced over the last week.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={productionChartConfig} className="min-h-[300px] w-full">
+                            <ResponsiveContainer width="100%" height={300}>
+                                <RechartsBarChart data={productionChartData}>
+                                    <XAxis
+                                        dataKey="day"
+                                        stroke="hsl(var(--muted-foreground))"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                    />
+                                    <YAxis
+                                        stroke="hsl(var(--muted-foreground))"
+                                        fontSize={12}
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickFormatter={(value) => `${value}`}
+                                    />
+                                    <Tooltip
+                                        cursor={{ fill: 'hsl(var(--accent) / 0.3)' }}
+                                        content={<ChartTooltipContent />}
+                                    />
+                                    <Bar dataKey="produced" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                                </RechartsBarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
                     </CardContent>

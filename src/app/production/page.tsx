@@ -3,14 +3,12 @@
 
 import { useState } from "react";
 import Link from 'next/link';
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
@@ -21,22 +19,6 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { saveSubmission } from "@/app/actions";
-
-const chartData = [
-  { day: "Monday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Tuesday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Wednesday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Thursday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Friday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Saturday", produced: Math.floor(Math.random() * 500) + 500 },
-];
-
-const chartConfig = {
-  produced: {
-    label: "Breakers Produced",
-    color: "hsl(var(--primary))",
-  },
-};
 
 function ProductionDashboard() {
   const [rejectionQuantity, setRejectionQuantity] = useState("");
@@ -69,39 +51,6 @@ function ProductionDashboard() {
                 <h1 className="font-headline text-2xl font-semibold">Production Dashboard</h1>
             </header>
             <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Daily Production Report</CardTitle>
-                        <CardDescription>Total breakers produced over the last week.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height={350}>
-                                <BarChart data={chartData}>
-                                    <XAxis
-                                        dataKey="day"
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="#888888"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickFormatter={(value) => `${value}`}
-                                    />
-                                    <Tooltip
-                                        cursor={{ fill: 'hsl(var(--accent) / 0.3)' }}
-                                        content={<ChartTooltipContent />}
-                                    />
-                                    <Bar dataKey="produced" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl">Additional Data Entry</CardTitle>
