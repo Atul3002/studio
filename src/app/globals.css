@@ -109,6 +109,10 @@
     -webkit-text-fill-color: transparent;
     animation: text-gradient 4s linear infinite;
   }
+
+  .animate-rotate-slow {
+    animation: rotate 10s linear infinite;
+  }
 }
 
 @keyframes rotate {
@@ -122,3 +126,5 @@
     background-position: 300%;
   }
 }
+
+    

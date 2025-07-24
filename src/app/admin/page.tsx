@@ -191,7 +191,7 @@ function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                  <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart />Machine Submissions</CardTitle>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart className="animate-rotate-slow" />Machine Submissions</CardTitle>
                         <CardDescription>Count of each machine type submitted per day.</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -212,7 +212,7 @@ function AdminDashboard() {
                 </Card>
                 <Card>
                     <CardHeader>
-                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><PieChart />Operator Reported Problems</CardTitle>
+                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><PieChart className="animate-rotate-slow" />Operator Reported Problems</CardTitle>
                         <CardDescription>Distribution of problems reported by operators.</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -353,3 +353,5 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
+
+    
