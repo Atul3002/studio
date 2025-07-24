@@ -38,15 +38,6 @@ const users = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
 
-const productionChartData = [
-  { day: "Monday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Tuesday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Wednesday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Thursday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Friday", produced: Math.floor(Math.random() * 1000) + 1500 },
-  { day: "Saturday", produced: Math.floor(Math.random() * 500) + 500 },
-];
-
 const productionChartConfig = {
   produced: {
     label: "Breakers Produced",
@@ -59,18 +50,33 @@ function AdminDashboard() {
     const [submissions, setSubmissions] = useState<any[]>([]);
     const [machineChartData, setMachineChartData] = useState<any[]>([]);
     const [operatorProblemData, setOperatorProblemData] = useState<any[]>([]);
+    const [productionChartData, setProductionChartData] = useState<any[]>([]);
 
     useEffect(() => {
         getSubmissions().then(data => {
             setSubmissions(data);
 
             const machineSubmissions = data.filter(s => s.tonnage !== undefined);
-            const machineCounts = machineSubmissions.reduce((acc, curr) => {
-                const machineType = curr.machine.split(' - ')[0];
-                acc[machineType] = (acc[machineType] || 0) + 1;
-                return acc;
-            }, {});
-            setMachineChartData(Object.keys(machineCounts).map(key => ({ name: key, count: machineCounts[key] })));
+            const machineCountsByDay: { [key: number]: { [key: string]: number } } = {};
+            
+            machineSubmissions.forEach(s => {
+                const day = new Date(s.id).getDate();
+                const machineType = s.machine.split(' - ')[0];
+                if (!machineCountsByDay[day]) {
+                    machineCountsByDay[day] = {};
+                }
+                machineCountsByDay[day][machineType] = (machineCountsByDay[day][machineType] || 0) + 1;
+            });
+
+            const machineChartDataFormatted: any[] = [];
+            for (let i = 1; i <= 31; i++) {
+                const dayData: any = { day: i };
+                if (machineCountsByDay[i]) {
+                    Object.assign(dayData, machineCountsByDay[i]);
+                }
+                machineChartDataFormatted.push(dayData);
+            }
+            setMachineChartData(machineChartDataFormatted);
             
             const operatorSubmissions = data.filter(s => s.operatorName && s.problem);
             const problemCounts = operatorSubmissions.reduce((acc, curr) => {
@@ -78,6 +84,20 @@ function AdminDashboard() {
                 return acc;
             }, {});
             setOperatorProblemData(Object.keys(problemCounts).map(key => ({ name: key, value: problemCounts[key] })));
+
+            const productionData: { [key: number]: number } = {};
+            data.forEach(s => {
+                if (s.serialNumber) { // Assuming operator entry with serialNumber is a produced breaker
+                    const day = new Date(s.id).getDate();
+                    productionData[day] = (productionData[day] || 0) + 1;
+                }
+            });
+
+            const productionChartDataFormatted = [];
+            for (let i = 1; i <= 31; i++) {
+                productionChartDataFormatted.push({ day: i, produced: productionData[i] || 0 });
+            }
+            setProductionChartData(productionChartDataFormatted);
         });
     }, [])
 
@@ -150,6 +170,8 @@ function AdminDashboard() {
         document.body.removeChild(link);
     }
 
+    const machineTypes = [...new Set(submissions.filter(s => s.tonnage !== undefined).map(s => s.machine.split(' - ')[0]))];
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <div className="flex flex-col sm:gap-4 sm:py-4">
@@ -170,16 +192,19 @@ function AdminDashboard() {
                  <Card>
                     <CardHeader>
                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart />Machine Submissions</CardTitle>
-                        <CardDescription>Count of each machine type submitted.</CardDescription>
+                        <CardDescription>Count of each machine type submitted per day.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}} className="min-h-[300px] w-full">
                             <ResponsiveContainer width="100%" height={300}>
                                 <RechartsBarChart data={machineChartData}>
-                                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false}/>
+                                    <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} label={{ value: 'Day of Month', position: 'insideBottom', offset: -5 }}/>
                                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                                     <Tooltip content={<ChartTooltipContent />} />
-                                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                                    <Legend />
+                                    {machineTypes.map((type, index) => (
+                                        <Bar key={type} dataKey={type} stackId="a" fill={COLORS[index % COLORS.length]} radius={[4, 4, 0, 0]} />
+                                    ))}
                                 </RechartsBarChart>
                             </ResponsiveContainer>
                         </ChartContainer>
@@ -219,7 +244,7 @@ function AdminDashboard() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl">Daily Production Report</CardTitle>
-                        <CardDescription>Total breakers produced over the last week.</CardDescription>
+                        <CardDescription>Total breakers produced over the month.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={productionChartConfig} className="min-h-[300px] w-full">
@@ -231,6 +256,7 @@ function AdminDashboard() {
                                         fontSize={12}
                                         tickLine={false}
                                         axisLine={false}
+                                        label={{ value: 'Day of Month', position: 'insideBottom', offset: -5 }}
                                     />
                                     <YAxis
                                         stroke="hsl(var(--muted-foreground))"
