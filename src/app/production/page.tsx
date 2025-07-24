@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Tool } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Wrench } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -101,7 +101,7 @@ function ProductionDashboard() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="tool-wear-details" className="flex items-center gap-2"><Tool />Tool Wear Out Details</Label>
+                                <Label htmlFor="tool-wear-details" className="flex items-center gap-2"><Wrench />Tool Wear Out Details</Label>
                                 <Textarea 
                                     id="tool-wear-details"
                                     value={toolWearDetails}
