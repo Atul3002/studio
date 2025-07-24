@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ChevronRight, Cog, CheckCircle } from "lucide-react";
+import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle } from "lucide-react";
 import LoginForm from "@/components/login-form";
 import { saveSubmission } from "@/app/actions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const machines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
+const allMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
 
 const getPasswordForMachine = (machine: string) => {
     return machine.toLowerCase().replace(/\s/g, '') + '123';
@@ -102,72 +103,83 @@ function SubmissionSuccess({ onReset }: { onReset: () => void }) {
     );
 }
 
+const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
+
+interface MachineSelection {
+    name: string;
+    quantity: number;
+}
+
 export default function MachinePage() {
-    const [step, setStep] = useState<'selection' | 'login' | 'dataEntry' | 'submitted'>('selection');
-    const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
+    const [selections, setSelections] = useState<MachineSelection[]>([{ name: 'CNC machine', quantity: 0 }]);
 
-    const handleMachineSelect = (machine: string) => {
-        setSelectedMachine(machine);
-        setStep('login');
+    const handleAddMachine = () => {
+        const nextMachineIndex = selections.length;
+        if (nextMachineIndex < availableMachines.length) {
+            setSelections(prev => [...prev, { name: availableMachines[nextMachineIndex], quantity: 0 }]);
+        }
     };
 
-    const handleLoginSuccess = () => {
-        setStep('dataEntry');
+    const handleQuantityChange = (index: number, quantity: string) => {
+        const newQuantity = parseInt(quantity, 10);
+        setSelections(prev => {
+            const newSelections = [...prev];
+            newSelections[index].quantity = newQuantity;
+            return newSelections;
+        });
     };
     
-    const handleDataSubmitted = () => {
-        setStep('submitted');
-    }
-
-    const reset = () => {
-        setSelectedMachine(null);
-        setStep('selection');
-    }
-
-    if (step === 'login' && selectedMachine) {
-        return (
-            <LoginForm
-                role={`${selectedMachine} Login`}
-                correctPassword={getPasswordForMachine(selectedMachine)}
-                onLoginSuccess={handleLoginSuccess}
-            />
-        )
-    }
-
-    if (step === 'dataEntry' && selectedMachine) {
-        return <MachineDataEntry machine={selectedMachine} onSubmitted={handleDataSubmitted} />
-    }
-    
-    if (step === 'submitted') {
-        return <SubmissionSuccess onReset={reset} />
-    }
+    // The rest of the page logic for login and data entry is removed for this new UI
+    // If needed, the logic for handling machine login can be re-integrated.
+    // For now, focusing on the new selection UI.
 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-        <Card className="w-full max-w-lg shadow-lg">
+        <Card className="w-full max-w-2xl shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Selection</CardTitle>
-            <CardDescription>Choose the machine you are operating.</CardDescription>
+            <CardDescription>Choose the machines you are operating and their quantities.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 gap-3">
-            {machines.map((machine) => (
-                <Button
-                    key={machine}
-                    variant="outline"
-                    size="lg"
-                    className="justify-between"
-                    onClick={() => handleMachineSelect(machine)}
-                >
-                    {machine}
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                </Button>
+          <CardContent className="space-y-4">
+            {selections.map((selection, index) => (
+                <div key={index} className="flex items-center gap-4">
+                    <div className="flex-1">
+                        <Input value={selection.name} readOnly className="text-lg font-semibold" />
+                    </div>
+                    <div className="w-48">
+                       <Select
+                            value={selection.quantity.toString()}
+                            onValueChange={(value) => handleQuantityChange(index, value)}
+                        >
+                            <SelectTrigger className="text-lg">
+                                <SelectValue placeholder="Select quantity..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: 11 }, (_, i) => (
+                                    <SelectItem key={i} value={i.toString()}>{i}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={handleAddMachine}
+                        disabled={selections.length >= availableMachines.length && index !== selections.length - 1}
+                     >
+                        <PlusCircle className="h-6 w-6" />
+                    </Button>
+                </div>
             ))}
           </CardContent>
-            <CardFooter>
-                 <Button asChild variant="link" className="p-0 h-auto">
-                    <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back to Home</Link>
-                </Button>
-            </CardFooter>
+          <CardFooter className="flex justify-between items-center">
+             <Button asChild variant="link" className="p-0 h-auto">
+                <Link href="/"><ArrowLeft className="h-4 w-4 mr-2" />Back to Home</Link>
+            </Button>
+            <Button>
+                Next <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </CardFooter>
         </Card>
       </main>
     );
