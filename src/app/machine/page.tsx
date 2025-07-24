@@ -22,6 +22,7 @@ interface MachineSelection {
 
 interface MachineData {
     machineName: string;
+    instanceNumber: number;
     machineNumber: string;
     machinePower: string;
     tonnage: string;
@@ -31,6 +32,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
     const initialData = selections.flatMap(s => 
         Array.from({ length: s.quantity }, (_, i) => ({
             machineName: s.name,
+            instanceNumber: i + 1,
             machineNumber: '',
             machinePower: '',
             tonnage: '',
@@ -50,7 +52,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
         setIsSubmitting(true);
         for (const data of machineData) {
              await saveSubmission({
-                machine: data.machineName,
+                machine: `${data.machineName} #${data.instanceNumber}`,
                 machineNumber: data.machineNumber,
                 machinePower: data.machinePower,
                 tonnage: data.tonnage,
@@ -71,7 +73,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                     <CardContent className="space-y-6 max-h-[60vh] overflow-y-auto p-6">
                         {machineData.map((data, index) => (
                              <div key={index} className="p-4 border rounded-lg space-y-4 bg-background/50">
-                                <h3 className="font-semibold text-lg">{data.machineName}</h3>
+                                <h3 className="font-semibold text-lg">{data.machineName} #{data.instanceNumber}</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor={`machineNumber-${index}`}>Machine Number</Label>
