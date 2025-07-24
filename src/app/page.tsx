@@ -34,8 +34,8 @@ const navItems = [
   },
 ];
 
-const fullText = "Breaker Tracker";
-const baseText = "Breaker ";
+const fullText = "Job Tracker";
+const baseText = "Job ";
 const wordToAnimate = "Tracker";
 const dots = ".....";
 
@@ -49,7 +49,7 @@ function Typewriter() {
 
     useEffect(() => {
         if (isInitialPhase) {
-            // Initial typing of "Breaker Tracker"
+            // Initial typing of "Job Tracker"
             if (index < fullText.length) {
                 const timeout = setTimeout(() => {
                     setText(fullText.substring(0, index + 1));

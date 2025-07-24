@@ -155,7 +155,7 @@ function OperatorWorkflow() {
                     <Input id="operatorName" value={formData.operatorName} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="serialNumber">Serial Number of Breaker</Label>
+                    <Label htmlFor="serialNumber">Serial Number of Job</Label>
                     <Input id="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">

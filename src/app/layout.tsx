@@ -3,8 +3,8 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Breaker Tracker',
-  description: 'Track the daily production of breakers.',
+  title: 'Job Tracker',
+  description: 'Track the daily production of Jobs.',
 };
 
 export default function RootLayout({

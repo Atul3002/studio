@@ -40,7 +40,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'
 
 const productionChartConfig = {
   produced: {
-    label: "Breakers Produced",
+    label: "Jobs Produced",
     color: "hsl(var(--primary))",
   },
 };
@@ -244,7 +244,7 @@ function AdminDashboard() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="font-headline text-2xl">Daily Production Report</CardTitle>
-                        <CardDescription>Total breakers produced over the month.</CardDescription>
+                        <CardDescription>Total Jobs produced over the month.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={productionChartConfig} className="min-h-[300px] w-full">
