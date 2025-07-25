@@ -13,11 +13,12 @@ import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle, ChevronsLeft } f
 import { saveSubmission } from "@/app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging'];
+const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging', 'Other'];
 
 interface MachineSelection {
     name: string;
     quantity: number;
+    otherName?: string;
 }
 
 interface MachineData {
@@ -31,7 +32,7 @@ interface MachineData {
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
     const initialData = selections.flatMap(s => 
         Array.from({ length: s.quantity }, (_, i) => ({
-            machineName: s.name,
+            machineName: s.name === 'Other' ? s.otherName || 'Other' : s.name,
             instanceNumber: i + 1,
             machineNumber: '',
             machinePower: '',
@@ -151,20 +152,31 @@ function SubmissionSuccess({ onReset }: { onReset: () => void }) {
 }
 
 export default function MachinePage() {
-    const [selections, setSelections] = useState<MachineSelection[]>([{ name: '', quantity: 0 }]);
+    const [selections, setSelections] = useState<MachineSelection[]>([{ name: '', quantity: 0, otherName: '' }]);
     const [step, setStep] = useState<'selection' | 'dataEntry' | 'success'>('selection');
 
     const handleAddMachine = () => {
-        setSelections(prev => [...prev, { name: '', quantity: 0 }]);
+        setSelections(prev => [...prev, { name: '', quantity: 0, otherName: '' }]);
     };
 
     const handleMachineTypeChange = (index: number, name: string) => {
         setSelections(prev => {
             const newSelections = [...prev];
             newSelections[index].name = name;
+            if (name !== 'Other') {
+                newSelections[index].otherName = '';
+            }
             return newSelections;
         });
     };
+
+    const handleOtherNameChange = (index: number, otherName: string) => {
+        setSelections(prev => {
+            const newSelections = [...prev];
+            newSelections[index].otherName = otherName;
+            return newSelections;
+        });
+    }
 
     const handleQuantityChange = (index: number, quantity: string) => {
         const newQuantity = parseInt(quantity, 10);
@@ -186,7 +198,7 @@ export default function MachinePage() {
     }
 
     const resetFlow = () => {
-        setSelections([{ name: '', quantity: 0 }]);
+        setSelections([{ name: '', quantity: 0, otherName: '' }]);
         setStep('selection');
     }
 
@@ -212,45 +224,58 @@ export default function MachinePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             {selections.map((selection, index) => (
-                <div key={index} className="flex items-center gap-4">
-                    <div className="flex-1">
-                        <Select
-                            value={selection.name}
-                            onValueChange={(value) => handleMachineTypeChange(index, value)}
-                        >
-                            <SelectTrigger className="text-lg">
-                                <SelectValue placeholder="Select machine type..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {availableMachines.map((machine) => (
-                                    <SelectItem key={machine} value={machine}>{machine}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                <div key={index} className="space-y-2">
+                    <div className="flex items-center gap-4">
+                        <div className="flex-1">
+                            <Select
+                                value={selection.name}
+                                onValueChange={(value) => handleMachineTypeChange(index, value)}
+                            >
+                                <SelectTrigger className="text-lg">
+                                    <SelectValue placeholder="Select machine type..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableMachines.map((machine) => (
+                                        <SelectItem key={machine} value={machine}>{machine}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="w-48">
+                           <Select
+                                value={selection.quantity.toString()}
+                                onValueChange={(value) => handleQuantityChange(index, value)}
+                            >
+                                <SelectTrigger className="text-lg">
+                                    <SelectValue placeholder="Select quantity..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Array.from({ length: 11 }, (_, i) => (
+                                        <SelectItem key={i} value={i.toString()}>{i}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={handleAddMachine}
+                            className={index === selections.length - 1 ? 'opacity-100' : 'opacity-0'}
+                         >
+                            <PlusCircle className="h-6 w-6" />
+                        </Button>
                     </div>
-                    <div className="w-48">
-                       <Select
-                            value={selection.quantity.toString()}
-                            onValueChange={(value) => handleQuantityChange(index, value)}
-                        >
-                            <SelectTrigger className="text-lg">
-                                <SelectValue placeholder="Select quantity..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {Array.from({ length: 11 }, (_, i) => (
-                                    <SelectItem key={i} value={i.toString()}>{i}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                     <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={handleAddMachine}
-                        className={index === selections.length - 1 ? 'opacity-100' : 'opacity-0'}
-                     >
-                        <PlusCircle className="h-6 w-6" />
-                    </Button>
+                     {selection.name === 'Other' && (
+                        <div className="pl-1 pr-1">
+                            <Input
+                                placeholder="Please specify machine type"
+                                value={selection.otherName}
+                                onChange={(e) => handleOtherNameChange(index, e.target.value)}
+                                className="text-lg"
+                                required
+                            />
+                        </div>
+                    )}
                 </div>
             ))}
           </CardContent>
