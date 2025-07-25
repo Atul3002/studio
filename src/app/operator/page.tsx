@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench } from "lucide-react";
+import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmission } from "@/app/actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -112,8 +112,8 @@ function OperatorWorkflow() {
         <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
              <Card className="w-full max-w-lg text-center shadow-lg">
                 <CardHeader>
-                    <div className="mx-auto bg-green-100 p-4 rounded-full w-fit mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-600" />
+                    <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
+                        <CheckCircle className="w-12 h-12 text-primary" />
                     </div>
                     <CardTitle className="font-headline text-2xl">Submission Successful</CardTitle>
                     <CardDescription>Your production data has been recorded.</CardDescription>
@@ -292,6 +292,11 @@ function OperatorWorkflow() {
                            <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required={formData.dimensionMeasureStatus === 'not-ok'} className="text-lg" />
                         </div>
                     )}
+                    <div className="pt-2">
+                         <a href="https://shorturl.at/HyQT7" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+                            View Dimension Standards <ExternalLink className="h-4 w-4" />
+                        </a>
+                    </div>
                 </div>
                  <div className="space-y-3">
                     <Label className="font-bold">Problem</Label>
@@ -329,7 +334,7 @@ function ProductTypeSelection({ onSelect }: { onSelect: (product: string) => voi
     const [productType, setProductType] = useState('');
     const productTypes = ['VCB', 'AIS', 'GIS', 'VCU', 'ET'];
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <Card className="w-full max-w-md shadow-2xl">
                  <CardHeader className="text-center">
                     <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
@@ -362,7 +367,7 @@ function StationSelection({ onSelect }: { onSelect: (station: string) => void })
     const [station, setStation] = useState('');
     const stations = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
             <Card className="w-full max-w-md shadow-2xl">
                 <CardHeader className="text-center">
                     <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
@@ -444,5 +449,3 @@ export default function OperatorPage() {
 
     return <OperatorWorkflow />;
 }
-
-    
