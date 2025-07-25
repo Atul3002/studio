@@ -229,6 +229,11 @@ function OperatorWorkflow() {
                 </div>
                  <div className="space-y-3">
                     <Label className="font-bold">Dimension Measure</Label>
+                     <div className="pb-2">
+                         <a href="https://shorturl.at/HyQT7" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
+                            View Dimension Standards <ExternalLink className="h-4 w-4" />
+                        </a>
+                    </div>
                     <div className="w-full">
                         <Table>
                             <TableHeader>
@@ -292,11 +297,6 @@ function OperatorWorkflow() {
                            <Textarea id="dimensionMeasureReason" value={formData.dimensionMeasureReason} onChange={handleInputChange} required={formData.dimensionMeasureStatus === 'not-ok'} className="text-lg" />
                         </div>
                     )}
-                    <div className="pt-2">
-                         <a href="https://shorturl.at/HyQT7" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-primary hover:underline">
-                            View Dimension Standards <ExternalLink className="h-4 w-4" />
-                        </a>
-                    </div>
                 </div>
                  <div className="space-y-3">
                     <Label className="font-bold">Problem</Label>
