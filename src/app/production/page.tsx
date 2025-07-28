@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Wrench, Droplets, Check, X, ClipboardList } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Wrench, Droplets, Check, X, ClipboardList, Scale, Ruler } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -130,7 +130,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="flex items-center gap-2 font-bold text-base"><Check />Gauge Status</Label>
+                                    <Label className="flex items-center gap-2 font-bold text-base"><Scale />Gauge Status</Label>
                                     <RadioGroup value={gaugeStatus} onValueChange={setGaugeStatus} className="flex space-x-4">
                                         <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="ok" id="gauge-ok" />
@@ -155,7 +155,7 @@ function ProductionDashboard() {
                                     )}
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="flex items-center gap-2 font-bold text-base"><X />Dimension Status</Label>
+                                    <Label className="flex items-center gap-2 font-bold text-base"><Ruler />Dimension Status</Label>
                                     <RadioGroup value={dimensionStatus} onValueChange={setDimensionStatus} className="flex space-x-4">
                                         <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="ok" id="dim-ok" />
