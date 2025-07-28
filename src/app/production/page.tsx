@@ -101,7 +101,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="rejection-quantity" className="flex items-center gap-2 font-semibold"><Hash />Rejection Quantity</Label>
+                                    <Label htmlFor="rejection-quantity" className="flex items-center gap-2 font-bold text-base"><Hash />Rejection Quantity</Label>
                                     <Input
                                         id="rejection-quantity"
                                         type="number"
@@ -121,7 +121,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                  <div className="space-y-2">
-                                    <Label htmlFor="coolant-status" className="flex items-center gap-2 font-semibold"><Droplets />Coolant Status</Label>
+                                    <Label htmlFor="coolant-status" className="flex items-center gap-2 font-bold text-base"><Droplets />Coolant Status</Label>
                                     <Input
                                         id="coolant-status"
                                         value={coolantStatus}
@@ -155,7 +155,7 @@ function ProductionDashboard() {
                                     )}
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="flex items-center gap-2 font-bold"><X />Dimension Status</Label>
+                                    <Label className="flex items-center gap-2 font-bold text-base"><X />Dimension Status</Label>
                                     <RadioGroup value={dimensionStatus} onValueChange={setDimensionStatus} className="flex space-x-4">
                                         <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="ok" id="dim-ok" />
@@ -255,5 +255,3 @@ export default function ProductionPage() {
 
   return <ProductionDashboard />;
 }
-
-    
