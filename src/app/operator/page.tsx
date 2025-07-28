@@ -21,6 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface DimensionCheck {
     catNo: string;
     status: 'ok' | 'not-ok' | '';
+    reason: string;
 }
 
 function OperatorWorkflow() {
@@ -45,8 +46,8 @@ function OperatorWorkflow() {
   });
 
   const [dimensionChecks, setDimensionChecks] = useState<DimensionCheck[]>([
-      { catNo: '11111111', status: '' },
-      { catNo: '22222222', status: '' }
+      { catNo: '11111111', status: '', reason: '' },
+      { catNo: '22222222', status: '', reason: '' }
   ]);
   
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -67,7 +68,18 @@ function OperatorWorkflow() {
 
   const handleDimensionCheckChange = (index: number, field: keyof DimensionCheck, value: string) => {
       const newChecks = [...dimensionChecks];
-      (newChecks[index] as any)[field] = value;
+      const currentCheck = { ...newChecks[index] };
+      
+      if (field === 'status') {
+          currentCheck.status = value as 'ok' | 'not-ok';
+          if (value === 'ok') {
+              currentCheck.reason = ''; // Clear reason if status is OK
+          }
+      } else if (field === 'reason') {
+          currentCheck.reason = value;
+      }
+
+      newChecks[index] = currentCheck;
       setDimensionChecks(newChecks);
   };
 
@@ -101,8 +113,8 @@ function OperatorWorkflow() {
         otherProblemReason: "",
       });
       setDimensionChecks([
-          { catNo: '11111111', status: '' },
-          { catNo: '22222222', status: '' }
+          { catNo: '11111111', status: '', reason: '' },
+          { catNo: '22222222', status: '', reason: '' }
       ]);
       setIsSubmitted(false);
   }
@@ -133,7 +145,7 @@ function OperatorWorkflow() {
                     <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureStatus}</p>
                     {dimensionChecks.map((check, index) => (
                         <div key={index}>
-                            <p><strong>CAT No. {index + 1}:</strong> {check.catNo}, <strong>Status:</strong> {check.status}</p>
+                            <p><strong>CAT No. {index + 1}:</strong> {check.catNo}, <strong>Status:</strong> {check.status} {check.status === 'not-ok' && `, Reason: ${check.reason}`}</p>
                         </div>
                     ))}
                     {formData.dimensionMeasureStatus === 'not-ok' && <p><strong>Reason:</strong> {formData.dimensionMeasureReason}</p>}
@@ -240,7 +252,7 @@ function OperatorWorkflow() {
                                 <TableRow>
                                     <TableHead>CAT No.</TableHead>
                                     <TableHead className="text-center">Ok</TableHead>
-                                    <TableHead className="text-center">Not ok</TableHead>
+                                    <TableHead className="text-center">Not ok (Reason)</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -271,6 +283,16 @@ function OperatorWorkflow() {
                                             >
                                                 <RadioGroupItem value="not-ok" id={`dim-check-${index}-not-ok`} />
                                             </RadioGroup>
+                                            {check.status === 'not-ok' && (
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Reason"
+                                                    value={check.reason}
+                                                    onChange={(e) => handleDimensionCheckChange(index, 'reason', e.target.value)}
+                                                    className="mt-2 text-sm"
+                                                    required
+                                                />
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))}
