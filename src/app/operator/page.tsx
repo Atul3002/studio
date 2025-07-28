@@ -223,7 +223,7 @@ function OperatorWorkflow() {
                      {formData.toolWearStatus === 'not-ok' && (
                         <div className="pl-2 pt-2 space-y-2">
                            <Label htmlFor="toolWearReason">Reason if not OK</Label>
-                           <Textarea id="toolWearReason" value={formData.toolWearReason} onChange={handleInputChange} required={formData.toolWearStatus === 'not-ok'} className="text-lg" />
+                           <Textarea id="toolWearReason" value={formData.toolWearReason} required={formData.toolWearStatus === 'not-ok'} className="text-lg" />
                         </div>
                     )}
                 </div>
@@ -250,8 +250,8 @@ function OperatorWorkflow() {
                                             <Input 
                                                 type="text" 
                                                 value={check.catNo} 
-                                                onChange={(e) => handleDimensionCheckChange(index, 'catNo', e.target.value)}
-                                                className="text-lg"
+                                                readOnly
+                                                className="text-lg bg-muted/50"
                                             />
                                         </TableCell>
                                         <TableCell className="text-center">
