@@ -45,8 +45,8 @@ function OperatorWorkflow() {
   });
 
   const [dimensionChecks, setDimensionChecks] = useState<DimensionCheck[]>([
-      { catNo: '', status: '' },
-      { catNo: '', status: '' }
+      { catNo: '11111111', status: '' },
+      { catNo: '22222222', status: '' }
   ]);
   
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -101,8 +101,8 @@ function OperatorWorkflow() {
         otherProblemReason: "",
       });
       setDimensionChecks([
-          { catNo: '', status: '' },
-          { catNo: '', status: '' }
+          { catNo: '11111111', status: '' },
+          { catNo: '22222222', status: '' }
       ]);
       setIsSubmitted(false);
   }
