@@ -32,6 +32,7 @@ function OperatorWorkflow() {
   
   const [formData, setFormData] = useState({
     operatorName: "",
+    shiftDetails: "",
     serialNumber: "",
     machineSpeed: "",
     machineFeed: "",
@@ -100,6 +101,7 @@ function OperatorWorkflow() {
   const resetAll = () => {
       setFormData({
         operatorName: "",
+        shiftDetails: "",
         serialNumber: "",
         machineSpeed: "",
         machineFeed: "",
@@ -135,6 +137,7 @@ function OperatorWorkflow() {
                     <p><strong>Product Type:</strong> {productType}</p>
                     <p><strong>Station:</strong> {station}</p>
                     <p><strong>Operator Name:</strong> {formData.operatorName}</p>
+                    <p><strong>Shift Details:</strong> {formData.shiftDetails}</p>
                     <p><strong>Serial Number:</strong> {formData.serialNumber}</p>
                     <p><strong>Machine Speed:</strong> {formData.machineSpeed}</p>
                     <p><strong>Machine Feed:</strong> {formData.machineFeed}</p>
@@ -192,6 +195,10 @@ function OperatorWorkflow() {
                 <div className="space-y-2">
                     <Label htmlFor="operatorName">Operator Name</Label>
                     <Input id="operatorName" value={formData.operatorName} onChange={handleInputChange} required className="text-lg" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="shiftDetails">Shift Details</Label>
+                    <Input id="shiftDetails" value={formData.shiftDetails} onChange={handleInputChange} required className="text-lg" />
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="serialNumber">Serial Number of Job</Label>
