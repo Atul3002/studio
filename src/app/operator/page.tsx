@@ -265,7 +265,7 @@ function OperatorWorkflow() {
                     <Label className="font-bold">Dimension Measure</Label>
                      <div className="pb-2">
                          <a href="https://shorturl.at/HyQT7" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-400 hover:underline">
-                            drawings <ExternalLink className="h-4 w-4" />
+                            DRAWINGS <ExternalLink className="h-4 w-4" />
                         </a>
                     </div>
                     <div className="w-full">
