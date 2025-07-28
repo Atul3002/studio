@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from 'next/link';
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Wrench } from "lucide-react";
+import { Calendar as CalendarIcon, ArrowLeft, CalendarDays, Hash, Target, FileText, Wrench, Droplets, Check, X, ClipboardList } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Popover,
   PopoverContent,
@@ -27,6 +28,10 @@ function ProductionDashboard() {
   const [rejectionReason, setRejectionReason] = useState("");
   const [toolWearDetails, setToolWearDetails] = useState("");
   const [maintenanceDate, setMaintenanceDate] = useState<Date | undefined>();
+  const [gaugeStatus, setGaugeStatus] = useState("ok");
+  const [dimensionStatus, setDimensionStatus] = useState("ok");
+  const [shiftDetails, setShiftDetails] = useState("");
+  const [coolantStatus, setCoolantStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -40,14 +45,23 @@ function ProductionDashboard() {
         rejectionReason,
         toolWearDetails,
         maintenanceDate: maintenanceDate ? format(maintenanceDate, "PPP") : "",
+        gaugeStatus,
+        dimensionStatus,
+        shiftDetails,
+        coolantStatus,
     });
     setIsSubmitting(false);
     setIsSubmitted(true);
+    // Reset form
     setDailyProductionTarget("");
     setRejectionQuantity("");
     setRejectionReason("");
     setToolWearDetails("");
     setMaintenanceDate(undefined);
+    setGaugeStatus("ok");
+    setDimensionStatus("ok");
+    setShiftDetails("");
+    setCoolantStatus("");
     setTimeout(() => setIsSubmitted(false), 3000);
   }
 
@@ -68,7 +82,7 @@ function ProductionDashboard() {
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label htmlFor="daily-production-target" className="flex items-center gap-2"><Target />Daily Production Target</Label>
                                     <Input
@@ -90,6 +104,50 @@ function ProductionDashboard() {
                                         placeholder="Enter quantity of rejected items"
                                         required
                                     />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="shift-details" className="flex items-center gap-2"><ClipboardList />Shift Details</Label>
+                                    <Input
+                                        id="shift-details"
+                                        value={shiftDetails}
+                                        onChange={(e) => setShiftDetails(e.target.value)}
+                                        placeholder="Enter shift details (e.g., A, B, C)"
+                                    />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="coolant-status" className="flex items-center gap-2"><Droplets />Coolant Status</Label>
+                                    <Input
+                                        id="coolant-status"
+                                        value={coolantStatus}
+                                        onChange={(e) => setCoolantStatus(e.target.value)}
+                                        placeholder="Enter coolant status"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="flex items-center gap-2 font-bold"><Check />Gauge Status</Label>
+                                    <RadioGroup value={gaugeStatus} onValueChange={setGaugeStatus} className="flex space-x-4">
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="ok" id="gauge-ok" />
+                                            <Label htmlFor="gauge-ok">OK</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="not-ok" id="gauge-not-ok" />
+                                            <Label htmlFor="gauge-not-ok">Not OK</Label>
+                                        </div>
+                                    </RadioGroup>
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="flex items-center gap-2 font-bold"><X />Dimension Status</Label>
+                                    <RadioGroup value={dimensionStatus} onValueChange={setDimensionStatus} className="flex space-x-4">
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="ok" id="dim-ok" />
+                                            <Label htmlFor="dim-ok">OK</Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <RadioGroupItem value="not-ok" id="dim-not-ok" />
+                                            <Label htmlFor="dim-not-ok">Not OK</Label>
+                                        </div>
+                                    </RadioGroup>
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="rejection-reason" className="flex items-center gap-2"><FileText />Reason for Rejection</Label>
@@ -167,3 +225,5 @@ export default function ProductionPage() {
 
   return <ProductionDashboard />;
 }
+
+    
