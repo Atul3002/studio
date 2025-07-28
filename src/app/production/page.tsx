@@ -29,7 +29,9 @@ function ProductionDashboard() {
   const [toolWearDetails, setToolWearDetails] = useState("");
   const [maintenanceDate, setMaintenanceDate] = useState<Date | undefined>();
   const [gaugeStatus, setGaugeStatus] = useState("ok");
+  const [gaugeReason, setGaugeReason] = useState("");
   const [dimensionStatus, setDimensionStatus] = useState("ok");
+  const [dimensionReason, setDimensionReason] = useState("");
   const [shiftDetails, setShiftDetails] = useState("");
   const [coolantStatus, setCoolantStatus] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +48,9 @@ function ProductionDashboard() {
         toolWearDetails,
         maintenanceDate: maintenanceDate ? format(maintenanceDate, "PPP") : "",
         gaugeStatus,
+        gaugeReason,
         dimensionStatus,
+        dimensionReason,
         shiftDetails,
         coolantStatus,
     });
@@ -59,7 +63,9 @@ function ProductionDashboard() {
     setToolWearDetails("");
     setMaintenanceDate(undefined);
     setGaugeStatus("ok");
+    setGaugeReason("");
     setDimensionStatus("ok");
+    setDimensionReason("");
     setShiftDetails("");
     setCoolantStatus("");
     setTimeout(() => setIsSubmitted(false), 3000);
@@ -135,6 +141,18 @@ function ProductionDashboard() {
                                             <Label htmlFor="gauge-not-ok">Not OK</Label>
                                         </div>
                                     </RadioGroup>
+                                    {gaugeStatus === 'not-ok' && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="gauge-reason">Reason if Not OK</Label>
+                                            <Textarea
+                                                id="gauge-reason"
+                                                value={gaugeReason}
+                                                onChange={(e) => setGaugeReason(e.target.value)}
+                                                placeholder="Enter reason for gauge status"
+                                                required={gaugeStatus === 'not-ok'}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-3">
                                     <Label className="flex items-center gap-2 font-bold"><X />Dimension Status</Label>
@@ -148,6 +166,18 @@ function ProductionDashboard() {
                                             <Label htmlFor="dim-not-ok">Not OK</Label>
                                         </div>
                                     </RadioGroup>
+                                    {dimensionStatus === 'not-ok' && (
+                                        <div className="space-y-2">
+                                            <Label htmlFor="dimension-reason">Reason if Not OK</Label>
+                                            <Textarea
+                                                id="dimension-reason"
+                                                value={dimensionReason}
+                                                onChange={(e) => setDimensionReason(e.target.value)}
+                                                placeholder="Enter reason for dimension status"
+                                                required={dimensionStatus === 'not-ok'}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
                                     <Label htmlFor="rejection-reason" className="flex items-center gap-2"><FileText />Reason for Rejection</Label>
@@ -225,5 +255,3 @@ export default function ProductionPage() {
 
   return <ProductionDashboard />;
 }
-
-    
