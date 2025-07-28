@@ -90,7 +90,7 @@ function ProductionDashboard() {
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="daily-production-target" className="flex items-center gap-2 font-semibold"><Target />Daily Production Target</Label>
+                                    <Label htmlFor="daily-production-target" className="flex items-center gap-2 font-semibold text-base"><Target />Daily Production Target</Label>
                                     <Input
                                         id="daily-production-target"
                                         type="number"
@@ -112,7 +112,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                  <div className="space-y-2">
-                                    <Label htmlFor="shift-details" className="flex items-center gap-2 font-semibold"><ClipboardList />Shift Details</Label>
+                                    <Label htmlFor="shift-details" className="flex items-center gap-2 font-semibold text-base"><ClipboardList />Shift Details</Label>
                                     <Input
                                         id="shift-details"
                                         value={shiftDetails}
@@ -130,7 +130,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="flex items-center gap-2 font-bold"><Check />Gauge Status</Label>
+                                    <Label className="flex items-center gap-2 font-bold text-base"><Check />Gauge Status</Label>
                                     <RadioGroup value={gaugeStatus} onValueChange={setGaugeStatus} className="flex space-x-4">
                                         <div className="flex items-center space-x-2">
                                             <RadioGroupItem value="ok" id="gauge-ok" />
@@ -180,7 +180,7 @@ function ProductionDashboard() {
                                     )}
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="rejection-reason" className="flex items-center gap-2 font-semibold"><FileText />Reason for Rejection</Label>
+                                    <Label htmlFor="rejection-reason" className="flex items-center gap-2 font-semibold text-base"><FileText />Reason for Rejection</Label>
                                     <Textarea
                                         id="rejection-reason"
                                         value={rejectionReason}
@@ -190,7 +190,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="tool-wear-details" className="flex items-center gap-2 font-semibold"><Wrench />Tool Wear Out Details</Label>
+                                    <Label htmlFor="tool-wear-details" className="flex items-center gap-2 font-semibold text-base"><Wrench />Tool Wear Out Details</Label>
                                     <Textarea
                                         id="tool-wear-details"
                                         value={toolWearDetails}
@@ -199,7 +199,7 @@ function ProductionDashboard() {
                                     />
                                 </div>
                                 <div className="space-y-2 md:col-span-2">
-                                    <Label htmlFor="maintenance-date" className="flex items-center gap-2 font-semibold"><CalendarDays />Machine Maintenance Schedule</Label>
+                                    <Label htmlFor="maintenance-date" className="flex items-center gap-2 font-semibold text-base"><CalendarDays />Machine Maintenance Schedule</Label>
                                     <Popover>
                                         <PopoverTrigger asChild>
                                             <Button
