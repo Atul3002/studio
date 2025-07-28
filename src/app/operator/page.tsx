@@ -63,8 +63,12 @@ function OperatorWorkflow() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
   
-  const handleSelectChange = (id: "problem", value: string) => {
-    setFormData(prev => ({ ...prev, [id]: value, otherProblemReason: '' }));
+  const handleSelectChange = (id: "problem" | "shiftDetails", value: string) => {
+    const update: any = { [id]: value };
+    if (id === 'problem') {
+        update.otherProblemReason = '';
+    }
+    setFormData(prev => ({ ...prev, ...update }));
   }
 
   const handleDimensionCheckChange = (index: number, field: keyof DimensionCheck, value: string) => {
@@ -177,6 +181,8 @@ function OperatorWorkflow() {
     'Other'
   ];
 
+  const shiftOptions = ['First', 'Second', 'Third', 'General'];
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-2xl shadow-lg">
@@ -198,7 +204,16 @@ function OperatorWorkflow() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="shiftDetails">Shift Details</Label>
-                    <Input id="shiftDetails" value={formData.shiftDetails} onChange={handleInputChange} required className="text-lg" />
+                    <Select onValueChange={(value) => handleSelectChange("shiftDetails", value)} value={formData.shiftDetails} required>
+                        <SelectTrigger className="text-lg">
+                            <SelectValue placeholder="Select a shift..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {shiftOptions.map((option) => (
+                                <SelectItem key={option} value={option}>{option}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="serialNumber">Serial Number of Job</Label>
