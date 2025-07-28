@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink } from "lucide-react";
+import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink, Clock } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmission } from "@/app/actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -33,6 +33,8 @@ function OperatorWorkflow() {
   const [formData, setFormData] = useState({
     operatorName: "",
     shiftDetails: "",
+    entryTime: "",
+    exitTime: "",
     serialNumber: "",
     machineSpeed: "",
     machineFeed: "",
@@ -44,6 +46,10 @@ function OperatorWorkflow() {
     dimensionMeasureReason: "",
     problem: "",
     otherProblemReason: "",
+    materialAvailability: "",
+    machineFailure: "no",
+    machineFailureReason: "",
+    gaugeChecked: "yes",
   });
 
   const [dimensionChecks, setDimensionChecks] = useState<DimensionCheck[]>([
@@ -59,11 +65,11 @@ function OperatorWorkflow() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleRadioChange = (id: "toolWearStatus" | "dimensionMeasureStatus", value: string) => {
+  const handleRadioChange = (id: "toolWearStatus" | "dimensionMeasureStatus" | "machineFailure" | "gaugeChecked", value: string) => {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
   
-  const handleSelectChange = (id: "problem" | "shiftDetails", value: string) => {
+  const handleSelectChange = (id: "problem" | "shiftDetails" | "materialAvailability", value: string) => {
     const update: any = { [id]: value };
     if (id === 'problem') {
         update.otherProblemReason = '';
@@ -106,6 +112,8 @@ function OperatorWorkflow() {
       setFormData({
         operatorName: "",
         shiftDetails: "",
+        entryTime: "",
+        exitTime: "",
         serialNumber: "",
         machineSpeed: "",
         machineFeed: "",
@@ -117,6 +125,10 @@ function OperatorWorkflow() {
         dimensionMeasureReason: "",
         problem: "",
         otherProblemReason: "",
+        materialAvailability: "",
+        machineFailure: "no",
+        machineFailureReason: "",
+        gaugeChecked: "yes",
       });
       setDimensionChecks([
           { catNo: '11111111', status: '', reason: '' },
@@ -142,11 +154,17 @@ function OperatorWorkflow() {
                     <p><strong>Station:</strong> {station}</p>
                     <p><strong>Operator Name:</strong> {formData.operatorName}</p>
                     <p><strong>Shift Details:</strong> {formData.shiftDetails}</p>
+                    <p><strong>Work Entry Time:</strong> {formData.entryTime}</p>
+                    <p><strong>Work Exit Time:</strong> {formData.exitTime}</p>
                     <p><strong>Serial Number:</strong> {formData.serialNumber}</p>
                     <p><strong>Machine Speed:</strong> {formData.machineSpeed}</p>
                     <p><strong>Machine Feed:</strong> {formData.machineFeed}</p>
                     <p><strong>Vibration Level:</strong> {formData.vibrationLevel}</p>
                     <p><strong>Coolant Status:</strong> {formData.coolantStatus}</p>
+                    <p><strong>Material Availability:</strong> {formData.materialAvailability}</p>
+                    <p><strong>Machine Failure:</strong> {formData.machineFailure}</p>
+                    {formData.machineFailure === 'yes' && <p><strong>Failure Reason:</strong> {formData.machineFailureReason}</p>}
+                    <p><strong>Gauge Checked:</strong> {formData.gaugeChecked}</p>
                     <p><strong>Tool Wear & Tear:</strong> {formData.toolWearStatus}</p>
                     {formData.toolWearStatus === 'not-ok' && <p><strong>Reason:</strong> {formData.toolWearReason}</p>}
                     <p><strong>Dimension Measure:</strong> {formData.dimensionMeasureStatus}</p>
@@ -215,6 +233,14 @@ function OperatorWorkflow() {
                         </SelectContent>
                     </Select>
                 </div>
+                <div className="space-y-2">
+                    <Label htmlFor="entryTime" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Entry Time</Label>
+                    <Input id="entryTime" type="time" value={formData.entryTime} onChange={handleInputChange} required className="text-lg" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="exitTime" className="flex items-center gap-2"><Clock className="w-4 h-4" /> Exit Time</Label>
+                    <Input id="exitTime" type="time" value={formData.exitTime} onChange={handleInputChange} required className="text-lg" />
+                </div>
                  <div className="space-y-2">
                     <Label htmlFor="serialNumber">Serial Number of Job</Label>
                     <Input id="serialNumber" value={formData.serialNumber} onChange={handleInputChange} required className="text-lg" />
@@ -235,9 +261,63 @@ function OperatorWorkflow() {
                     <Label htmlFor="coolantStatus">Coolant Status</Label>
                     <Input id="coolantStatus" value={formData.coolantStatus} onChange={handleInputChange} required className="text-lg" />
                 </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="materialAvailability">Material Availability</Label>
+                    <Select onValueChange={(value) => handleSelectChange("materialAvailability", value)} value={formData.materialAvailability} required>
+                        <SelectTrigger className="text-lg">
+                            <SelectValue placeholder="Select material status..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Available">Available</SelectItem>
+                            <SelectItem value="Not Available">Not Available</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             <div className="space-y-4 pt-4">
+                <div className="space-y-3">
+                    <Label className="font-bold">Machine Failure</Label>
+                     <RadioGroup 
+                        value={formData.machineFailure} 
+                        onValueChange={(value) => handleRadioChange("machineFailure", value)} 
+                        className="flex space-x-4"
+                     >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="failure-yes" />
+                            <Label htmlFor="failure-yes">Yes</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="failure-no" />
+                            <Label htmlFor="failure-no">No</Label>
+                        </div>
+                    </RadioGroup>
+                     {formData.machineFailure === 'yes' && (
+                        <div className="pl-2 pt-2 space-y-2">
+                           <Label htmlFor="machineFailureReason">Reason for Failure</Label>
+                           <Textarea id="machineFailureReason" value={formData.machineFailureReason} required={formData.machineFailure === 'yes'} className="text-lg" />
+                        </div>
+                    )}
+                </div>
+
+                <div className="space-y-3">
+                    <Label className="font-bold">Gauge Checked</Label>
+                     <RadioGroup 
+                        value={formData.gaugeChecked} 
+                        onValueChange={(value) => handleRadioChange("gaugeChecked", value)} 
+                        className="flex space-x-4"
+                     >
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="yes" id="gauge-yes" />
+                            <Label htmlFor="gauge-yes">Checked</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="no" id="gauge-no" />
+                            <Label htmlFor="gauge-no">Not Checked</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+
                 <div className="space-y-3">
                     <Label className="font-bold">Tool Wear and Tear</Label>
                      <RadioGroup 
