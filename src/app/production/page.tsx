@@ -68,72 +68,74 @@ function ProductionDashboard() {
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
                         <CardContent className="space-y-4">
-                             <div className="space-y-2">
-                                <Label htmlFor="daily-production-target" className="flex items-center gap-2"><Target />Daily Production Target</Label>
-                                <Input 
-                                    id="daily-production-target"
-                                    type="number"
-                                    value={dailyProductionTarget}
-                                    onChange={(e) => setDailyProductionTarget(e.target.value)}
-                                    placeholder="Enter target quantity"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="rejection-quantity" className="flex items-center gap-2"><Hash />Rejection Quantity</Label>
-                                <Input 
-                                    id="rejection-quantity"
-                                    type="number"
-                                    value={rejectionQuantity}
-                                    onChange={(e) => setRejectionQuantity(e.target.value)}
-                                    placeholder="Enter quantity of rejected items"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="rejection-reason" className="flex items-center gap-2"><FileText />Reason for Rejection</Label>
-                                <Textarea 
-                                    id="rejection-reason"
-                                    value={rejectionReason}
-                                    onChange={(e) => setRejectionReason(e.target.value)}
-                                    placeholder="Describe why items were rejected"
-                                    required={parseInt(rejectionQuantity) > 0}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="tool-wear-details" className="flex items-center gap-2"><Wrench />Tool Wear Out Details</Label>
-                                <Textarea 
-                                    id="tool-wear-details"
-                                    value={toolWearDetails}
-                                    onChange={(e) => setToolWearDetails(e.target.value)}
-                                    placeholder="Describe any tool wear and tear"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="maintenance-date" className="flex items-center gap-2"><CalendarDays />Machine Maintenance Schedule</Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            id="maintenance-date"
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal",
-                                                !maintenanceDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {maintenanceDate ? format(maintenanceDate, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                        <Calendar
-                                            mode="single"
-                                            selected={maintenanceDate}
-                                            onSelect={setMaintenanceDate}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="daily-production-target" className="flex items-center gap-2"><Target />Daily Production Target</Label>
+                                    <Input
+                                        id="daily-production-target"
+                                        type="number"
+                                        value={dailyProductionTarget}
+                                        onChange={(e) => setDailyProductionTarget(e.target.value)}
+                                        placeholder="Enter target quantity"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="rejection-quantity" className="flex items-center gap-2"><Hash />Rejection Quantity</Label>
+                                    <Input
+                                        id="rejection-quantity"
+                                        type="number"
+                                        value={rejectionQuantity}
+                                        onChange={(e) => setRejectionQuantity(e.target.value)}
+                                        placeholder="Enter quantity of rejected items"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="rejection-reason" className="flex items-center gap-2"><FileText />Reason for Rejection</Label>
+                                    <Textarea
+                                        id="rejection-reason"
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        placeholder="Describe why items were rejected"
+                                        required={parseInt(rejectionQuantity) > 0}
+                                    />
+                                </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="tool-wear-details" className="flex items-center gap-2"><Wrench />Tool Wear Out Details</Label>
+                                    <Textarea
+                                        id="tool-wear-details"
+                                        value={toolWearDetails}
+                                        onChange={(e) => setToolWearDetails(e.target.value)}
+                                        placeholder="Describe any tool wear and tear"
+                                    />
+                                </div>
+                                <div className="space-y-2 md:col-span-2">
+                                    <Label htmlFor="maintenance-date" className="flex items-center gap-2"><CalendarDays />Machine Maintenance Schedule</Label>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                id="maintenance-date"
+                                                variant={"outline"}
+                                                className={cn(
+                                                    "w-full justify-start text-left font-normal",
+                                                    !maintenanceDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                                {maintenanceDate ? format(maintenanceDate, "PPP") : <span>Pick a date</span>}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0">
+                                            <Calendar
+                                                mode="single"
+                                                selected={maintenanceDate}
+                                                onSelect={setMaintenanceDate}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="flex-col items-stretch">
