@@ -30,6 +30,9 @@ interface MachineData {
     machineCapacity: string;
     settingTime: string;
     machineSpeed: string;
+    strokesPerMin?: string;
+    hydraulicPressure?: string;
+    cavityCount?: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -43,6 +46,9 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             machineCapacity: '',
             settingTime: '',
             machineSpeed: '',
+            strokesPerMin: '',
+            hydraulicPressure: '',
+            cavityCount: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
@@ -66,6 +72,9 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 machineCapacity: data.machineCapacity,
                 settingTime: data.settingTime,
                 machineSpeed: data.machineSpeed,
+                strokesPerMin: data.strokesPerMin,
+                hydraulicPressure: data.hydraulicPressure,
+                cavityCount: data.cavityCount,
             });
         }
         setIsSubmitting(false);
@@ -149,6 +158,43 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             className="text-lg"
                                         />
                                     </div>
+                                    {(data.machineName === 'Press machine' || data.machineName === 'forging') && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`strokesPerMin-${index}`}>Number of Strokes Per min</Label>
+                                                <Input
+                                                    id={`strokesPerMin-${index}`}
+                                                    type="number"
+                                                    value={data.strokesPerMin}
+                                                    onChange={(e) => handleInputChange(index, 'strokesPerMin', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`hydraulicPressure-${index}`}>Hydraulic Pressure (kg/cm²)</Label>
+                                                <Input
+                                                    id={`hydraulicPressure-${index}`}
+                                                    type="number"
+                                                    value={data.hydraulicPressure}
+                                                    onChange={(e) => handleInputChange(index, 'hydraulicPressure', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`cavityCount-${index}`}>Number of Cavities</Label>
+                                                <Input
+                                                    id={`cavityCount-${index}`}
+                                                    type="number"
+                                                    value={data.cavityCount}
+                                                    onChange={(e) => handleInputChange(index, 'cavityCount', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -332,5 +378,6 @@ export default function MachinePage() {
       </main>
     );
 }
+
 
     
