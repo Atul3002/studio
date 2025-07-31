@@ -13,7 +13,7 @@ import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle, ChevronsLeft } f
 import { saveSubmission } from "@/app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging', 'Other'];
+const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging', 'Moulding', 'Grinding', 'cutting', 'Other'];
 
 interface MachineSelection {
     name: string;
@@ -393,5 +393,3 @@ export default function MachinePage() {
     );
 }
 
-
-    
