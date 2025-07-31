@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { ShieldCheck, BarChart3, Wrench, ArrowRight, Cog } from 'lucide-react';
+import { ShieldCheck, BarChart3, Wrench, ArrowRight, Cog, DollarSign, Archive } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 
@@ -31,6 +31,18 @@ const navItems = [
     description: 'Input daily production data.',
     href: '/operator',
     icon: <Wrench className="w-8 h-8 text-primary" />,
+  },
+  {
+    title: 'Finance',
+    description: 'Manage financial data.',
+    href: '/finance',
+    icon: <DollarSign className="w-8 h-8 text-primary" />,
+  },
+  {
+    title: 'Store Incharge',
+    description: 'Manage store inventory.',
+    href: '/store',
+    icon: <Archive className="w-8 h-8 text-primary" />,
   },
 ];
 
@@ -133,7 +145,7 @@ export default function Home() {
         </div>
         <p className="text-lg text-muted-foreground mt-2">Daily Production Monitoring System</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-5xl">
         {navItems.map((item) => (
           <Link href={item.href} key={item.title} legacyBehavior passHref>
             <a className={cn(
