@@ -13,7 +13,7 @@ import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle, ChevronsLeft } f
 import { saveSubmission } from "@/app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const availableMachines = ['CNC machine', 'Press machine', 'VMC machine', 'lathe machine', 'milling', 'Casting', 'forging', 'Moulding', 'Grinding', 'cutting', 'Other'];
+const availableMachines = ['CNC MACHINE', 'PRESS MACHINE', 'VMC MACHINE', 'LATHE MACHINE', 'MILLING', 'CASTING', 'FORGING', 'MOULDING', 'GRINDING', 'CUTTING', 'OTHER'];
 
 interface MachineSelection {
     name: string;
@@ -57,7 +57,7 @@ interface MachineData {
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
     const initialData = selections.flatMap(s => 
         Array.from({ length: s.quantity }, (_, i) => ({
-            machineName: s.name === 'Other' ? s.otherName || 'Other' : s.name,
+            machineName: s.name === 'OTHER' ? s.otherName || 'OTHER' : s.name,
             instanceNumber: i + 1,
             machineNumber: '',
             machinePower: '',
@@ -221,7 +221,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             className="text-lg"
                                         />
                                     </div>
-                                    {(data.machineName === 'Press machine' || data.machineName === 'forging') && (
+                                    {(data.machineName === 'PRESS MACHINE' || data.machineName === 'FORGING') && (
                                         <>
                                             <div className="space-y-2">
                                                 <Label htmlFor={`strokesPerMin-${index}`}>Number of Strokes Per min</Label>
@@ -269,7 +269,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             </div>
                                         </>
                                     )}
-                                     {(data.machineName === 'Moulding' || data.machineName === 'Casting') && (
+                                     {(data.machineName === 'MOULDING' || data.machineName === 'CASTING') && (
                                         <>
                                             <div className="space-y-2">
                                                 <Label htmlFor={`temperature-${index}`}>Temperature (°C)</Label>
@@ -329,7 +329,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             </div>
                                         </>
                                     )}
-                                     {(data.machineName === 'lathe machine' || data.machineName === 'milling' || data.machineName === 'Grinding' || data.machineName === 'cutting') && (
+                                     {(data.machineName === 'LATHE MACHINE' || data.machineName === 'MILLING' || data.machineName === 'GRINDING' || data.machineName === 'CUTTING') && (
                                         <>
                                             <div className="space-y-2">
                                                 <Label htmlFor={`numberOfAxis-${index}`}>Number of axis</Label>
@@ -436,7 +436,7 @@ export default function MachinePage() {
         setSelections(prev => {
             const newSelections = [...prev];
             newSelections[index].name = name;
-            if (name !== 'Other') {
+            if (name !== 'OTHER') {
                 newSelections[index].otherName = '';
             }
             return newSelections;
@@ -538,7 +538,7 @@ export default function MachinePage() {
                             <PlusCircle className="h-6 w-6" />
                         </Button>
                     </div>
-                     {selection.name === 'Other' && (
+                     {selection.name === 'OTHER' && (
                         <div className="pl-1 pr-1">
                             <Input
                                 placeholder="Please specify machine type"
