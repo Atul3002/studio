@@ -27,6 +27,9 @@ interface MachineData {
     machineNumber: string;
     machinePower: string;
     tonnage: string;
+    machineCapacity: string;
+    settingTime: string;
+    machineSpeed: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -37,14 +40,17 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             machineNumber: '',
             machinePower: '',
             tonnage: '',
+            machineCapacity: '',
+            settingTime: '',
+            machineSpeed: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const handleInputChange = (index: number, field: 'machineNumber' | 'machinePower' | 'tonnage', value: string) => {
+    const handleInputChange = (index: number, field: keyof MachineData, value: string) => {
         const newData = [...machineData];
-        newData[index][field] = value;
+        (newData[index] as any)[field] = value;
         setMachineData(newData);
     };
 
@@ -57,6 +63,9 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 machineNumber: data.machineNumber,
                 machinePower: data.machinePower,
                 tonnage: data.tonnage,
+                machineCapacity: data.machineCapacity,
+                settingTime: data.settingTime,
+                machineSpeed: data.machineSpeed,
             });
         }
         setIsSubmitting(false);
@@ -65,7 +74,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
 
     return (
         <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
-             <Card className="w-full max-w-2xl shadow-lg">
+             <Card className="w-full max-w-4xl shadow-lg">
                 <form onSubmit={handleSubmit}>
                     <CardHeader>
                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Details</CardTitle>
@@ -104,6 +113,38 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             type="number"
                                             value={data.tonnage}
                                             onChange={(e) => handleInputChange(index, 'tonnage', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor={`machineCapacity-${index}`}>Machine Capacity</Label>
+                                        <Input
+                                            id={`machineCapacity-${index}`}
+                                            value={data.machineCapacity}
+                                            onChange={(e) => handleInputChange(index, 'machineCapacity', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor={`settingTime-${index}`}>Setting Time (Min)</Label>
+                                        <Input
+                                            id={`settingTime-${index}`}
+                                            type="number"
+                                            value={data.settingTime}
+                                            onChange={(e) => handleInputChange(index, 'settingTime', e.target.value)}
+                                            required
+                                            className="text-lg"
+                                        />
+                                    </div>
+                                     <div className="space-y-2">
+                                        <Label htmlFor={`machineSpeed-${index}`}>Speed of Machine</Label>
+                                        <Input
+                                            id={`machineSpeed-${index}`}
+                                            type="number"
+                                            value={data.machineSpeed}
+                                            onChange={(e) => handleInputChange(index, 'machineSpeed', e.target.value)}
                                             required
                                             className="text-lg"
                                         />
