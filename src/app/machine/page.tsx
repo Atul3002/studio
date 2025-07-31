@@ -96,7 +96,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor={`machinePower-${index}`}>Machine Power (kW)</Label>
+                                        <Label htmlFor={`machinePower-${index}`}>Machine Power (kW) / Consumption</Label>
                                         <Input
                                             id={`machinePower-${index}`}
                                             type="number"
@@ -332,3 +332,5 @@ export default function MachinePage() {
       </main>
     );
 }
+
+    

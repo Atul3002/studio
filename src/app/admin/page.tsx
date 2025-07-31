@@ -149,7 +149,7 @@ function AdminDashboard() {
                     'Entry Type': 'Machine Data',
                     Machine: s.machine,
                     'Machine Number': s.machineNumber,
-                    'Machine Power (kW)': s.machinePower,
+                    'Machine Power (kW) / Consumption': s.machinePower,
                     'Tonnage': s.tonnage,
                     Operator: '',
                     Product: '',
@@ -172,7 +172,7 @@ function AdminDashboard() {
                     'Entry Type': 'Operator Data',
                     Machine: s.machine,
                     'Machine Number': '',
-                    'Machine Power (kW)': '',
+                    'Machine Power (kW) / Consumption': '',
                     'Tonnage': '',
                     Operator: s.operatorName,
                     Product: s.productType,
@@ -407,3 +407,5 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
+
+    
