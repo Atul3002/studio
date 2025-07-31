@@ -48,6 +48,9 @@ interface MachineData {
     topCorePressure?: string;
     bottomCorePressure?: string;
     nozzlePressure?: string;
+    numberOfAxis?: string;
+    machineRPM?: string;
+    coolantAvailability?: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -79,12 +82,21 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             topCorePressure: '',
             bottomCorePressure: '',
             nozzlePressure: '',
+            numberOfAxis: '',
+            machineRPM: '',
+            coolantAvailability: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     const handleInputChange = (index: number, field: keyof MachineData, value: string) => {
+        const newData = [...machineData];
+        (newData[index] as any)[field] = value;
+        setMachineData(newData);
+    };
+
+    const handleSelectChange = (index: number, field: keyof MachineData, value: string) => {
         const newData = [...machineData];
         (newData[index] as any)[field] = value;
         setMachineData(newData);
@@ -120,6 +132,9 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 topCorePressure: data.topCorePressure,
                 bottomCorePressure: data.bottomCorePressure,
                 nozzlePressure: data.nozzlePressure,
+                numberOfAxis: data.numberOfAxis,
+                machineRPM: data.machineRPM,
+                coolantAvailability: data.coolantAvailability,
             });
         }
         setIsSubmitting(false);
@@ -308,6 +323,48 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                             <div className="space-y-2">
                                                 <Label htmlFor={`nozzlePressure-${index}`}>Nozzle Pressure</Label>
                                                 <Input id={`nozzlePressure-${index}`} type="number" value={data.nozzlePressure} onChange={(e) => handleInputChange(index, 'nozzlePressure', e.target.value)} required className="text-lg" />
+                                            </div>
+                                        </>
+                                    )}
+                                     {(data.machineName === 'lathe machine' || data.machineName === 'milling' || data.machineName === 'Grinding' || data.machineName === 'cutting') && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`numberOfAxis-${index}`}>Number of axis</Label>
+                                                <Input
+                                                    id={`numberOfAxis-${index}`}
+                                                    type="number"
+                                                    value={data.numberOfAxis}
+                                                    onChange={(e) => handleInputChange(index, 'numberOfAxis', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`machineRPM-${index}`}>Machine RPM</Label>
+                                                <Input
+                                                    id={`machineRPM-${index}`}
+                                                    type="number"
+                                                    value={data.machineRPM}
+                                                    onChange={(e) => handleInputChange(index, 'machineRPM', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`coolantAvailability-${index}`}>Coolant Availability</Label>
+                                                <Select
+                                                    onValueChange={(value) => handleSelectChange(index, 'coolantAvailability', value)}
+                                                    value={data.coolantAvailability}
+                                                    required
+                                                >
+                                                    <SelectTrigger className="text-lg">
+                                                        <SelectValue placeholder="Select availability" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Available">Available</SelectItem>
+                                                        <SelectItem value="Not Available">Not Available</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                         </>
                                     )}
