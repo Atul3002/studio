@@ -33,6 +33,7 @@ interface MachineData {
     strokesPerMin?: string;
     hydraulicPressure?: string;
     cavityCount?: string;
+    airPressure?: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -49,6 +50,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             strokesPerMin: '',
             hydraulicPressure: '',
             cavityCount: '',
+            airPressure: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
@@ -75,6 +77,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 strokesPerMin: data.strokesPerMin,
                 hydraulicPressure: data.hydraulicPressure,
                 cavityCount: data.cavityCount,
+                airPressure: data.airPressure,
             });
         }
         setIsSubmitting(false);
@@ -189,6 +192,17 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                                     type="number"
                                                     value={data.cavityCount}
                                                     onChange={(e) => handleInputChange(index, 'cavityCount', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`airPressure-${index}`}>Air Pressure (kg/cm²)</Label>
+                                                <Input
+                                                    id={`airPressure-${index}`}
+                                                    type="number"
+                                                    value={data.airPressure}
+                                                    onChange={(e) => handleInputChange(index, 'airPressure', e.target.value)}
                                                     required
                                                     className="text-lg"
                                                 />
