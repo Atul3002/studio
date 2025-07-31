@@ -34,6 +34,20 @@ interface MachineData {
     hydraulicPressure?: string;
     cavityCount?: string;
     airPressure?: string;
+    temperature?: string;
+    preheatingTime?: string;
+    curingTime?: string;
+    heaterCount?: string;
+    zone1Temp?: string;
+    zone2Temp?: string;
+    zone3Temp?: string;
+    zone4Temp?: string;
+    zone5Temp?: string;
+    zone6Temp?: string;
+    fillingPressure?: string;
+    topCorePressure?: string;
+    bottomCorePressure?: string;
+    nozzlePressure?: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -51,6 +65,20 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             hydraulicPressure: '',
             cavityCount: '',
             airPressure: '',
+            temperature: '',
+            preheatingTime: '',
+            curingTime: '',
+            heaterCount: '',
+            zone1Temp: '',
+            zone2Temp: '',
+            zone3Temp: '',
+            zone4Temp: '',
+            zone5Temp: '',
+            zone6Temp: '',
+            fillingPressure: '',
+            topCorePressure: '',
+            bottomCorePressure: '',
+            nozzlePressure: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
@@ -78,6 +106,20 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 hydraulicPressure: data.hydraulicPressure,
                 cavityCount: data.cavityCount,
                 airPressure: data.airPressure,
+                temperature: data.temperature,
+                preheatingTime: data.preheatingTime,
+                curingTime: data.curingTime,
+                heaterCount: data.heaterCount,
+                zone1Temp: data.zone1Temp,
+                zone2Temp: data.zone2Temp,
+                zone3Temp: data.zone3Temp,
+                zone4Temp: data.zone4Temp,
+                zone5Temp: data.zone5Temp,
+                zone6Temp: data.zone6Temp,
+                fillingPressure: data.fillingPressure,
+                topCorePressure: data.topCorePressure,
+                bottomCorePressure: data.bottomCorePressure,
+                nozzlePressure: data.nozzlePressure,
             });
         }
         setIsSubmitting(false);
@@ -206,6 +248,66 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                                     required
                                                     className="text-lg"
                                                 />
+                                            </div>
+                                        </>
+                                    )}
+                                     {(data.machineName === 'Moulding' || data.machineName === 'Casting') && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`temperature-${index}`}>Temperature (°C)</Label>
+                                                <Input id={`temperature-${index}`} type="number" value={data.temperature} onChange={(e) => handleInputChange(index, 'temperature', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`preheatingTime-${index}`}>Preheating Time (min)</Label>
+                                                <Input id={`preheatingTime-${index}`} type="number" value={data.preheatingTime} onChange={(e) => handleInputChange(index, 'preheatingTime', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`curingTime-${index}`}>Curing/Holding Time (min)</Label>
+                                                <Input id={`curingTime-${index}`} type="number" value={data.curingTime} onChange={(e) => handleInputChange(index, 'curingTime', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`heaterCount-${index}`}>Number of heaters</Label>
+                                                <Input id={`heaterCount-${index}`} type="number" value={data.heaterCount} onChange={(e) => handleInputChange(index, 'heaterCount', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone1Temp-${index}`}>Zone 1 Temperature</Label>
+                                                <Input id={`zone1Temp-${index}`} type="number" value={data.zone1Temp} onChange={(e) => handleInputChange(index, 'zone1Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone2Temp-${index}`}>Zone 2 Temperature</Label>
+                                                <Input id={`zone2Temp-${index}`} type="number" value={data.zone2Temp} onChange={(e) => handleInputChange(index, 'zone2Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone3Temp-${index}`}>Zone 3 Temperature</Label>
+                                                <Input id={`zone3Temp-${index}`} type="number" value={data.zone3Temp} onChange={(e) => handleInputChange(index, 'zone3Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone4Temp-${index}`}>Zone 4 Temperature</Label>
+                                                <Input id={`zone4Temp-${index}`} type="number" value={data.zone4Temp} onChange={(e) => handleInputChange(index, 'zone4Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone5Temp-${index}`}>Zone 5 Temperature</Label>
+                                                <Input id={`zone5Temp-${index}`} type="number" value={data.zone5Temp} onChange={(e) => handleInputChange(index, 'zone5Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`zone6Temp-${index}`}>Zone 6 Temperature</Label>
+                                                <Input id={`zone6Temp-${index}`} type="number" value={data.zone6Temp} onChange={(e) => handleInputChange(index, 'zone6Temp', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`fillingPressure-${index}`}>Filling Pressure (kg/cm²)</Label>
+                                                <Input id={`fillingPressure-${index}`} type="number" value={data.fillingPressure} onChange={(e) => handleInputChange(index, 'fillingPressure', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`topCorePressure-${index}`}>Top core Pressure</Label>
+                                                <Input id={`topCorePressure-${index}`} type="number" value={data.topCorePressure} onChange={(e) => handleInputChange(index, 'topCorePressure', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`bottomCorePressure-${index}`}>Bottom core pressure</Label>
+                                                <Input id={`bottomCorePressure-${index}`} type="number" value={data.bottomCorePressure} onChange={(e) => handleInputChange(index, 'bottomCorePressure', e.target.value)} required className="text-lg" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`nozzlePressure-${index}`}>Nozzle Pressure</Label>
+                                                <Input id={`nozzlePressure-${index}`} type="number" value={data.nozzlePressure} onChange={(e) => handleInputChange(index, 'nozzlePressure', e.target.value)} required className="text-lg" />
                                             </div>
                                         </>
                                     )}
