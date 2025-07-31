@@ -51,6 +51,7 @@ interface MachineData {
     numberOfAxis?: string;
     machineRPM?: string;
     coolantAvailability?: string;
+    machineToolCondition?: string;
 }
 
 function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: MachineSelection[], onBack: () => void, onSubmitted: () => void }) {
@@ -85,6 +86,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
             numberOfAxis: '',
             machineRPM: '',
             coolantAvailability: '',
+            machineToolCondition: '',
         }))
     );
     const [machineData, setMachineData] = useState<MachineData[]>(initialData);
@@ -135,6 +137,7 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 numberOfAxis: data.numberOfAxis,
                 machineRPM: data.machineRPM,
                 coolantAvailability: data.coolantAvailability,
+                machineToolCondition: data.machineToolCondition,
             });
         }
         setIsSubmitting(false);
@@ -365,6 +368,16 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                                                         <SelectItem value="Not Available">Not Available</SelectItem>
                                                     </SelectContent>
                                                 </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor={`machineToolCondition-${index}`}>Machine Tool Condition</Label>
+                                                <Input
+                                                    id={`machineToolCondition-${index}`}
+                                                    value={data.machineToolCondition}
+                                                    onChange={(e) => handleInputChange(index, 'machineToolCondition', e.target.value)}
+                                                    required
+                                                    className="text-lg"
+                                                />
                                             </div>
                                         </>
                                     )}
