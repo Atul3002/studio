@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { PanelLeft } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { MainNav } from '@/components/main-nav';
 
 
@@ -29,7 +29,7 @@ export default function RootLayout({
             <Sidebar>
                 <SidebarHeader>
                      <Link href="/" className="font-headline text-2xl font-bold flex items-center gap-2">
-                        <PanelLeft />
+                        <Menu />
                         <span>Job Tracker</span>
                     </Link>
                 </SidebarHeader>
