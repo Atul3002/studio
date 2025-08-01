@@ -1,7 +1,6 @@
 
 "use client";
 
-import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useState, useEffect } from 'react';
 
 const fullText = "Job Tracker";
@@ -97,9 +96,6 @@ function Typewriter() {
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <header className="absolute top-0 left-0 w-full flex justify-between items-center p-4 sm:p-6 md:hidden">
-        <SidebarTrigger />
-      </header>
       <div className="text-center mb-12">
         <div className="h-24 flex items-center justify-center">
             <Typewriter />

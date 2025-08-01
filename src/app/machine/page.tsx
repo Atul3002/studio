@@ -12,7 +12,6 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, ChevronRight, Cog, CheckCircle, PlusCircle, ChevronsLeft } from "lucide-react";
 import { saveSubmission } from "@/app/actions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const availableMachines = ['CNC MACHINE', 'PRESS MACHINE', 'VMC MACHINE', 'LATHE MACHINE', 'MILLING', 'CASTING', 'FORGING', 'MOULDING', 'GRINDING', 'CUTTING', 'OTHER'];
 
@@ -151,7 +150,6 @@ function MachineDataEntry({ selections, onBack, onSubmitted }: { selections: Mac
                 <form onSubmit={handleSubmit}>
                     <CardHeader>
                          <div className="flex items-center gap-4">
-                            <SidebarTrigger className="md:hidden"/>
                             <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Details</CardTitle>
                         </div>
                         <CardDescription>Enter the details for each selected machine.</CardDescription>
@@ -497,7 +495,6 @@ export default function MachinePage() {
         <Card className="w-full max-w-2xl shadow-lg">
           <CardHeader>
             <div className="flex items-center gap-4">
-                <SidebarTrigger className="md:hidden"/>
                 <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Cog />Machine Selection</CardTitle>
             </div>
             <CardDescription>Choose the machines you are operating and their quantities.</CardDescription>

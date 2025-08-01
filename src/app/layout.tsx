@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarInset } from '@/components/ui/sidebar';
 import { Menu } from 'lucide-react';
 import { MainNav } from '@/components/main-nav';
 
@@ -25,11 +25,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
+        <div className="sidebar-container">
+          <button className="z-50 p-2 rounded-md hover:bg-accent">
+            <Menu className="h-6 w-6" />
+          </button>
+          <div className="sidebar-content">
             <Sidebar>
                 <SidebarHeader>
                      <Link href="/" className="font-headline text-2xl font-bold flex items-center gap-2">
-                        <Menu />
                         <span>Job Tracker</span>
                     </Link>
                 </SidebarHeader>
@@ -37,10 +40,11 @@ export default function RootLayout({
                     <MainNav />
                 </SidebarContent>
             </Sidebar>
-            <SidebarInset>
-                {children}
-            </SidebarInset>
-        </SidebarProvider>
+          </div>
+        </div>
+        <SidebarInset>
+            {children}
+        </SidebarInset>
       </body>
     </html>
   );

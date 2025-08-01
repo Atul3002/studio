@@ -129,6 +129,19 @@
   .animate-rotate-slow {
     animation: rotate 10s linear infinite;
   }
+
+  .sidebar-container {
+    @apply fixed top-4 left-4 z-50;
+  }
+
+  .sidebar-content {
+    @apply fixed top-4 left-4 z-40 h-auto w-64 bg-sidebar p-4 rounded-lg shadow-lg transition-transform duration-300 ease-in-out;
+    transform: translateX(-110%);
+  }
+
+  .sidebar-container:hover .sidebar-content {
+    transform: translateX(0);
+  }
 }
 
 @keyframes rotate {

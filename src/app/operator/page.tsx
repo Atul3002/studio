@@ -17,7 +17,6 @@ import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink, 
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmission } from "@/app/actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface DimensionCheck {
     catNo: string;
@@ -208,7 +207,6 @@ function OperatorWorkflow() {
         <form onSubmit={handleDataSubmit}>
           <CardHeader>
             <div className="flex items-center gap-4">
-                <SidebarTrigger className="md:hidden"/>
                 <CardTitle className="font-headline text-2xl flex items-center gap-2"><Wrench />Operator Data Entry</CardTitle>
             </div>
             <CardDescription>
@@ -466,7 +464,6 @@ function ProductTypeSelection({ onSelect }: { onSelect: (product: string) => voi
             <Card className="w-full max-w-md shadow-2xl">
                  <CardHeader className="text-center">
                      <div className="flex items-center gap-4">
-                        <SidebarTrigger className="md:hidden"/>
                         <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                             <Package className="w-8 h-8 text-primary" />
                         </div>
@@ -502,7 +499,6 @@ function StationSelection({ onSelect }: { onSelect: (station: string) => void })
             <Card className="w-full max-w-md shadow-2xl">
                 <CardHeader className="text-center">
                     <div className="flex items-center gap-4">
-                        <SidebarTrigger className="md:hidden"/>
                         <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                             <Hash className="w-8 h-8 text-primary" />
                         </div>
