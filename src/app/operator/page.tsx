@@ -17,6 +17,7 @@ import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink, 
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmission } from "@/app/actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface DimensionCheck {
     catNo: string;
@@ -139,7 +140,7 @@ function OperatorWorkflow() {
 
   if (isSubmitted) {
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4">
              <Card className="w-full max-w-lg text-center shadow-lg">
                 <CardHeader>
                     <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
@@ -202,11 +203,14 @@ function OperatorWorkflow() {
   const shiftOptions = ['First', 'Second', 'Third', 'General'];
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-lg">
         <form onSubmit={handleDataSubmit}>
           <CardHeader>
-            <CardTitle className="font-headline text-2xl flex items-center gap-2"><Wrench />Operator Data Entry</CardTitle>
+            <div className="flex items-center gap-4">
+                <SidebarTrigger className="md:hidden"/>
+                <CardTitle className="font-headline text-2xl flex items-center gap-2"><Wrench />Operator Data Entry</CardTitle>
+            </div>
             <CardDescription>
                 Enter production data for <span className="font-bold text-primary">{machine}</span>.
             </CardDescription>
@@ -458,11 +462,14 @@ function ProductTypeSelection({ onSelect }: { onSelect: (product: string) => voi
     const [productType, setProductType] = useState('');
     const productTypes = ['VCB', 'AIS', 'GIS', 'VCU', 'ET'];
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4">
             <Card className="w-full max-w-md shadow-2xl">
                  <CardHeader className="text-center">
-                    <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-                        <Package className="w-8 h-8 text-primary" />
+                     <div className="flex items-center gap-4">
+                        <SidebarTrigger className="md:hidden"/>
+                        <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
+                            <Package className="w-8 h-8 text-primary" />
+                        </div>
                     </div>
                     <CardTitle className="font-headline text-3xl">Select Product Type</CardTitle>
                     <CardDescription>Choose the product you are working on.</CardDescription>
@@ -491,11 +498,14 @@ function StationSelection({ onSelect }: { onSelect: (station: string) => void })
     const [station, setStation] = useState('');
     const stations = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4">
+        <main className="flex min-h-screen flex-col items-center justify-center p-4">
             <Card className="w-full max-w-md shadow-2xl">
                 <CardHeader className="text-center">
-                    <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit mb-4">
-                        <Hash className="w-8 h-8 text-primary" />
+                    <div className="flex items-center gap-4">
+                        <SidebarTrigger className="md:hidden"/>
+                        <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
+                            <Hash className="w-8 h-8 text-primary" />
+                        </div>
                     </div>
                     <CardTitle className="font-headline text-3xl">Select Station</CardTitle>
                     <CardDescription>Choose your station number.</CardDescription>

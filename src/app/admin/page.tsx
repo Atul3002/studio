@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { getSubmissions } from "@/app/actions";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
 
@@ -257,12 +258,10 @@ function AdminDashboard() {
     const machineTypes = [...new Set(submissions.filter(s => s.tonnage !== undefined).map(s => s.machine.split(' - ')[0]))];
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className="flex min-h-screen w-full flex-col">
       <div className="flex flex-col sm:gap-4 sm:py-4">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-           <Button asChild variant="outline" size="icon" className="h-8 w-8">
-             <Link href="/"><ArrowLeft className="h-4 w-4" /></Link>
-           </Button>
+           <SidebarTrigger className="md:hidden" />
           <h1 className="font-headline text-2xl font-semibold">Admin Dashboard</h1>
            <div className="ml-auto">
              <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
@@ -272,7 +271,81 @@ function AdminDashboard() {
            </div>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><TrendingUp /> OEE</CardTitle>
+                        <CardDescription>Overall Equipment Effectiveness</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
+                            <RechartsPieChart>
+                                <Pie data={[{name: 'OEE', value: oeeData.oee, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.oee, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
+                                </Pie>
+                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
+                                    {oeeData.oee}%
+                                </text>
+                            </RechartsPieChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Zap /> Availability</CardTitle>
+                        <CardDescription>Percentage of time the machine is operational.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
+                            <RechartsPieChart>
+                                <Pie data={[{name: 'Availability', value: oeeData.availability, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.availability, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
+                                </Pie>
+                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                 <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
+                                    {oeeData.availability}%
+                                </text>
+                            </RechartsPieChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Star /> Performance</CardTitle>
+                        <CardDescription>Speed as a percentage of its designed speed.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
+                            <RechartsPieChart>
+                                <Pie data={[{name: 'Performance', value: oeeData.performance, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.performance, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
+                                </Pie>
+                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                 <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
+                                    {oeeData.performance}%
+                                </text>
+                            </RechartsPieChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><ShieldCheck /> Quality</CardTitle>
+                        <CardDescription>Percentage of good parts produced.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
+                            <RechartsPieChart>
+                                <Pie data={[{name: 'Quality', value: oeeData.quality, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.quality, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
+                                </Pie>
+                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
+                                    {oeeData.quality}%
+                                </text>
+                            </RechartsPieChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
                  <Card>
                     <CardHeader>
                         <CardTitle className="font-headline flex items-center gap-2 text-2xl"><BarChart className="animate-rotate-slow" />Machine Submissions</CardTitle>
@@ -361,80 +434,7 @@ function AdminDashboard() {
                 </Card>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><TrendingUp /> OEE</CardTitle>
-                        <CardDescription>Overall Equipment Effectiveness</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
-                            <RechartsPieChart>
-                                <Pie data={[{name: 'OEE', value: oeeData.oee, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.oee, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
-                                </Pie>
-                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
-                                    {oeeData.oee}%
-                                </text>
-                            </RechartsPieChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Zap /> Availability</CardTitle>
-                        <CardDescription>Percentage of time the machine is operational.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                       <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
-                            <RechartsPieChart>
-                                <Pie data={[{name: 'Availability', value: oeeData.availability, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.availability, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
-                                </Pie>
-                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                 <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
-                                    {oeeData.availability}%
-                                </text>
-                            </RechartsPieChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Star /> Performance</CardTitle>
-                        <CardDescription>Speed as a percentage of its designed speed.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
-                            <RechartsPieChart>
-                                <Pie data={[{name: 'Performance', value: oeeData.performance, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.performance, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
-                                </Pie>
-                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                 <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
-                                    {oeeData.performance}%
-                                </text>
-                            </RechartsPieChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><ShieldCheck /> Quality</CardTitle>
-                        <CardDescription>Percentage of good parts produced.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <ChartContainer config={oeeChartConfig} className="min-h-[200px] w-full">
-                            <RechartsPieChart>
-                                <Pie data={[{name: 'Quality', value: oeeData.quality, fill: 'hsl(var(--primary))'}, {name: 'Remaining', value: 100 - oeeData.quality, fill: 'hsl(var(--muted))'}]} dataKey="value" nameKey="name" innerRadius={60} outerRadius={80} startAngle={90} endAngle={450}>
-                                </Pie>
-                                <Tooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-3xl font-bold">
-                                    {oeeData.quality}%
-                                </text>
-                            </RechartsPieChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
-            </div>
+           
         </main>
       </div>
     </div>
