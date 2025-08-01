@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <div className="sidebar-container">
           <button className="z-50 p-2 rounded-md hover:bg-accent">
-            <Menu className="h-6 w-6" />
+            <Menu className="h-8 w-8" />
           </button>
           <div className="sidebar-content">
             <Sidebar>
