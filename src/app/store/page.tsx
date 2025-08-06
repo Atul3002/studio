@@ -20,6 +20,8 @@ function StoreDashboard() {
   const [formData, setFormData] = useState({
     rawMaterialOpening: "",
     rawMaterialClosing: "",
+    rawMaterialType: "",
+    rawMaterialThickness: "",
     inProcessOpening: "",
     inProcessClosing: "",
     finishGoodsOpening: "",
@@ -48,6 +50,8 @@ function StoreDashboard() {
     setFormData({
         rawMaterialOpening: "",
         rawMaterialClosing: "",
+        rawMaterialType: "",
+        rawMaterialThickness: "",
         inProcessOpening: "",
         inProcessClosing: "",
         finishGoodsOpening: "",
@@ -99,6 +103,14 @@ function StoreDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-4 p-4 border rounded-lg">
                     <h3 className="font-semibold text-lg flex items-center gap-2"><Package /> Raw Material</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="rawMaterialType">Type of Material</Label>
+                      <Input id="rawMaterialType" value={formData.rawMaterialType} onChange={handleInputChange} required />
+                    </div>
+                     <div className="space-y-2">
+                      <Label htmlFor="rawMaterialThickness">Thickness of Material</Label>
+                      <Input id="rawMaterialThickness" value={formData.rawMaterialThickness} onChange={handleInputChange} required />
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="rawMaterialOpening">Opening Stock</Label>
                       <Input id="rawMaterialOpening" type="number" value={formData.rawMaterialOpening} onChange={handleInputChange} required />
