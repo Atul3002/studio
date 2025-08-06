@@ -325,5 +325,57 @@
     "machineNumber": "1",
     "machinePower": "1",
     "tonnage": "1"
+  },
+  {
+    "id": "2025-08-02T06:29:24.229Z",
+    "entryType": "productionData",
+    "dailyProductionTarget": "32",
+    "rejectionQuantity": "2424",
+    "rejectionReason": "324",
+    "toolWearDetails": "123",
+    "maintenanceDate": "August 11th, 2025",
+    "gaugeStatus": "ok",
+    "gaugeReason": "",
+    "dimensionStatus": "not-ok",
+    "dimensionReason": "24",
+    "shiftDetails": "234",
+    "coolantStatus": "2"
+  },
+  {
+    "id": "2025-08-02T06:36:21.454Z",
+    "machine": "Unselected",
+    "productType": "AIS",
+    "station": "2",
+    "operatorName": "de",
+    "shiftDetails": "Third",
+    "entryTime": "15:05",
+    "exitTime": "02:23",
+    "serialNumber": "21",
+    "machineSpeed": "423234",
+    "machineFeed": "12",
+    "vibrationLevel": "214",
+    "coolantStatus": "234",
+    "toolWearStatus": "ok",
+    "toolWearReason": "",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Power failure",
+    "otherProblemReason": "",
+    "materialAvailability": "Not Available",
+    "machineFailure": "no",
+    "machineFailureReason": "",
+    "gaugeChecked": "yes",
+    "dimensionChecks": [
+      {
+        "catNo": "11111111",
+        "status": "ok",
+        "reason": ""
+      },
+      {
+        "catNo": "22222222",
+        "status": "ok",
+        "reason": ""
+      }
+    ]
   }
 ]
