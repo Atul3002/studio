@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { getSubmissions } from "@/app/actions";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
 const TREEMAP_COLORS = ["#8889DD", "#9597E4", "#8DC77B", "#A5D297", "#E2CF45", "#F8C12D"];
@@ -139,7 +140,39 @@ function AdminDashboard() {
     }, [])
 
     const downloadCSV = () => {
-        // ... (downloadCSV function as before)
+        const fields = [
+            // Common fields
+            'id', 
+            // Operator fields
+            'machine', 'productType', 'station', 'operatorName', 'shiftDetails', 'entryTime', 'exitTime', 'serialNumber', 'machineSpeed', 'machineFeed', 'vibrationLevel', 'coolantStatus', 'toolWearStatus', 'toolWearReason', 'dimensionMeasureStatus', 'dimensionMeasureReason', 'problem', 'otherProblemReason', 'materialAvailability', 'machineFailure', 'machineFailureReason', 'gaugeChecked',
+            // Production fields
+            'entryType', 'dailyProductionTarget', 'rejectionQuantity', 'rejectionReason', 'toolWearDetails', 'maintenanceDate', 'gaugeStatus', 'gaugeReason', 'dimensionStatus', 'dimensionReason',
+            // Store fields
+            'date', 'rawMaterialOpening', 'rawMaterialClosing', 'rawMaterialType', 'rawMaterialThickness', 'inProcessOpening', 'inProcessClosing', 'finishGoodsOpening', 'finishGoodsClosing',
+            // Finance fields
+            'amount', 'description', 
+        ];
+
+        // We can create a more dynamic header based on what's actually in the data
+        const allKeys = submissions.reduce((acc, curr) => {
+            Object.keys(curr).forEach(key => acc.add(key));
+            return acc;
+        }, new Set<string>());
+
+        const csv = Papa.unparse({
+            fields: Array.from(allKeys),
+            data: submissions
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "submissions.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
   return (
@@ -148,9 +181,16 @@ function AdminDashboard() {
             <div className="flex items-center gap-2">
                 <BarChart className="h-6 w-6" />
                 <div>
-                    <h1 className="text-xl font-semibold">SALES DASHBOARD</h1>
-                    <p className="text-xs text-muted-foreground">SUPERMARKET SHOP</p>
+                    <h1 className="text-xl font-semibold">ADMIN DASHBOARD</h1>
                 </div>
+            </div>
+            <div className="flex-1">
+                <Tabs defaultValue="sales" className="w-[200px] mx-auto">
+                    <TabsList>
+                        <TabsTrigger value="sales">Sales</TabsTrigger>
+                        <TabsTrigger value="production">Production</TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </div>
              <div className="ml-auto">
                  <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={submissions.length === 0}>
@@ -328,3 +368,5 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
+
+    
