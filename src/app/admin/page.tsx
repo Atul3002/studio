@@ -162,7 +162,11 @@ function AdminDashboard() {
                 'Raw Material Opening Stock': '', 'Raw Material Closing Stock': '',
                 'In-Process Opening Stock': '', 'In-Process Closing Stock': '',
                 'Finished Goods Opening Stock': '', 'Finished Goods Closing Stock': '',
-                'Finance: Entry Type': '', 'Finance: Amount': '', 'Finance: Description': '', 'Finance: Machine': ''
+                'Finance: Entry Type': '', 'Finance: Amount': '', 'Finance: Description': '', 'Finance: Machine': '',
+                'Production: Daily Target': '', 'Production: Rejection Qty': '', 'Production: Rejection Reason': '',
+                'Production: Tool Wear Details': '', 'Production: Maintenance Date': '', 'Production: Gauge Status': '',
+                'Production: Gauge Reason': '', 'Production: Dimension Status': '', 'Production: Dimension Reason': '',
+                'Production: Shift Details': '', 'Production: Coolant Status': ''
             };
 
             if (s.entryType === 'storeData') { // This is a store entry
@@ -188,6 +192,23 @@ function AdminDashboard() {
                     'Finance: Amount': s.amount,
                     'Finance: Description': s.description,
                     'Finance: Machine': s.machine || '',
+                };
+            } else if (s.entryType === 'productionData') { // This is a production entry
+                 return {
+                    ...emptyFields,
+                    ...baseData,
+                    'Entry Type': 'Production Data',
+                    'Production: Daily Target': s.dailyProductionTarget,
+                    'Production: Rejection Qty': s.rejectionQuantity,
+                    'Production: Rejection Reason': s.rejectionReason,
+                    'Production: Tool Wear Details': s.toolWearDetails,
+                    'Production: Maintenance Date': s.maintenanceDate,
+                    'Production: Gauge Status': s.gaugeStatus,
+                    'Production: Gauge Reason': s.gaugeReason,
+                    'Production: Dimension Status': s.dimensionStatus,
+                    'Production: Dimension Reason': s.dimensionReason,
+                    'Production: Shift Details': s.shiftDetails,
+                    'Production: Coolant Status': s.coolantStatus,
                 };
             } else if (s.tonnage !== undefined) { // This is a machine entry
                 return {
