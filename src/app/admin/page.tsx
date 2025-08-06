@@ -162,6 +162,7 @@ function AdminDashboard() {
                 'Raw Material Opening Stock': '', 'Raw Material Closing Stock': '',
                 'In-Process Opening Stock': '', 'In-Process Closing Stock': '',
                 'Finished Goods Opening Stock': '', 'Finished Goods Closing Stock': '',
+                'Finance: Entry Type': '', 'Finance: Amount': '', 'Finance: Description': '', 'Finance: Machine': ''
             };
 
             if (s.entryType === 'storeData') { // This is a store entry
@@ -177,6 +178,16 @@ function AdminDashboard() {
                     'In-Process Closing Stock': s.inProcessClosing,
                     'Finished Goods Opening Stock': s.finishGoodsOpening,
                     'Finished Goods Closing Stock': s.finishGoodsClosing,
+                };
+            } else if (s.entryType?.startsWith('finance')) { // This is a finance entry
+                 return {
+                    ...emptyFields,
+                    ...baseData,
+                    'Entry Type': 'Finance Data',
+                    'Finance: Entry Type': s.entryType.split('-')[1],
+                    'Finance: Amount': s.amount,
+                    'Finance: Description': s.description,
+                    'Finance: Machine': s.machine || '',
                 };
             } else if (s.tonnage !== undefined) { // This is a machine entry
                 return {
