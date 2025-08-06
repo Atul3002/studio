@@ -185,10 +185,14 @@ function AdminDashboard() {
                 </div>
             </div>
             <div className="flex-1">
-                <Tabs defaultValue="sales" className="w-[200px] mx-auto">
+                <Tabs defaultValue="sales" className="w-auto mx-auto">
                     <TabsList>
                         <TabsTrigger value="sales">Sales</TabsTrigger>
                         <TabsTrigger value="production">Production</TabsTrigger>
+                        <TabsTrigger value="inventory">Inventory</TabsTrigger>
+                        <TabsTrigger value="oee">OEE</TabsTrigger>
+                        <TabsTrigger value="skill-matrix">Skill Matrix</TabsTrigger>
+                        <TabsTrigger value="quality">Quality</TabsTrigger>
                     </TabsList>
                 </Tabs>
             </div>
@@ -257,7 +261,7 @@ function AdminDashboard() {
                 <div className="space-y-4">
                      <Card className="bg-card/80">
                         <CardHeader className="p-4">
-                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Trophy /> TOP MACHINE</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Trophy />TOP MACHINE</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                             <p className="text-lg font-bold">{topMachine.type}</p>
@@ -266,7 +270,7 @@ function AdminDashboard() {
                     </Card>
                      <Card className="bg-card/80">
                         <CardHeader className="p-4">
-                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertTriangle /> TOP PROBLEM</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertTriangle />TOP PROBLEM</CardTitle>
                         </CardHeader>
                         <CardContent className="p-4 pt-0">
                              <p className="text-lg font-bold">{topProblem.type}</p>
@@ -284,7 +288,9 @@ function AdminDashboard() {
                         <ResponsiveContainer width="100%" height="100%">
                             <RechartsPieChart>
                                 <Pie data={operatorProblemData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5}>
-                                    {operatorProblemData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                    {operatorProblemData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
                                 </Pie>
                                 <Tooltip content={<CustomTooltip />} />
                             </RechartsPieChart>
@@ -303,11 +309,10 @@ function AdminDashboard() {
                               ratio={4 / 3}
                               stroke="hsl(var(--background))"
                               fill="hsl(var(--card))"
+                              content={
+                                <CustomizedContent colors={TREEMAP_COLORS} />
+                              }
                             >
-                                {machineChartData.map((item, index) => (
-                                    <Cell key={`cell-${index}`} fill={TREEMAP_COLORS[index % TREEMAP_COLORS.length]} />
-                                ))}
-                                 <Tooltip content={<CustomTooltip />} />
                             </Treemap>
                         </ResponsiveContainer>
                     </CardContent>
@@ -329,7 +334,7 @@ function AdminDashboard() {
                             <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                             <Tooltip content={<CustomTooltip />} />
-                            <Area type="monotone" dataKey="submissions" stroke="hsl(var(--primary))" fill="url(#colorSubmissions)" />
+                            <Area type="monotone" dataKey="submissions" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorSubmissions)" />
                         </RechartsAreaChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -338,6 +343,39 @@ function AdminDashboard() {
     </div>
   );
 }
+
+const CustomizedContent = (props: any) => {
+  const { root, depth, x, y, width, height, index, payload, rank, name } = props;
+  const color = props.colors[Math.floor(Math.random() * props.colors.length)];
+
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        style={{
+          fill: depth < 2 ? color : "none",
+          stroke: "#fff",
+          strokeWidth: 2 / (depth + 1e-10),
+          strokeOpacity: 1 / (depth + 1e-10)
+        }}
+      />
+      {depth === 1 ? (
+        <text
+          x={x + width / 2}
+          y={y + height / 2 + 7}
+          textAnchor="middle"
+          fill="#fff"
+          fontSize={14}
+        >
+          {name}
+        </text>
+      ) : null}
+    </g>
+  );
+};
 
 
 export default function AdminPage() {
@@ -368,5 +406,3 @@ export default function AdminPage() {
 
   return <AdminDashboard />;
 }
-
-    
