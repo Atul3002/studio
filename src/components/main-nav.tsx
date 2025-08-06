@@ -1,3 +1,4 @@
+
 "use client"
 
 import Link from "next/link"
@@ -7,6 +8,7 @@ import {
   BarChart3,
   Cog,
   DollarSign,
+  Gem,
   ShieldCheck,
   Wrench,
 } from "lucide-react"
@@ -47,6 +49,11 @@ const navItems = [
     href: "/store",
     icon: Archive,
     title: "Store",
+  },
+  {
+    href: "/quality",
+    icon: Gem,
+    title: "Quality",
   },
 ]
 
