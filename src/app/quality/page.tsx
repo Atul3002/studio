@@ -37,7 +37,7 @@ function QualityDashboard() {
             </Card>
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-xl flex items-center gap-2"><AlertCircle /> Customer Complaint Entry</CardTitle>
+                    <CardTitle className="font-headline text-xl flex items-center gap-2"><AlertCircle /> Customer complaint Entry</CardTitle>
                     <CardDescription>Log and manage customer complaints.</CardDescription>
                 </CardHeader>
                 <CardContent>
