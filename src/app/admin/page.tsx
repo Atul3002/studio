@@ -198,14 +198,14 @@ function AdminDashboard() {
                           stroke="hsl(var(--primary))"
                           fill="hsl(var(--primary) / 0.6)"
                           fillOpacity={0.6}
+                          label={{ 
+                            position: "outside", 
+                            offset: 5,
+                            formatter: (value: number) => `${value}%`, 
+                            fill: "#FFFFFF",
+                            className: "text-sm"
+                          }}
                         >
-                          <RechartsLabel 
-                            position="outside" 
-                            offset={5}
-                            formatter={(value: number) => `${value}%`} 
-                            fill="#FFFFFF"
-                            className="text-sm"
-                          />
                         </Radar>
                       </RadarChart>
                     </ResponsiveContainer>
