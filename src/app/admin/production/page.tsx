@@ -92,7 +92,7 @@ function ProductionDashboard() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/40 bg-background/95 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pl-20">
                 <BarChart className="h-6 w-6" />
                 <div>
                     <h1 className="text-xl font-semibold">ADMIN DASHBOARD</h1>
