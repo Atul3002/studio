@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine } from "recharts";
-import { BarChart, Download } from "lucide-react";
+import { BarChart, Download, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,10 +37,17 @@ interface WaterfallData {
 
 function ProductionDashboard() {
     const [waterfallData, setWaterfallData] = useState<WaterfallData[]>([]);
+    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     useEffect(() => {
-        getSubmissions().then(data => {
-            const productionSubmissions = data.filter(s => s.entryType === 'productionData');
+        getSubmissions().then(allData => {
+            const filteredData = selectedMonth !== null 
+                ? allData.filter(s => new Date(s.id).getMonth() === selectedMonth)
+                : allData;
+
+            const productionSubmissions = filteredData.filter(s => s.entryType === 'productionData');
             
             let totalTarget = 0;
             let totalRejection = 0;
@@ -87,7 +94,15 @@ function ProductionDashboard() {
 
             setWaterfallData(processedData as any);
         });
-    }, []);
+    }, [selectedMonth]);
+
+    const handleMonthSelect = (monthIndex: number) => {
+        setSelectedMonth(monthIndex);
+    };
+    
+    const clearFilter = () => {
+        setSelectedMonth(null);
+    };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -102,10 +117,10 @@ function ProductionDashboard() {
                 <Link href="/admin" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Overall</Link>
                 <Link href="/admin/sales" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Sales</Link>
                 <Link href="/admin/production" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Production</Link>
-                <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Inventory</Link>
-                <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">OEE</Link>
-                <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
-                <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Quality</Link>
+                <Link href="/admin/inventory" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Inventory</Link>
+                <Link href="/admin/oee" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">OEE</Link>
+                <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
+                <Link href="/admin/quality" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Quality</Link>
             </nav>
              <div className="ml-auto">
                  <Button size="sm" className="gap-1" disabled>
@@ -114,33 +129,64 @@ function ProductionDashboard() {
                  </Button>
             </div>
         </header>
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <Card className="bg-card/80">
-                <CardHeader>
-                    <CardTitle className="text-lg font-semibold">Production Waterfall Chart</CardTitle>
-                    <CardDescription>Shows the flow from production target to actual output.</CardDescription>
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
+             <aside className="py-4">
+              <Card className="bg-card/50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-md">Monthly Filter</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                         <RechartsBarChart 
-                            data={waterfallData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                         >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                            <YAxis stroke="hsl(var(--muted-foreground))" />
-                            <Tooltip content={<CustomTooltip />} />
-                            <ReferenceLine y={0} stroke="hsl(var(--border))" />
-                            <Bar dataKey="bar" stackId="a">
-                                {waterfallData.map((entry, index) => (
-                                    <Bar key={`cell-${index}`} fill={entry.fill} />
-                                ))}
-                            </Bar>
-                             <Bar dataKey="start" stackId="a" fill="transparent" />
-                        </RechartsBarChart>
-                    </ResponsiveContainer>
+                <CardContent>
+                  <div className="flex flex-col space-y-2">
+                    {months.map((month, index) => (
+                      <Button
+                        key={month}
+                        variant={selectedMonth === index ? "secondary" : "ghost"}
+                        className="justify-start"
+                        onClick={() => handleMonthSelect(index)}
+                      >
+                        {month}
+                      </Button>
+                    ))}
+                  </div>
                 </CardContent>
-            </Card>
+                {selectedMonth !== null && (
+                   <CardHeader className="pt-0">
+                      <Button variant="outline" size="sm" onClick={clearFilter}>
+                        <X className="w-4 h-4 mr-2" />
+                        Clear Filter
+                      </Button>
+                   </CardHeader>
+                )}
+              </Card>
+            </aside>
+            <div className="py-4">
+                <Card className="bg-card/80">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-semibold">{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Production Waterfall Chart</CardTitle>
+                        <CardDescription>Shows the flow from production target to actual output.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[400px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                             <RechartsBarChart 
+                                data={waterfallData}
+                                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                             >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                                <YAxis stroke="hsl(var(--muted-foreground))" />
+                                <Tooltip content={<CustomTooltip />} />
+                                <ReferenceLine y={0} stroke="hsl(var(--border))" />
+                                <Bar dataKey="bar" stackId="a">
+                                    {waterfallData.map((entry, index) => (
+                                        <Bar key={`cell-${index}`} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                                 <Bar dataKey="start" stackId="a" fill="transparent" />
+                            </RechartsBarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+            </div>
         </main>
     </div>
   );
