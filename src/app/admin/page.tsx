@@ -203,7 +203,7 @@ function AdminDashboard() {
                             position="outside" 
                             offset={5}
                             formatter={(value: number) => `${value}%`} 
-                            fill="hsl(var(--foreground))"
+                            fill="#FFFFFF"
                             className="text-sm"
                           />
                         </Radar>
