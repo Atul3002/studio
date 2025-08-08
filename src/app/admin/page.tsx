@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Briefcase, Users, FileText, Target, Shield } from "lucide-react";
+import { BarChart, Briefcase, Users, FileText, Target, Shield, X } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
-const chartData = [
+const initialChartData = [
   { name: "Sales", value: 85, fullMark: 100, color: "hsl(var(--chart-1))" },
   { name: "Production", value: 92, fullMark: 100, color: "hsl(var(--chart-2))" },
   { name: "Inventory", value: 75, fullMark: 100, color: "hsl(var(--chart-3))" },
@@ -102,6 +103,32 @@ function SemiCircleChart({ data }: { data: { name: string, value: number, color:
 }
 
 function AdminDashboard() {
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [chartData, setChartData] = useState(initialChartData);
+
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  useEffect(() => {
+    if (selectedMonth !== null) {
+      // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
+      const newChartData = initialChartData.map(item => ({
+        ...item,
+        value: Math.floor(Math.random() * (95 - 60 + 1)) + 60,
+      }));
+      setChartData(newChartData);
+    } else {
+      setChartData(initialChartData);
+    }
+  }, [selectedMonth]);
+  
+  const handleMonthSelect = (monthIndex: number) => {
+    setSelectedMonth(monthIndex);
+  };
+  
+  const clearFilter = () => {
+    setSelectedMonth(null);
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/40 bg-background/95 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -121,34 +148,67 @@ function AdminDashboard() {
             <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Quality</Link>
         </nav>
       </header>
-      <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-3">
-        <div className="md:col-span-2">
-            <Card className="bg-card/80">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">Overall Efficiency</CardTitle>
-                <CardDescription>A high-level overview of performance across key business areas.</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[500px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={chartData} outerRadius="70%">
-                    <PolarGrid stroke="hsl(var(--border))" />
-                    <PolarAngleAxis dataKey="name" tick={<CustomPolarAngleAxis />} />
-                    <Radar
-                      name="Efficiency"
-                      dataKey="value"
-                      stroke="hsl(var(--primary))"
-                      fill="hsl(var(--primary) / 0.6)"
-                      fillOpacity={0.6}
-                    />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-        </div>
-        <div className="md:col-span-1 grid grid-cols-2 gap-4">
-            {chartData.map((item) => (
-                <SemiCircleChart key={item.name} data={item} />
-            ))}
+      <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
+        <aside className="py-4">
+          <Card className="bg-card/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-md">Monthly Filter</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col space-y-2">
+                {months.map((month, index) => (
+                  <Button
+                    key={month}
+                    variant={selectedMonth === index ? "secondary" : "ghost"}
+                    className="justify-start"
+                    onClick={() => handleMonthSelect(index)}
+                  >
+                    {month}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+            {selectedMonth !== null && (
+               <CardHeader className="pt-0">
+                  <Button variant="outline" size="sm" onClick={clearFilter}>
+                    <X className="w-4 h-4 mr-2" />
+                    Clear Filter
+                  </Button>
+               </CardHeader>
+            )}
+          </Card>
+        </aside>
+        <div className="grid md:grid-cols-3 gap-8 py-4">
+            <div className="md:col-span-2">
+                <Card className="bg-card/80">
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">
+                      {selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Overall Efficiency
+                    </CardTitle>
+                    <CardDescription>A high-level overview of performance across key business areas.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="h-[500px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={chartData} outerRadius="70%">
+                        <PolarGrid stroke="hsl(var(--border))" />
+                        <PolarAngleAxis dataKey="name" tick={<CustomPolarAngleAxis />} />
+                        <Radar
+                          name="Efficiency"
+                          dataKey="value"
+                          stroke="hsl(var(--primary))"
+                          fill="hsl(var(--primary) / 0.6)"
+                          fillOpacity={0.6}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-1 grid grid-cols-2 gap-4">
+                {chartData.map((item) => (
+                    <SemiCircleChart key={item.name} data={item} />
+                ))}
+            </div>
         </div>
       </main>
     </div>
@@ -158,3 +218,5 @@ function AdminDashboard() {
 export default function AdminPage() {
     return <AdminDashboard />
 }
+
+    
