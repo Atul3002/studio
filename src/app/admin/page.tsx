@@ -4,17 +4,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BarChart, Briefcase, Users, FileText, Target, Shield } from "lucide-react";
-import { PolarGrid, PolarAngleAxis, Radar, RadarChart, ResponsiveContainer, Text } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const chartData = [
-  { name: "Sales", value: 85, fullMark: 100 },
-  { name: "Production", value: 92, fullMark: 100 },
-  { name: "Inventory", value: 75, fullMark: 100 },
-  { name: "OEE", value: 88, fullMark: 100 },
-  { name: "Skill Matrix", value: 70, fullMark: 100 },
-  { name: "Quality", value: 95, fullMark: 100 },
+  { name: "Sales", value: 85, fullMark: 100, color: "hsl(var(--chart-1))" },
+  { name: "Production", value: 92, fullMark: 100, color: "hsl(var(--chart-2))" },
+  { name: "Inventory", value: 75, fullMark: 100, color: "hsl(var(--chart-3))" },
+  { name: "OEE", value: 88, fullMark: 100, color: "hsl(var(--chart-4))" },
+  { name: "Skill Matrix", value: 70, fullMark: 100, color: "hsl(var(--chart-5))" },
+  { name: "Quality", value: 95, fullMark: 100, color: "hsl(var(--primary))" },
 ];
 
 const iconMap: { [key: string]: React.ElementType } = {
@@ -62,6 +62,45 @@ function CustomPolarAngleAxis({ payload, x, y, cx, cy, ...rest }: any) {
   );
 }
 
+function SemiCircleChart({ data }: { data: { name: string, value: number, color: string } }) {
+    const chartData = [
+        { name: data.name, value: data.value, color: data.color },
+        { name: 'Remaining', value: 100 - data.value, color: 'hsl(var(--muted))' }
+    ];
+
+    return (
+        <Card className="bg-card/80">
+            <CardHeader>
+                <CardTitle className="text-sm font-medium">{data.name}</CardTitle>
+            </CardHeader>
+            <CardContent className="h-24">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="100%"
+                            startAngle={180}
+                            endAngle={0}
+                            innerRadius={60}
+                            outerRadius={80}
+                            dataKey="value"
+                            paddingAngle={2}
+                        >
+                            {chartData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
+                            ))}
+                        </Pie>
+                         <text x="50%" y="85%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold" fill="hsl(var(--foreground))">
+                            {`${data.value}%`}
+                        </text>
+                    </PieChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
+    );
+}
+
 function AdminDashboard() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -82,28 +121,35 @@ function AdminDashboard() {
             <Link href="#" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Quality</Link>
         </nav>
       </header>
-      <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-        <Card className="bg-card/80">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Overall Efficiency</CardTitle>
-            <CardDescription>A high-level overview of performance across key business areas.</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[500px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={chartData} outerRadius="70%">
-                <PolarGrid stroke="hsl(var(--border))" />
-                <PolarAngleAxis dataKey="name" tick={<CustomPolarAngleAxis />} />
-                <Radar
-                  name="Efficiency"
-                  dataKey="value"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary) / 0.6)"
-                  fillOpacity={0.6}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-3">
+        <div className="md:col-span-2">
+            <Card className="bg-card/80">
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Overall Efficiency</CardTitle>
+                <CardDescription>A high-level overview of performance across key business areas.</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[500px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={chartData} outerRadius="70%">
+                    <PolarGrid stroke="hsl(var(--border))" />
+                    <PolarAngleAxis dataKey="name" tick={<CustomPolarAngleAxis />} />
+                    <Radar
+                      name="Efficiency"
+                      dataKey="value"
+                      stroke="hsl(var(--primary))"
+                      fill="hsl(var(--primary) / 0.6)"
+                      fillOpacity={0.6}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+        </div>
+        <div className="md:col-span-1 grid grid-cols-2 gap-4">
+            {chartData.map((item) => (
+                <SemiCircleChart key={item.name} data={item} />
+            ))}
+        </div>
       </main>
     </div>
   );
