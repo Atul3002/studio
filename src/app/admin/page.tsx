@@ -28,20 +28,28 @@ const iconMap: { [key: string]: React.ElementType } = {
 
 function CustomPolarAngleAxis({ payload, x, y, cx, cy, ...rest }: any) {
   const Icon = iconMap[payload.value];
-  // Calculate angle and position for the icon to be outside the text
-  const angle = (payload.angle * Math.PI) / 180;
-  const iconX = x + (x - cx) * 0.1;
-  const iconY = y + (y - cy) * 0.1;
+  const RADIAN = Math.PI / 180;
+  const angle = payload.angle;
+
+  const textXOffset = 1.15;
+  const textYOffset = 1.15;
+  const textX = cx + (x - cx) * textXOffset;
+  const textY = cy + (y - cy) * textYOffset;
   
+  const iconXOffset = 1.35;
+  const iconYOffset = 1.35;
+  const iconX = cx + (x - cx) * iconXOffset;
+  const iconY = cy + (y - cy) * iconYOffset;
+
   return (
     <g>
       <Text
         {...rest}
         verticalAnchor="middle"
-        y={y + (y - cy) / 10}
-        x={x + (x - cx) / 25}
-        fill="hsl(var(--foreground))"
         textAnchor="middle"
+        x={textX}
+        y={textY}
+        fill="hsl(var(--foreground))"
       >
         {payload.value}
       </Text>
@@ -82,7 +90,7 @@ function AdminDashboard() {
           </CardHeader>
           <CardContent className="h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={chartData} outerRadius="80%">
+              <RadarChart data={chartData} outerRadius="70%">
                 <PolarGrid stroke="hsl(var(--border))" />
                 <PolarAngleAxis dataKey="name" tick={<CustomPolarAngleAxis />} />
                 <Radar
