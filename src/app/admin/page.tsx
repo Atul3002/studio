@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BarChart, Briefcase, Users, FileText, Target, Shield, X } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text, Label as RechartsLabel } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -198,7 +198,15 @@ function AdminDashboard() {
                           stroke="hsl(var(--primary))"
                           fill="hsl(var(--primary) / 0.6)"
                           fillOpacity={0.6}
-                        />
+                        >
+                          <RechartsLabel 
+                            position="outside" 
+                            offset={5}
+                            formatter={(value: number) => `${value}%`} 
+                            fill="hsl(var(--foreground))"
+                            className="text-sm"
+                          />
+                        </Radar>
                       </RadarChart>
                     </ResponsiveContainer>
                   </CardContent>
