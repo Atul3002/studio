@@ -199,7 +199,7 @@ function AdminDashboard() {
                           fill="hsl(var(--primary) / 0.6)"
                           fillOpacity={0.6}
                           label={{ 
-                            position: "outside", 
+                            angle: 0,
                             offset: 5,
                             formatter: (value: number) => `${value}%`, 
                             fill: "#FFFFFF",
