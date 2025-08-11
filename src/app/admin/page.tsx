@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BarChart, Briefcase, Users, FileText, Target, Shield, X, Archive, Cog } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text, Label as RechartsLabel } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text, Label as RechartsLabel, Sector } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,10 +63,34 @@ function CustomPolarAngleAxis({ payload, x, y, cx, cy, ...rest }: any) {
   );
 }
 
-function SemiCircleChart({ data }: { data: { name: string, value: number, color: string } }) {
-    const chartData = [
-        { name: data.name, value: data.value, color: data.color },
-        { name: 'Remaining', value: 100 - data.value, color: 'hsl(var(--muted))' }
+const Needle = ({ value, cx, cy, iR, oR, color }: any) => {
+  const angle = 180 + (value / 100) * 180;
+  const length = (iR + oR) / 2;
+  const sin = Math.sin(-angle * (Math.PI / 180));
+  const cos = Math.cos(-angle * (Math.PI / 180));
+  const x0 = cx;
+  const y0 = cy;
+  const xba = x0 + 5 * sin;
+  const yba = y0 - 5 * cos;
+  const xbb = x0 - 5 * sin;
+  const ybb = y0 + 5 * cos;
+  const xp = x0 + length * cos;
+  const yp = y0 + length * sin;
+
+  return (
+    <>
+      <path d={`M${xba} ${yba}L${xbb} ${ybb} L${xp} ${yp} Z`} stroke="none" fill={color} />
+      <circle cx={x0} cy={y0} r={5} fill={color} stroke="none" />
+    </>
+  );
+};
+
+
+function SpeedometerChart({ data }: { data: { name: string, value: number, color: string } }) {
+    const gaugeData = [
+        { name: 'Low', value: 33.33, color: 'hsl(var(--destructive))' },
+        { name: 'Medium', value: 33.33, color: 'hsl(var(--chart-3))' },
+        { name: 'High', value: 33.33, color: 'hsl(var(--chart-2))' }
     ];
 
     return (
@@ -78,7 +102,7 @@ function SemiCircleChart({ data }: { data: { name: string, value: number, color:
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
-                            data={chartData}
+                            data={gaugeData}
                             cx="50%"
                             cy="100%"
                             startAngle={180}
@@ -87,11 +111,20 @@ function SemiCircleChart({ data }: { data: { name: string, value: number, color:
                             outerRadius={80}
                             dataKey="value"
                             paddingAngle={2}
+                            isAnimationActive={false}
                         >
-                            {chartData.map((entry, index) => (
+                            {gaugeData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
                             ))}
                         </Pie>
+                        <Needle
+                          value={data.value}
+                          color="hsl(var(--foreground))"
+                          cx="50%"
+                          cy="100%"
+                          iR={60}
+                          oR={80}
+                        />
                          <text x="50%" y="85%" textAnchor="middle" dominantBaseline="middle" className="text-2xl font-bold" fill="hsl(var(--foreground))">
                             {`${data.value}%`}
                         </text>
@@ -214,7 +247,7 @@ function AdminDashboard() {
             </div>
             <div className="md:col-span-1 grid grid-cols-2 gap-4">
                 {chartData.map((item) => (
-                    <SemiCircleChart key={item.name} data={item} />
+                    <SpeedometerChart key={item.name} data={item} />
                 ))}
             </div>
         </div>
