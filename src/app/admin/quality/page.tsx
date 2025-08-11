@@ -10,14 +10,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 function QualityDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const years = [2023, 2024, 2025];
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
   };
   
-  const clearFilter = () => {
+  const handleYearSelect = (year: number) => {
+    setSelectedYear(year);
+  };
+
+  const clearFilters = () => {
     setSelectedMonth(null);
+    setSelectedYear(null);
   };
 
   return (
@@ -43,6 +50,23 @@ function QualityDashboard() {
         <aside className="py-4">
           <Card className="bg-card/50">
             <CardHeader className="pb-2">
+              <CardTitle className="text-md">Yearly Filter</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col space-y-2">
+                {years.map((year) => (
+                  <Button
+                    key={year}
+                    variant={selectedYear === year ? "secondary" : "ghost"}
+                    className="justify-start"
+                    onClick={() => handleYearSelect(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+            <CardHeader className="pb-2 pt-4">
               <CardTitle className="text-md">Monthly Filter</CardTitle>
             </CardHeader>
             <CardContent>
@@ -59,11 +83,11 @@ function QualityDashboard() {
                 ))}
               </div>
             </CardContent>
-            {selectedMonth !== null && (
+            {(selectedMonth !== null || selectedYear !== null) && (
                <CardHeader className="pt-0">
-                  <Button variant="outline" size="sm" onClick={clearFilter}>
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
                     <X className="w-4 h-4 mr-2" />
-                    Clear Filter
+                    Clear Filters
                   </Button>
                </CardHeader>
             )}
@@ -72,7 +96,7 @@ function QualityDashboard() {
         <div className="py-4">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Shield /> {selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Quality</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Shield /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Quality</CardTitle>
                     <CardDescription>Quality data and charts will be displayed here.</CardDescription>
                 </CardHeader>
                 <CardContent>

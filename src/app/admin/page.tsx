@@ -137,12 +137,14 @@ function SpeedometerChart({ data }: { data: { name: string, value: number, color
 
 function AdminDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [chartData, setChartData] = useState(initialChartData);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const years = [2023, 2024, 2025];
 
   useEffect(() => {
-    if (selectedMonth !== null) {
+    if (selectedMonth !== null || selectedYear !== null) {
       // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
       const newChartData = initialChartData.map(item => ({
         ...item,
@@ -152,14 +154,19 @@ function AdminDashboard() {
     } else {
       setChartData(initialChartData);
     }
-  }, [selectedMonth]);
+  }, [selectedMonth, selectedYear]);
   
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
   };
   
-  const clearFilter = () => {
+  const handleYearSelect = (year: number) => {
+    setSelectedYear(year);
+  };
+
+  const clearFilters = () => {
     setSelectedMonth(null);
+    setSelectedYear(null);
   };
 
   return (
@@ -185,6 +192,23 @@ function AdminDashboard() {
         <aside className="py-4">
           <Card className="bg-card/50">
             <CardHeader className="pb-2">
+              <CardTitle className="text-md">Yearly Filter</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col space-y-2">
+                {years.map((year) => (
+                  <Button
+                    key={year}
+                    variant={selectedYear === year ? "secondary" : "ghost"}
+                    className="justify-start"
+                    onClick={() => handleYearSelect(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+            <CardHeader className="pb-2 pt-4">
               <CardTitle className="text-md">Monthly Filter</CardTitle>
             </CardHeader>
             <CardContent>
@@ -201,11 +225,11 @@ function AdminDashboard() {
                 ))}
               </div>
             </CardContent>
-            {selectedMonth !== null && (
+            {(selectedMonth !== null || selectedYear !== null) && (
                <CardHeader className="pt-0">
-                  <Button variant="outline" size="sm" onClick={clearFilter}>
+                  <Button variant="outline" size="sm" onClick={clearFilters}>
                     <X className="w-4 h-4 mr-2" />
-                    Clear Filter
+                    Clear Filters
                   </Button>
                </CardHeader>
             )}
@@ -216,7 +240,7 @@ function AdminDashboard() {
                 <Card className="bg-card/80">
                   <CardHeader>
                     <CardTitle className="text-lg font-semibold">
-                      {selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Overall Efficiency
+                      {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Overall Efficiency
                     </CardTitle>
                     <CardDescription>A high-level overview of performance across key business areas.</CardDescription>
                   </CardHeader>

@@ -38,14 +38,19 @@ interface WaterfallData {
 function ProductionDashboard() {
     const [waterfallData, setWaterfallData] = useState<WaterfallData[]>([]);
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const years = [2023, 2024, 2025];
 
     useEffect(() => {
         getSubmissions().then(allData => {
-            const filteredData = selectedMonth !== null 
-                ? allData.filter(s => new Date(s.id).getMonth() === selectedMonth)
-                : allData;
+            const filteredData = allData.filter(s => {
+                const submissionDate = new Date(s.id);
+                const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
+                const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
+                return monthMatch && yearMatch;
+            });
 
             const productionSubmissions = filteredData.filter(s => s.entryType === 'productionData');
             
@@ -94,14 +99,19 @@ function ProductionDashboard() {
 
             setWaterfallData(processedData as any);
         });
-    }, [selectedMonth]);
+    }, [selectedMonth, selectedYear]);
 
     const handleMonthSelect = (monthIndex: number) => {
         setSelectedMonth(monthIndex);
     };
     
-    const clearFilter = () => {
+    const handleYearSelect = (year: number) => {
+        setSelectedYear(year);
+    };
+
+    const clearFilters = () => {
         setSelectedMonth(null);
+        setSelectedYear(null);
     };
 
   return (
@@ -133,6 +143,23 @@ function ProductionDashboard() {
              <aside className="py-4">
               <Card className="bg-card/50">
                 <CardHeader className="pb-2">
+                  <CardTitle className="text-md">Yearly Filter</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col space-y-2">
+                    {years.map((year) => (
+                      <Button
+                        key={year}
+                        variant={selectedYear === year ? "secondary" : "ghost"}
+                        className="justify-start"
+                        onClick={() => handleYearSelect(year)}
+                      >
+                        {year}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardHeader className="pb-2 pt-4">
                   <CardTitle className="text-md">Monthly Filter</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -149,11 +176,11 @@ function ProductionDashboard() {
                     ))}
                   </div>
                 </CardContent>
-                {selectedMonth !== null && (
+                {(selectedMonth !== null || selectedYear !== null) && (
                    <CardHeader className="pt-0">
-                      <Button variant="outline" size="sm" onClick={clearFilter}>
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
                         <X className="w-4 h-4 mr-2" />
-                        Clear Filter
+                        Clear Filters
                       </Button>
                    </CardHeader>
                 )}
@@ -162,7 +189,7 @@ function ProductionDashboard() {
             <div className="py-4">
                 <Card className="bg-card/80">
                     <CardHeader>
-                        <CardTitle className="text-lg font-semibold">{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Production Waterfall Chart</CardTitle>
+                        <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Production Waterfall Chart</CardTitle>
                         <CardDescription>Shows the flow from production target to actual output.</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[400px]">

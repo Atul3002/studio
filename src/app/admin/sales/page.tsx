@@ -48,7 +48,9 @@ function SalesDashboard() {
     const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
     
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [selectedYear, setSelectedYear] = useState<number | null>(null);
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const years = [2023, 2024, 2025];
 
     useEffect(() => {
         getSubmissions().then(data => {
@@ -58,9 +60,12 @@ function SalesDashboard() {
     }, [])
 
     useEffect(() => {
-        const dataToProcess = selectedMonth !== null
-            ? allSubmissions.filter(s => new Date(s.id).getMonth() === selectedMonth)
-            : allSubmissions;
+        const dataToProcess = allSubmissions.filter(s => {
+            const submissionDate = new Date(s.id);
+            const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
+            const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
+            return monthMatch && yearMatch;
+        });
 
         setFilteredSubmissions(dataToProcess);
 
@@ -155,7 +160,7 @@ function SalesDashboard() {
             performance: parseFloat(performance.toFixed(2)) || 0,
             quality: parseFloat(quality.toFixed(2)) || 0,
         });
-    }, [allSubmissions, selectedMonth]);
+    }, [allSubmissions, selectedMonth, selectedYear]);
 
     const downloadCSV = () => {
         const allKeys = filteredSubmissions.reduce((acc, curr) => {
@@ -183,8 +188,13 @@ function SalesDashboard() {
         setSelectedMonth(monthIndex);
     };
     
-    const clearFilter = () => {
+    const handleYearSelect = (year: number) => {
+        setSelectedYear(year);
+    };
+
+    const clearFilters = () => {
         setSelectedMonth(null);
+        setSelectedYear(null);
     };
 
   return (
@@ -216,6 +226,23 @@ function SalesDashboard() {
             <aside className="py-4">
               <Card className="bg-card/50">
                 <CardHeader className="pb-2">
+                  <CardTitle className="text-md">Yearly Filter</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col space-y-2">
+                    {years.map((year) => (
+                      <Button
+                        key={year}
+                        variant={selectedYear === year ? "secondary" : "ghost"}
+                        className="justify-start"
+                        onClick={() => handleYearSelect(year)}
+                      >
+                        {year}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardHeader className="pb-2 pt-4">
                   <CardTitle className="text-md">Monthly Filter</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -232,11 +259,11 @@ function SalesDashboard() {
                     ))}
                   </div>
                 </CardContent>
-                {selectedMonth !== null && (
+                {(selectedMonth !== null || selectedYear !== null) && (
                    <CardHeader className="pt-0">
-                      <Button variant="outline" size="sm" onClick={clearFilter}>
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
                         <X className="w-4 h-4 mr-2" />
-                        Clear Filter
+                        Clear Filters
                       </Button>
                    </CardHeader>
                 )}
@@ -284,7 +311,7 @@ function SalesDashboard() {
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="lg:col-span-2 bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY PRODUCTION</CardTitle>
+                            <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY PRODUCTION</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
