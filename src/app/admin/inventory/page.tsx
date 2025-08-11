@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Archive, X } from "lucide-react";
+import { BarChart, Archive, X, Package, DollarSign, Boxes } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,10 +73,35 @@ function InventoryDashboard() {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Archive /> {selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Inventory</CardTitle>
-                    <CardDescription>Inventory data and charts will be displayed here.</CardDescription>
+                    <CardDescription>Overview of current inventory status.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Coming soon...</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Package /> ITEMS AVAILABLE</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">12,500</p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><DollarSign /> TOTAL STOCK VALUE</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">$1,250,000</p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Boxes /> STOCK BY PRODUCTS</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                               <p className="text-3xl font-bold">5</p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </CardContent>
             </Card>
         </div>
