@@ -223,7 +223,7 @@ function SalesDashboard() {
             </div>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
-            <aside className="py-4">
+            <aside className="py-4 space-y-4">
               <Card className="bg-card/50">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-md">Yearly Filter</CardTitle>
@@ -242,7 +242,9 @@ function SalesDashboard() {
                     ))}
                   </div>
                 </CardContent>
-                <CardHeader className="pb-2 pt-4">
+              </Card>
+              <Card className="bg-card/50">
+                <CardHeader className="pb-2">
                   <CardTitle className="text-md">Monthly Filter</CardTitle>
                 </CardHeader>
                 <CardContent>
