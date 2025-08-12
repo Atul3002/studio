@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart } from "recharts";
-import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote, Building, Wrench } from "lucide-react";
+import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote, Building, Wrench, Wallet, TrendingDown } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -43,6 +43,8 @@ function SalesDashboard() {
     const [totalSale, setTotalSale] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
     const [profitPercentage, setProfitPercentage] = useState(0);
+    const [totalRevenue, setTotalRevenue] = useState(0);
+    const [totalExpenses, setTotalExpenses] = useState(0);
     
     const [monthlyOperatorExpensesData, setMonthlyOperatorExpensesData] = useState<any[]>([]);
     const [monthlyFactoryExpensesData, setMonthlyFactoryExpensesData] = useState<any[]>([]);
@@ -74,6 +76,9 @@ function SalesDashboard() {
         setTotalSale(500000);
         setTotalProfit(125000);
         setProfitPercentage(25);
+        setTotalRevenue(600000);
+        setTotalExpenses(475000);
+
         setPaymentModeData([
             { name: 'Online', value: 450, icon: CreditCard },
             { name: 'Cash', value: 250, icon: Banknote },
@@ -251,7 +256,23 @@ function SalesDashboard() {
               </Card>
             </aside>
             <div className="py-4 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Wallet/> TOTAL REVENUE</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <p className="text-3xl font-bold">₹{totalRevenue.toLocaleString()}</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><TrendingDown /> TOTAL EXPENSES</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <p className="text-3xl font-bold">₹{totalExpenses.toLocaleString()}</p>
+                        </CardContent>
+                    </Card>
                     <Card className="bg-card/80">
                         <CardHeader>
                             <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><ShoppingCart /> TOTAL SALE</CardTitle>
@@ -401,3 +422,4 @@ export default function SalesPage() {
     
 
     
+
