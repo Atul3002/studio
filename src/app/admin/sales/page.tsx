@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart, Treemap } from "recharts";
-import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign } from "lucide-react";
+import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -38,8 +38,8 @@ function SalesDashboard() {
     const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
     const [filteredSubmissions, setFilteredSubmissions] = useState<any[]>([]);
     const [machineChartData, setMachineChartData] = useState<any[]>([]);
-    const [operatorProblemData, setOperatorProblemData] = useState<any[]>([]);
-    const [productionChartData, setProductionChartData] = useState<any[]>([]);
+    const [paymentModeData, setPaymentModeData] = useState<any[]>([]);
+    const [monthlySalesData, setMonthlySalesData] = useState<any[]>([]);
     const [dailySubmissionsData, setDailySubmissionsData] = useState<any[]>([]);
     
     // New state for sales KPIs
@@ -69,10 +69,14 @@ function SalesDashboard() {
 
         setFilteredSubmissions(dataToProcess);
 
-        // Placeholder data for sales KPIs
+        // Placeholder data for sales KPIs and charts
         setTotalSale(500000);
         setTotalProfit(125000);
         setProfitPercentage(25);
+        setPaymentModeData([
+            { name: 'Online', value: 450, icon: CreditCard },
+            { name: 'Cash', value: 250, icon: Banknote },
+        ]);
 
 
         const machineSubmissions = dataToProcess.filter(s => s.machine && s.tonnage !== undefined);
@@ -84,32 +88,24 @@ function SalesDashboard() {
         }, {} as {[key: string]: number});
         
         setMachineChartData(Object.keys(machineCounts).map(key => ({ name: key, size: machineCounts[key] })));
-
-        const operatorSubmissions = dataToProcess.filter(s => s.operatorName);
-        const problemCounts = operatorSubmissions.reduce((acc, curr) => {
-            if (curr.problem) {
-              acc[curr.problem] = (acc[curr.problem] || 0) + 1;
-            }
-            return acc;
-        }, {} as {[key: string]: number});
         
-        setOperatorProblemData(Object.keys(problemCounts).map(key => ({ name: key, value: problemCounts[key] })));
+        const salesData: { [key: number]: number } = {};
         
-        const productionData: { [key: number]: number } = {};
-        
+        // Placeholder sales data generation
         dataToProcess.forEach(s => {
-            if (s.serialNumber) {
-                const month = new Date(s.id).getMonth(); // Assuming all data is for one year.
-                productionData[month] = (productionData[month] || 0) + 1;
+            if (s.serialNumber) { // Using serial number presence as a proxy for a 'sale'
+                const month = new Date(s.id).getMonth();
+                // Random sales value for demonstration
+                salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 5000) + 1000);
             }
         });
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const productionChartDataFormatted = monthNames.map((monthName, i) => ({
+        const salesChartDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
-            produced: productionData[i] || 0
+            sales: salesData[i] || 0
         }));
-        setProductionChartData(productionChartDataFormatted);
+        setMonthlySalesData(salesChartDataFormatted);
 
         const dailyCounts: { [key: number]: number } = {};
         dataToProcess.forEach(s => {
@@ -266,15 +262,15 @@ function SalesDashboard() {
                  <div className="grid grid-cols-1 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY PRODUCTION</CardTitle>
+                            <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY SALES</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsBarChart data={productionChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                <RechartsBarChart data={monthlySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--primary) / 0.1)'}} />
-                                    <Bar dataKey="produced" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="sales" name="Sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                                 </RechartsBarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -283,17 +279,18 @@ function SalesDashboard() {
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">REPORTED PROBLEMS</CardTitle>
+                            <CardTitle className="text-lg font-semibold">PAYMENT MODE</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <RechartsPieChart>
-                                    <Pie data={operatorProblemData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5}>
-                                        {operatorProblemData.map((entry, index) => (
+                                    <Pie data={paymentModeData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5}>
+                                        {paymentModeData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                     <Tooltip content={<CustomTooltip />} />
+                                    <Legend iconType="circle" />
                                 </RechartsPieChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -408,3 +405,5 @@ export default function SalesPage() {
 
   return <SalesDashboard />;
 }
+
+    
