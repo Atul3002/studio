@@ -377,5 +377,27 @@
         "reason": ""
       }
     ]
+  },
+  {
+    "id": "2025-08-12T01:25:59.691Z",
+    "entryType": "finance-operator",
+    "date": "August 11th, 2025",
+    "amount": "23",
+    "description": ".dslj"
+  },
+  {
+    "id": "2025-08-12T01:26:11.335Z",
+    "entryType": "finance-factory",
+    "date": "August 12th, 2025",
+    "amount": "23",
+    "description": "sdl"
+  },
+  {
+    "id": "2025-08-12T01:26:21.307Z",
+    "entryType": "finance-machine",
+    "date": "August 12th, 2025",
+    "machine": "CNC machine",
+    "amount": "123",
+    "description": "sdssss"
   }
 ]

@@ -38,18 +38,21 @@ function SalesDashboard() {
     const [filteredSubmissions, setFilteredSubmissions] = useState<any[]>([]);
     const [paymentModeData, setPaymentModeData] = useState<any[]>([]);
     const [monthlySalesData, setMonthlySalesData] = useState<any[]>([]);
-    const [monthlyExpenseData, setMonthlyExpenseData] = useState<any[]>([]);
-    const [expenseBreakdownData, setExpenseBreakdownData] = useState<any[]>([]);
     
     // New state for sales KPIs
     const [totalSale, setTotalSale] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
     const [profitPercentage, setProfitPercentage] = useState(0);
     
+    const [monthlyOperatorExpensesData, setMonthlyOperatorExpensesData] = useState<any[]>([]);
+    const [monthlyFactoryExpensesData, setMonthlyFactoryExpensesData] = useState<any[]>([]);
+    const [machineExpensesBreakdownData, setMachineExpensesBreakdownData] = useState<any[]>([]);
+
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     useEffect(() => {
         getSubmissions().then(data => {
@@ -85,7 +88,6 @@ function SalesDashboard() {
                 salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 5000) + 1000);
             }
         });
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const salesChartDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
             sales: salesData[i] || 0
@@ -95,31 +97,36 @@ function SalesDashboard() {
         // --- Finance Data Processing ---
         const financeSubmissions = dataToProcess.filter(s => s.entryType && s.entryType.startsWith('finance-'));
         
-        const expenseBreakdown = financeSubmissions.reduce((acc, curr) => {
-            const amount = parseFloat(curr.amount) || 0;
-            if (curr.entryType === 'finance-operator') {
-                acc.Operator = (acc.Operator || 0) + amount;
-            } else if (curr.entryType === 'finance-factory') {
-                acc.Factory = (acc.Factory || 0) + amount;
-            } else if (curr.entryType === 'finance-machine') {
-                acc.Machine = (acc.Machine || 0) + amount;
-            }
-            return acc;
-        }, {} as {[key: string]: number});
-        setExpenseBreakdownData(Object.keys(expenseBreakdown).map(key => ({ name: key, value: expenseBreakdown[key] })));
+        const monthlyOperatorExpenses: { [key: number]: number } = {};
+        const monthlyFactoryExpenses: { [key: number]: number } = {};
+        const machineExpenses: { [key: string]: number } = {};
 
-
-        const monthlyExpenses: { [key: number]: number } = {};
         financeSubmissions.forEach(s => {
-            const month = new Date(s.id).getMonth();
-            const amount = parseFloat(s.amount) || 0;
-            monthlyExpenses[month] = (monthlyExpenses[month] || 0) + amount;
+             const month = new Date(s.id).getMonth();
+             const amount = parseFloat(s.amount) || 0;
+
+            if (s.entryType === 'finance-operator') {
+                monthlyOperatorExpenses[month] = (monthlyOperatorExpenses[month] || 0) + amount;
+            } else if (s.entryType === 'finance-factory') {
+                 monthlyFactoryExpenses[month] = (monthlyFactoryExpenses[month] || 0) + amount;
+            } else if (s.entryType === 'finance-machine' && s.machine) {
+                machineExpenses[s.machine] = (machineExpenses[s.machine] || 0) + amount;
+            }
         });
-        const expenseDataFormatted = monthNames.map((monthName, i) => ({
+
+        const operatorExpenseDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
-            expenses: monthlyExpenses[i] || 0
+            expenses: monthlyOperatorExpenses[i] || 0,
         }));
-        setMonthlyExpenseData(expenseDataFormatted);
+        setMonthlyOperatorExpensesData(operatorExpenseDataFormatted);
+
+        const factoryExpenseDataFormatted = monthNames.map((monthName, i) => ({
+            month: monthName,
+            expenses: monthlyFactoryExpenses[i] || 0,
+        }));
+        setMonthlyFactoryExpensesData(factoryExpenseDataFormatted);
+
+        setMachineExpensesBreakdownData(Object.keys(machineExpenses).map(key => ({ name: key, value: machineExpenses[key] })));
 
 
     }, [allSubmissions, selectedMonth, selectedYear]);
@@ -296,15 +303,30 @@ function SalesDashboard() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <Card className="lg:col-span-2 bg-card/80">
+                    <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><PieChart /> EXPENSE BREAKDOWN</CardTitle>
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><User /> Monthly Operator Expenses</CardTitle>
+                        </CardHeader>
+                         <CardContent className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                               <RechartsBarChart data={monthlyOperatorExpensesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--chart-1) / 0.1)'}} />
+                                    <Bar dataKey="expenses" name="Operator Expenses" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                                </RechartsBarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wrench /> Machine-wise Expense Breakdown</CardTitle>
                         </CardHeader>
                          <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
                                <RechartsPieChart>
-                                    <Pie data={expenseBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
-                                        {expenseBreakdownData.map((entry, index) => (
+                                    <Pie data={machineExpensesBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+                                        {machineExpensesBreakdownData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -317,15 +339,15 @@ function SalesDashboard() {
                 </div>
                 <Card className="bg-card/80">
                     <CardHeader>
-                        <CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp /> MONTHLY EXPENSES</CardTitle>
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2"><Building /> Monthly Factory Expenses</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsLineChart data={monthlyExpenseData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <RechartsLineChart data={monthlyFactoryExpensesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Line type="monotone" dataKey="expenses" stroke="hsl(var(--destructive))" />
+                                <Line type="monotone" dataKey="expenses" name="Factory Expenses" stroke="hsl(var(--chart-2))" />
                             </RechartsLineChart>
                         </ResponsiveContainer>
                     </CardContent>
