@@ -8,6 +8,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Ra
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import LoginForm from "@/components/login-form";
 
 const initialChartData = [
   { name: "Sales", value: 85, fullMark: 100, color: "hsl(var(--chart-1))" },
@@ -283,5 +284,29 @@ function AdminDashboard() {
 }
 
 export default function AdminPage() {
-    return <AdminDashboard />
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const loggedIn = sessionStorage.getItem("admin-authenticated");
+    if (loggedIn) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    sessionStorage.setItem("admin-authenticated", "true");
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <LoginForm
+        role="Admin"
+        correctPassword="admin123"
+        onLoginSuccess={handleLogin}
+      />
+    );
+  }
+    
+  return <AdminDashboard />
 }
