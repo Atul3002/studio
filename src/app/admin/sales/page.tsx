@@ -46,9 +46,6 @@ function SalesDashboard() {
     const [totalSale, setTotalSale] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
     const [profitPercentage, setProfitPercentage] = useState(0);
-
-    const [topMachine, setTopMachine] = useState({ type: 'N/A', count: 0 });
-    const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
     
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -88,13 +85,6 @@ function SalesDashboard() {
         
         setMachineChartData(Object.keys(machineCounts).map(key => ({ name: key, size: machineCounts[key] })));
 
-        if (Object.keys(machineCounts).length > 0) {
-             const top = Object.entries(machineCounts).sort(([, a], [, b]) => b - a)[0];
-             setTopMachine({ type: top[0], count: top[1] });
-        } else {
-             setTopMachine({ type: 'N/A', count: 0 });
-        }
-
         const operatorSubmissions = dataToProcess.filter(s => s.operatorName);
         const problemCounts = operatorSubmissions.reduce((acc, curr) => {
             if (curr.problem) {
@@ -105,13 +95,6 @@ function SalesDashboard() {
         
         setOperatorProblemData(Object.keys(problemCounts).map(key => ({ name: key, value: problemCounts[key] })));
         
-         if (Object.keys(problemCounts).length > 0) {
-             const top = Object.entries(problemCounts).sort(([, a], [, b]) => b - a)[0];
-             setTopProblem({ type: top[0], count: top[1] });
-        } else {
-             setTopProblem({ type: 'N/A', count: 0 });
-        }
-
         const productionData: { [key: number]: number } = {};
         
         dataToProcess.forEach(s => {
@@ -280,8 +263,8 @@ function SalesDashboard() {
                         </CardContent>
                     </Card>
                 </div>
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                    <Card className="lg:col-span-2 bg-card/80">
+                 <div className="grid grid-cols-1 gap-4">
+                    <Card className="bg-card/80">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY PRODUCTION</CardTitle>
                         </CardHeader>
@@ -296,26 +279,6 @@ function SalesDashboard() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
-                    <div className="space-y-4">
-                         <Card className="bg-card/80">
-                            <CardHeader className="p-4">
-                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Trophy />TOP MACHINE</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4 pt-0">
-                                <p className="text-lg font-bold">{topMachine.type}</p>
-                                <p className="text-sm text-muted-foreground">{topMachine.count} submissions</p>
-                            </CardContent>
-                        </Card>
-                         <Card className="bg-card/80">
-                            <CardHeader className="p-4">
-                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertTriangle />TOP PROBLEM</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4 pt-0">
-                                 <p className="text-lg font-bold">{topProblem.type}</p>
-                                <p className="text-sm text-muted-foreground">{topProblem.count} reports</p>
-                            </CardContent>
-                        </Card>
-                    </div>
                 </div>
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
