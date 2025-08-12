@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { ArrowLeft, Landmark, ChevronsRight, Package, PackageOpen, PackageCheck, Hourglass, CalendarDays } from "lucide-react";
+import { ArrowLeft, Landmark, ChevronsRight, Package, PackageOpen, PackageCheck, Hourglass, CalendarDays, PlusCircle, Trash2 } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -15,25 +15,59 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+
+interface StockItem {
+    id: number;
+    catNumber: string;
+    description: string;
+    materialType: string;
+    thickness: string;
+    openingStock: string;
+    closingStock: string;
+}
 
 function StoreDashboard() {
-  const [formData, setFormData] = useState({
-    rawMaterialOpening: "",
-    rawMaterialClosing: "",
-    rawMaterialType: "",
-    rawMaterialThickness: "",
-    inProcessOpening: "",
-    inProcessClosing: "",
-    finishGoodsOpening: "",
-    finishGoodsClosing: "",
-  });
+  const [rawMaterials, setRawMaterials] = useState<StockItem[]>([
+    { id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" },
+  ]);
+  const [inProcessItems, setInProcessItems] = useState<StockItem[]>([
+     { id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" },
+  ]);
+  const [finishedGoods, setFinishedGoods] = useState<StockItem[]>([
+     { id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" },
+  ]);
+
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+  const handleItemChange = (
+    list: StockItem[], 
+    setter: React.Dispatch<React.SetStateAction<StockItem[]>>, 
+    index: number, 
+    field: keyof StockItem, 
+    value: string
+  ) => {
+    const newList = [...list];
+    (newList[index] as any)[field] = value;
+    setter(newList);
+  };
+  
+  const handleAddItem = (setter: React.Dispatch<React.SetStateAction<StockItem[]>>) => {
+      setter(prev => [
+          ...prev,
+          { id: Date.now(), catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" }
+      ]);
+  };
+
+  const handleRemoveItem = (list: StockItem[], setter: React.Dispatch<React.SetStateAction<StockItem[]>>, index: number) => {
+      if (list.length > 1) {
+          const newList = [...list];
+          newList.splice(index, 1);
+          setter(newList);
+      }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,23 +76,65 @@ function StoreDashboard() {
     await saveSubmission({
       entryType: 'storeData',
       date: date ? format(date, "PPP") : "",
-      ...formData,
+      rawMaterials,
+      inProcessItems,
+      finishedGoods,
     });
     setIsSubmitting(false);
     setIsSubmitted(true);
     // Reset form
-    setFormData({
-        rawMaterialOpening: "",
-        rawMaterialClosing: "",
-        rawMaterialType: "",
-        rawMaterialThickness: "",
-        inProcessOpening: "",
-        inProcessClosing: "",
-        finishGoodsOpening: "",
-        finishGoodsClosing: "",
-    });
+     setRawMaterials([{ id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" }]);
+     setInProcessItems([{ id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" }]);
+     setFinishedGoods([{ id: 1, catNumber: "", description: "", materialType: "", thickness: "", openingStock: "", closingStock: "" }]);
     setTimeout(() => setIsSubmitted(false), 3000);
   };
+
+  const renderTable = (
+    title: string,
+    icon: React.ReactNode,
+    items: StockItem[],
+    setter: React.Dispatch<React.SetStateAction<StockItem[]>>,
+    isFinishedGoods: boolean = false
+  ) => (
+    <div className="space-y-4 p-4 border rounded-lg">
+        <h3 className="font-semibold text-lg flex items-center gap-2">{icon} {title}</h3>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Serial No.</TableHead>
+                    <TableHead>CAT Number</TableHead>
+                    <TableHead>Description</TableHead>
+                    {!isFinishedGoods && <TableHead>Type of Material</TableHead>}
+                    {!isFinishedGoods && <TableHead>Thickness</TableHead>}
+                    <TableHead>Opening Stock</TableHead>
+                    <TableHead>Closing Stock</TableHead>
+                    <TableHead></TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {items.map((item, index) => (
+                    <TableRow key={item.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell><Input value={item.catNumber} onChange={(e) => handleItemChange(items, setter, index, 'catNumber', e.target.value)} required /></TableCell>
+                        <TableCell><Textarea value={item.description} onChange={(e) => handleItemChange(items, setter, index, 'description', e.target.value)} required /></TableCell>
+                         {!isFinishedGoods && <TableCell><Input value={item.materialType} onChange={(e) => handleItemChange(items, setter, index, 'materialType', e.target.value)} required /></TableCell>}
+                         {!isFinishedGoods && <TableCell><Input value={item.thickness} onChange={(e) => handleItemChange(items, setter, index, 'thickness', e.target.value)} required /></TableCell>}
+                        <TableCell><Input type="number" value={item.openingStock} onChange={(e) => handleItemChange(items, setter, index, 'openingStock', e.target.value)} required /></TableCell>
+                        <TableCell><Input type="number" value={item.closingStock} onChange={(e) => handleItemChange(items, setter, index, 'closingStock', e.target.value)} required /></TableCell>
+                        <TableCell>
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(items, setter, index)} disabled={items.length === 1}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+        <Button variant="outline" size="sm" onClick={() => handleAddItem(setter)}>
+            <PlusCircle className="h-4 w-4 mr-2" /> Add Row
+        </Button>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -74,7 +150,7 @@ function StoreDashboard() {
             </CardHeader>
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-6">
-                 <div className="space-y-2 md:col-span-2">
+                 <div className="space-y-2 max-w-sm">
                     <Label htmlFor="date" className="flex items-center gap-2 font-semibold text-base"><CalendarDays /> Date</Label>
                     <Popover>
                         <PopoverTrigger asChild>
@@ -100,50 +176,10 @@ function StoreDashboard() {
                         </PopoverContent>
                     </Popover>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4 p-4 border rounded-lg">
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><Package /> Raw Material</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="rawMaterialType">Type of Material</Label>
-                      <Input id="rawMaterialType" value={formData.rawMaterialType} onChange={handleInputChange} required />
-                    </div>
-                     <div className="space-y-2">
-                      <Label htmlFor="rawMaterialThickness">Thickness of Material</Label>
-                      <Input id="rawMaterialThickness" value={formData.rawMaterialThickness} onChange={handleInputChange} required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="rawMaterialOpening">Opening Stock</Label>
-                      <Input id="rawMaterialOpening" type="number" value={formData.rawMaterialOpening} onChange={handleInputChange} required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="rawMaterialClosing">Closing Stock</Label>
-                      <Input id="rawMaterialClosing" type="number" value={formData.rawMaterialClosing} onChange={handleInputChange} required />
-                    </div>
-                  </div>
-                  <div className="space-y-4 p-4 border rounded-lg">
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><Hourglass /> In-Process</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="inProcessOpening">Opening Stock</Label>
-                      <Input id="inProcessOpening" type="number" value={formData.inProcessOpening} onChange={handleInputChange} required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="inProcessClosing">Closing Stock</Label>
-                      <Input id="inProcessClosing" type="number" value={formData.inProcessClosing} onChange={handleInputChange} required />
-                    </div>
-                  </div>
-                  <div className="space-y-4 p-4 border rounded-lg md:col-span-2">
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><PackageCheck /> Finished Goods</h3>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-2">
-                        <Label htmlFor="finishGoodsOpening">Opening Stock</Label>
-                        <Input id="finishGoodsOpening" type="number" value={formData.finishGoodsOpening} onChange={handleInputChange} required />
-                        </div>
-                        <div className="space-y-2">
-                        <Label htmlFor="finishGoodsClosing">Closing Stock</Label>
-                        <Input id="finishGoodsClosing" type="number" value={formData.finishGoodsClosing} onChange={handleInputChange} required />
-                        </div>
-                    </div>
-                  </div>
+                <div className="space-y-8">
+                    {renderTable("Raw Material", <Package />, rawMaterials, setRawMaterials)}
+                    {renderTable("In-Process", <Hourglass />, inProcessItems, setInProcessItems)}
+                    {renderTable("Finished Goods", <PackageCheck />, finishedGoods, setFinishedGoods, true)}
                 </div>
               </CardContent>
               <CardFooter className="flex-col items-stretch">
