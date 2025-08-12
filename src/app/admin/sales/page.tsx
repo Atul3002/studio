@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart, Treemap } from "recharts";
-import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart } from "recharts";
+import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote, Building, Wrench } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import { cn } from "@/lib/utils";
 
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
-const TREEMAP_COLORS = ["#8889DD", "#9597E4", "#8DC77B", "#A5D297", "#E2CF45", "#F8C12D"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -25,7 +24,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
         <p className="label text-sm text-foreground">{`${label}`}</p>
         {payload.map((pld: any, index: number) => (
-            <p key={index} className="intro text-xs" style={{ color: pld.color }}>{`${pld.name}: ${pld.value}`}</p>
+            <p key={index} className="intro text-xs" style={{ color: pld.color || pld.fill }}>{`${pld.name}: ${pld.value.toLocaleString()}`}</p>
         ))}
       </div>
     );
@@ -37,10 +36,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 function SalesDashboard() {
     const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
     const [filteredSubmissions, setFilteredSubmissions] = useState<any[]>([]);
-    const [machineChartData, setMachineChartData] = useState<any[]>([]);
     const [paymentModeData, setPaymentModeData] = useState<any[]>([]);
     const [monthlySalesData, setMonthlySalesData] = useState<any[]>([]);
-    const [dailySubmissionsData, setDailySubmissionsData] = useState<any[]>([]);
+    const [monthlyExpenseData, setMonthlyExpenseData] = useState<any[]>([]);
+    const [expenseBreakdownData, setExpenseBreakdownData] = useState<any[]>([]);
     
     // New state for sales KPIs
     const [totalSale, setTotalSale] = useState(0);
@@ -55,7 +54,6 @@ function SalesDashboard() {
     useEffect(() => {
         getSubmissions().then(data => {
             setAllSubmissions(data);
-            setFilteredSubmissions(data);
         });
     }, [])
 
@@ -77,21 +75,9 @@ function SalesDashboard() {
             { name: 'Online', value: 450, icon: CreditCard },
             { name: 'Cash', value: 250, icon: Banknote },
         ]);
-
-
-        const machineSubmissions = dataToProcess.filter(s => s.machine && s.tonnage !== undefined);
         
-        const machineCounts = machineSubmissions.reduce((acc, curr) => {
-            const machineType = curr.machine.split(' - ')[0];
-            acc[machineType] = (acc[machineType] || 0) + 1;
-            return acc;
-        }, {} as {[key: string]: number});
-        
-        setMachineChartData(Object.keys(machineCounts).map(key => ({ name: key, size: machineCounts[key] })));
-        
+        // --- Monthly Sales Chart ---
         const salesData: { [key: number]: number } = {};
-        
-        // Placeholder sales data generation
         dataToProcess.forEach(s => {
             if (s.serialNumber) { // Using serial number presence as a proxy for a 'sale'
                 const month = new Date(s.id).getMonth();
@@ -99,7 +85,6 @@ function SalesDashboard() {
                 salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 5000) + 1000);
             }
         });
-
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const salesChartDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
@@ -107,16 +92,35 @@ function SalesDashboard() {
         }));
         setMonthlySalesData(salesChartDataFormatted);
 
-        const dailyCounts: { [key: number]: number } = {};
-        dataToProcess.forEach(s => {
-            const day = new Date(s.id).getDate();
-            dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+        // --- Finance Data Processing ---
+        const financeSubmissions = dataToProcess.filter(s => s.entryType && s.entryType.startsWith('finance-'));
+        
+        const expenseBreakdown = financeSubmissions.reduce((acc, curr) => {
+            const amount = parseFloat(curr.amount) || 0;
+            if (curr.entryType === 'finance-operator') {
+                acc.Operator = (acc.Operator || 0) + amount;
+            } else if (curr.entryType === 'finance-factory') {
+                acc.Factory = (acc.Factory || 0) + amount;
+            } else if (curr.entryType === 'finance-machine') {
+                acc.Machine = (acc.Machine || 0) + amount;
+            }
+            return acc;
+        }, {} as {[key: string]: number});
+        setExpenseBreakdownData(Object.keys(expenseBreakdown).map(key => ({ name: key, value: expenseBreakdown[key] })));
+
+
+        const monthlyExpenses: { [key: number]: number } = {};
+        financeSubmissions.forEach(s => {
+            const month = new Date(s.id).getMonth();
+            const amount = parseFloat(s.amount) || 0;
+            monthlyExpenses[month] = (monthlyExpenses[month] || 0) + amount;
         });
-        const dailyDataFormatted = Array.from({ length: 31 }, (_, i) => ({
-            day: i + 1,
-            submissions: dailyCounts[i + 1] || 0
+        const expenseDataFormatted = monthNames.map((monthName, i) => ({
+            month: monthName,
+            expenses: monthlyExpenses[i] || 0
         }));
-        setDailySubmissionsData(dailyDataFormatted);
+        setMonthlyExpenseData(expenseDataFormatted);
+
 
     }, [allSubmissions, selectedMonth, selectedYear]);
 
@@ -233,29 +237,26 @@ function SalesDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">TOTAL SALE</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><ShoppingCart /> TOTAL SALE</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <p className="text-3xl font-bold">₹{totalSale.toLocaleString()}</p>
-                            <ShoppingCart className="h-8 w-8 text-primary" />
                         </CardContent>
                     </Card>
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">TOTAL PROFIT</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><DollarSign /> TOTAL PROFIT</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <p className="text-3xl font-bold">₹{totalProfit.toLocaleString()}</p>
-                            <DollarSign className="h-8 w-8 text-primary" />
                         </CardContent>
                     </Card>
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">PROFIT PERCENTAGE</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><TrendingUp /> PROFIT PERCENTAGE</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <p className="text-3xl font-bold">{profitPercentage}%</p>
-                            <TrendingUp className="h-8 w-8 text-primary" />
                         </CardContent>
                     </Card>
                 </div>
@@ -268,7 +269,7 @@ function SalesDashboard() {
                             <ResponsiveContainer width="100%" height="100%">
                                 <RechartsBarChart data={monthlySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--primary) / 0.1)'}} />
                                     <Bar dataKey="sales" name="Sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                                 </RechartsBarChart>
@@ -279,7 +280,7 @@ function SalesDashboard() {
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">PAYMENT MODE</CardTitle>
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><CreditCard /> PAYMENT MODE</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -297,43 +298,35 @@ function SalesDashboard() {
                     </Card>
                     <Card className="lg:col-span-2 bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">MACHINE SUBMISSIONS</CardTitle>
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><PieChart /> EXPENSE BREAKDOWN</CardTitle>
                         </CardHeader>
                          <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                               <Treemap
-                                  data={machineChartData}
-                                  dataKey="size"
-                                  ratio={4 / 3}
-                                  stroke="hsl(var(--background))"
-                                  fill="hsl(var(--card))"
-                                  content={
-                                    <CustomizedContent colors={TREEMAP_COLORS} />
-                                  }
-                                >
-                                </Treemap>
+                               <RechartsPieChart>
+                                    <Pie data={expenseBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
+                                        {expenseBreakdownData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                </RechartsPieChart>
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                 </div>
                 <Card className="bg-card/80">
                     <CardHeader>
-                        <CardTitle className="text-lg font-semibold">DAILY SUBMISSIONS</CardTitle>
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2"><TrendingUp /> MONTHLY EXPENSES</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsAreaChart data={dailySubmissionsData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                 <defs>
-                                    <linearGradient id="colorSubmissions" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                            <RechartsLineChart data={monthlyExpenseData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Area type="monotone" dataKey="submissions" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorSubmissions)" />
-                            </RechartsAreaChart>
+                                <Line type="monotone" dataKey="expenses" stroke="hsl(var(--destructive))" />
+                            </RechartsLineChart>
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
@@ -342,39 +335,6 @@ function SalesDashboard() {
     </div>
   );
 }
-
-const CustomizedContent = (props: any) => {
-  const { root, depth, x, y, width, height, index, payload, rank, name } = props;
-  const color = props.colors[Math.floor(Math.random() * props.colors.length)];
-
-  return (
-    <g>
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        style={{
-          fill: depth < 2 ? color : "none",
-          stroke: "#fff",
-          strokeWidth: 2 / (depth + 1e-10),
-          strokeOpacity: 1 / (depth + 1e-10)
-        }}
-      />
-      {depth === 1 ? (
-        <text
-          x={x + width / 2}
-          y={y + height / 2 + 7}
-          textAnchor="middle"
-          fill="#fff"
-          fontSize={14}
-        >
-          {name}
-        </text>
-      ) : null}
-    </g>
-  );
-};
 
 
 export default function SalesPage() {
