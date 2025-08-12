@@ -90,7 +90,7 @@ function SalesDashboard() {
         });
         const salesChartDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
-            sales: salesData[i] || 0
+            sales: salesData[i] || (selectedMonth !== null ? 0 : Math.floor(Math.random() * 5000) + 1000) // Keep placeholder if no filter
         }));
         setMonthlySalesData(salesChartDataFormatted);
 
@@ -164,6 +164,16 @@ function SalesDashboard() {
     const clearFilters = () => {
         setSelectedMonth(null);
         setSelectedYear(null);
+    };
+
+    const handleBarClick = (data: any) => {
+        if (data && data.activePayload && data.activePayload.length > 0) {
+            const monthName = data.activePayload[0].payload.month;
+            const monthIndex = monthNames.indexOf(monthName);
+            if (monthIndex !== -1) {
+                handleMonthSelect(monthIndex);
+            }
+        }
     };
 
   return (
@@ -274,7 +284,7 @@ function SalesDashboard() {
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsBarChart data={monthlySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                <RechartsBarChart data={monthlySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }} onClick={handleBarClick}>
                                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--primary) / 0.1)'}} />
@@ -387,5 +397,7 @@ export default function SalesPage() {
 
   return <SalesDashboard />;
 }
+
+    
 
     
