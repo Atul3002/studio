@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine } from "recharts";
-import { BarChart, Download, X, Cog, Star, Trophy, AlertTriangle } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine, LineChart, Line } from "recharts";
+import { BarChart, Download, X, Cog, Star, Trophy, AlertTriangle, TrendingDown, Clock, Truck, ShieldAlert, PackageSearch } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,9 +18,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
         <p className="label text-sm text-foreground font-semibold">{`${label}`}</p>
-        <p className="intro text-xs" style={{ color: isTotal || change > 0 ? 'hsl(var(--primary))' : 'hsl(var(--destructive))' }}>
-          {isTotal ? `Total: ${payload[1].value.toLocaleString()}` : `Change: ${change.toLocaleString()}`}
-        </p>
+         {payload.map((pld: any, index: number) => (
+             <p key={index} className="intro text-xs" style={{ color: pld.color || pld.fill }}>{`${pld.name}: ${pld.value.toLocaleString()}`}</p>
+        ))}
       </div>
     );
   }
@@ -35,6 +35,30 @@ interface WaterfallData {
     fill: string;
 }
 
+const initialLineData = [
+  { month: 'Jan', defectRate: 2.5, availability: 98, leadTime: 5 },
+  { month: 'Feb', defectRate: 2.1, availability: 95, leadTime: 6 },
+  { month: 'Mar', defectRate: 2.3, availability: 96, leadTime: 5.5 },
+  { month: 'Apr', defectRate: 1.9, availability: 99, leadTime: 4.8 },
+  { month: 'May', defectRate: 1.5, availability: 97, leadTime: 5.2 },
+  { month: 'Jun', defectRate: 1.8, availability: 94, leadTime: 6.5 },
+];
+
+const initialSupplierDefectData = [
+    { name: 'Supplier A', defectRate: 1.2, type: 'Material' },
+    { name: 'Supplier B', defectRate: 0.8, type: 'Cosmetic' },
+    { name: 'Supplier C', defectRate: 2.1, type: 'Functional' },
+    { name: 'Supplier D', defectRate: 0.5, type: 'Packaging' },
+];
+
+const initialDeliveryTimeData = [
+    { supplier: 'Supplier A', time: 5 },
+    { supplier: 'Supplier B', time: 7 },
+    { supplier: 'Supplier C', time: 4 },
+    { supplier: 'Supplier D', time: 6 },
+];
+
+
 function ProductionDashboard() {
     const [waterfallData, setWaterfallData] = useState<WaterfallData[]>([]);
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -43,6 +67,9 @@ function ProductionDashboard() {
     const [performance, setPerformance] = useState(0);
     const [topMachine, setTopMachine] = useState({ type: 'N/A', count: 0 });
     const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
+    const [lineChartData, setLineChartData] = useState(initialLineData);
+    const [supplierDefectData, setSupplierDefectData] = useState(initialSupplierDefectData);
+    const [deliveryTimeData, setDeliveryTimeData] = useState(initialDeliveryTimeData);
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025];
@@ -55,6 +82,22 @@ function ProductionDashboard() {
                 const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
                 return monthMatch && yearMatch;
             });
+            
+             if (selectedMonth !== null || selectedYear !== null) {
+                // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
+                 setLineChartData(initialLineData.map(item => ({
+                    ...item,
+                    defectRate: parseFloat((Math.random() * 3).toFixed(1)),
+                    availability: Math.floor(Math.random() * (99 - 90 + 1)) + 90,
+                    leadTime: parseFloat((Math.random() * (7 - 4) + 4).toFixed(1))
+                })));
+                setSupplierDefectData(initialSupplierDefectData.map(item => ({...item, defectRate: parseFloat((Math.random() * 3).toFixed(1)) })));
+                setDeliveryTimeData(initialDeliveryTimeData.map(item => ({...item, time: Math.floor(Math.random() * (8 - 3) + 3) })))
+            } else {
+                setLineChartData(initialLineData);
+                setSupplierDefectData(initialSupplierDefectData);
+                setDeliveryTimeData(initialDeliveryTimeData);
+            }
 
             // Waterfall Chart Logic
             const productionSubmissions = filteredData.filter(s => s.entryType === 'productionData');
@@ -303,6 +346,92 @@ function ProductionDashboard() {
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base"><TrendingDown /> Defect Rate</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Line type="monotone" dataKey="defectRate" name="Defect Rate (%)" stroke="hsl(var(--destructive))" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base"><Star /> Availability</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Line type="monotone" dataKey="availability" name="Availability (%)" stroke="hsl(var(--chart-2))" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base"><Clock /> Lead Time</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Line type="monotone" dataKey="leadTime" name="Lead Time (Days)" stroke="hsl(var(--chart-4))" />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                </div>
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base"><ShieldAlert /> Supplier Defect Analysis</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RechartsBarChart data={supplierDefectData}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Bar dataKey="defectRate" name="Defect Rate (%)" fill="hsl(var(--destructive))" />
+                                </RechartsBarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                     <Card>
+                        <CardHeader>
+                             <CardTitle className="flex items-center gap-2 text-base"><Truck /> Delivery Time Analysis</CardTitle>
+                        </CardHeader>
+                        <CardContent className="h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RechartsBarChart layout="vertical" data={deliveryTimeData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis dataKey="supplier" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend />
+                                    <Bar dataKey="time" name="Delivery Time (Days)" fill="hsl(var(--chart-5))" />
+                                </RechartsBarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </main>
     </div>
@@ -314,4 +443,3 @@ export default function ProductionPage() {
   return <ProductionDashboard />;
 }
 
-    
