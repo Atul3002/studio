@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
 import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart, Treemap } from "recharts";
-import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X } from "lucide-react";
+import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -41,8 +41,11 @@ function SalesDashboard() {
     const [operatorProblemData, setOperatorProblemData] = useState<any[]>([]);
     const [productionChartData, setProductionChartData] = useState<any[]>([]);
     const [dailySubmissionsData, setDailySubmissionsData] = useState<any[]>([]);
-    const [oeeData, setOeeData] = useState({ oee: 0, availability: 0, performance: 0, quality: 0 });
-    const [totalJobsProduced, setTotalJobsProduced] = useState(0);
+    
+    // New state for sales KPIs
+    const [totalSale, setTotalSale] = useState(0);
+    const [totalProfit, setTotalProfit] = useState(0);
+    const [profitPercentage, setProfitPercentage] = useState(0);
 
     const [topMachine, setTopMachine] = useState({ type: 'N/A', count: 0 });
     const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
@@ -68,6 +71,12 @@ function SalesDashboard() {
         });
 
         setFilteredSubmissions(dataToProcess);
+
+        // Placeholder data for sales KPIs
+        setTotalSale(500000);
+        setTotalProfit(125000);
+        setProfitPercentage(25);
+
 
         const machineSubmissions = dataToProcess.filter(s => s.machine && s.tonnage !== undefined);
         
@@ -104,15 +113,13 @@ function SalesDashboard() {
         }
 
         const productionData: { [key: number]: number } = {};
-        let totalProduced = 0;
+        
         dataToProcess.forEach(s => {
             if (s.serialNumber) {
                 const month = new Date(s.id).getMonth(); // Assuming all data is for one year.
                 productionData[month] = (productionData[month] || 0) + 1;
-                totalProduced++;
             }
         });
-        setTotalJobsProduced(totalProduced);
 
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const productionChartDataFormatted = monthNames.map((monthName, i) => ({
@@ -132,34 +139,6 @@ function SalesDashboard() {
         }));
         setDailySubmissionsData(dailyDataFormatted);
 
-        // OEE Calculation
-        const PLANNED_PRODUCTION_TIME = 8 * 60; // 8 hours in minutes
-        const IDEAL_CYCLE_TIME = 5; // 5 minutes per job
-        
-        const downtime = operatorSubmissions.reduce((acc, curr) => {
-          if (curr.problem && curr.problem !== 'Other' && curr.problem !== 'Operator not available') {
-             return acc + 30; // Assuming 30 mins downtime per problem
-          }
-          return acc;
-        }, 0);
-
-        const runTime = PLANNED_PRODUCTION_TIME - downtime;
-        const availability = runTime > 0 ? (runTime / PLANNED_PRODUCTION_TIME) * 100 : 0;
-        
-        const jobsProduced = operatorSubmissions.filter(s => s.serialNumber).length;
-        const performance = runTime > 0 ? ((jobsProduced * IDEAL_CYCLE_TIME) / runTime) * 100 : 0;
-
-        const goodJobs = operatorSubmissions.filter(s => s.dimensionMeasureStatus === 'ok' && s.toolWearStatus === 'ok').length;
-        const quality = jobsProduced > 0 ? (goodJobs / jobsProduced) * 100 : 0;
-        
-        const oee = (availability / 100) * (performance / 100) * (quality / 100) * 100;
-
-        setOeeData({
-            oee: parseFloat(oee.toFixed(2)) || 0,
-            availability: parseFloat(availability.toFixed(2)) || 0,
-            performance: parseFloat(performance.toFixed(2)) || 0,
-            quality: parseFloat(quality.toFixed(2)) || 0,
-        });
     }, [allSubmissions, selectedMonth, selectedYear]);
 
     const downloadCSV = () => {
@@ -272,41 +251,32 @@ function SalesDashboard() {
               </Card>
             </aside>
             <div className="py-4 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">TOTAL JOBS</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary">TOTAL SALE</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
-                            <p className="text-3xl font-bold">{totalJobsProduced}</p>
-                            <User className="h-8 w-8 text-primary" />
+                            <p className="text-3xl font-bold">₹{totalSale.toLocaleString()}</p>
+                            <ShoppingCart className="h-8 w-8 text-primary" />
                         </CardContent>
                     </Card>
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">OEE</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary">TOTAL PROFIT</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
-                            <p className="text-3xl font-bold">{oeeData.oee}%</p>
+                            <p className="text-3xl font-bold">₹{totalProfit.toLocaleString()}</p>
+                            <DollarSign className="h-8 w-8 text-primary" />
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium text-primary">PROFIT PERCENTAGE</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <p className="text-3xl font-bold">{profitPercentage}%</p>
                             <TrendingUp className="h-8 w-8 text-primary" />
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card/80">
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">PERFORMANCE</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <p className="text-3xl font-bold">{oeeData.performance}%</p>
-                            <Star className="h-8 w-8 text-primary" />
-                        </CardContent>
-                    </Card>
-                     <Card className="bg-card/80">
-                        <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary">QUALITY</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex items-center justify-between">
-                            <p className="text-3xl font-bold">{oeeData.quality}%</p>
-                            <ShieldCheck className="h-8 w-8 text-primary" />
                         </CardContent>
                     </Card>
                 </div>
