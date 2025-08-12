@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine } from "recharts";
-import { BarChart, Download, X } from "lucide-react";
+import { BarChart, Download, X, Cog, Star, Trophy, AlertTriangle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +39,10 @@ function ProductionDashboard() {
     const [waterfallData, setWaterfallData] = useState<WaterfallData[]>([]);
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
+    const [totalJobs, setTotalJobs] = useState(0);
+    const [performance, setPerformance] = useState(0);
+    const [topMachine, setTopMachine] = useState({ type: 'N/A', count: 0 });
+    const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025];
@@ -52,6 +56,7 @@ function ProductionDashboard() {
                 return monthMatch && yearMatch;
             });
 
+            // Waterfall Chart Logic
             const productionSubmissions = filteredData.filter(s => s.entryType === 'productionData');
             
             let totalTarget = 0;
@@ -64,14 +69,14 @@ function ProductionDashboard() {
             
             const goodParts = totalTarget - totalRejection;
 
-            const chartData = [
+            const waterfallChartData = [
                 { name: 'Production Target', value: totalTarget },
                 { name: 'Rejections', value: -totalRejection },
                 { name: 'Actual Output', value: goodParts },
             ];
 
             let cumulative = 0;
-            const processedData = chartData.map((d, index) => {
+            const processedData = waterfallChartData.map((d, index) => {
                 const isTotal = d.name === 'Production Target' || d.name === 'Actual Output';
                 const start = cumulative;
                 let end;
@@ -96,8 +101,55 @@ function ProductionDashboard() {
                     fill: fill
                 };
             });
-
             setWaterfallData(processedData as any);
+
+            // KPI Cards Logic
+            const operatorSubmissions = filteredData.filter(s => s.operatorName);
+            const jobsProduced = operatorSubmissions.filter(s => s.serialNumber).length;
+            setTotalJobs(jobsProduced);
+
+            // Performance Calculation
+            const PLANNED_PRODUCTION_TIME = 8 * 60; // 8 hours in minutes
+            const IDEAL_CYCLE_TIME = 5; // 5 minutes per job
+            const downtime = operatorSubmissions.reduce((acc, curr) => {
+              if (curr.problem && curr.problem !== 'Other' && curr.problem !== 'Operator not available') {
+                 return acc + 30; // Assuming 30 mins downtime per problem
+              }
+              return acc;
+            }, 0);
+            const runTime = PLANNED_PRODUCTION_TIME - downtime;
+            const calculatedPerformance = runTime > 0 ? ((jobsProduced * IDEAL_CYCLE_TIME) / runTime) * 100 : 0;
+            setPerformance(parseFloat(calculatedPerformance.toFixed(2)) || 0);
+
+            // Top Machine Calculation
+            const machineSubmissions = filteredData.filter(s => s.machine && s.machine !== 'Unselected');
+            const machineCounts = machineSubmissions.reduce((acc, curr) => {
+                const machineType = curr.machine.split(' - ')[0];
+                acc[machineType] = (acc[machineType] || 0) + 1;
+                return acc;
+            }, {} as {[key: string]: number});
+            
+            if (Object.keys(machineCounts).length > 0) {
+                 const top = Object.entries(machineCounts).sort(([, a], [, b]) => b - a)[0];
+                 setTopMachine({ type: top[0], count: top[1] });
+            } else {
+                 setTopMachine({ type: 'N/A', count: 0 });
+            }
+            
+            // Top Problem Calculation
+            const problemCounts = operatorSubmissions.reduce((acc, curr) => {
+                if (curr.problem) {
+                  acc[curr.problem] = (acc[curr.problem] || 0) + 1;
+                }
+                return acc;
+            }, {} as {[key: string]: number});
+            
+            if (Object.keys(problemCounts).length > 0) {
+                 const top = Object.entries(problemCounts).sort(([, a], [, b]) => b - a)[0];
+                 setTopProblem({ type: top[0], count: top[1] });
+            } else {
+                 setTopProblem({ type: 'N/A', count: 0 });
+            }
         });
     }, [selectedMonth, selectedYear]);
 
@@ -188,7 +240,43 @@ function ProductionDashboard() {
                 )}
               </Card>
             </aside>
-            <div className="py-4">
+            <div className="py-4 space-y-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Cog /> TOTAL JOBS</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <p className="text-3xl font-bold">{totalJobs}</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-card/80">
+                        <CardHeader>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Star /> PERFORMANCE</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex items-center justify-between">
+                            <p className="text-3xl font-bold">{performance}%</p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-card/80">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Trophy />TOP MACHINE</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-xl font-bold">{topMachine.type}</p>
+                            <p className="text-xs text-muted-foreground">{topMachine.count} submissions</p>
+                        </CardContent>
+                    </Card>
+                     <Card className="bg-card/80">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertTriangle />TOP PROBLEM</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <p className="text-xl font-bold">{topProblem.type}</p>
+                            <p className="text-xs text-muted-foreground">{topProblem.count} reports</p>
+                        </CardContent>
+                    </Card>
+                </div>
                 <Card className="bg-card/80">
                     <CardHeader>
                         <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Production Waterfall Chart</CardTitle>
@@ -225,3 +313,5 @@ function ProductionDashboard() {
 export default function ProductionPage() {
   return <ProductionDashboard />;
 }
+
+    
