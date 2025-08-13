@@ -39,7 +39,6 @@ function SalesDashboard() {
     const [paymentModeData, setPaymentModeData] = useState<any[]>([]);
     const [monthlySalesData, setMonthlySalesData] = useState<any[]>([]);
     
-    // New state for sales KPIs
     const [totalSale, setTotalSale] = useState(0);
     const [totalProfit, setTotalProfit] = useState(0);
     const [profitPercentage, setProfitPercentage] = useState(0);
@@ -49,6 +48,9 @@ function SalesDashboard() {
     const [monthlyOperatorExpensesData, setMonthlyOperatorExpensesData] = useState<any[]>([]);
     const [monthlyFactoryExpensesData, setMonthlyFactoryExpensesData] = useState<any[]>([]);
     const [machineExpensesBreakdownData, setMachineExpensesBreakdownData] = useState<any[]>([]);
+    
+    const [dailySalesData, setDailySalesData] = useState<any[]>([]);
+    const [showDetailChart, setShowDetailChart] = useState(false);
 
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -72,7 +74,6 @@ function SalesDashboard() {
 
         setFilteredSubmissions(dataToProcess);
 
-        // Placeholder data for sales KPIs and charts
         setTotalSale(500000);
         setTotalProfit(125000);
         setProfitPercentage(25);
@@ -84,22 +85,28 @@ function SalesDashboard() {
             { name: 'Cash', value: 250, icon: Banknote },
         ]);
         
-        // --- Monthly Sales Chart ---
         const salesData: { [key: number]: number } = {};
         dataToProcess.forEach(s => {
-            if (s.serialNumber) { // Using serial number presence as a proxy for a 'sale'
+            if (s.serialNumber) { 
                 const month = new Date(s.id).getMonth();
-                // Random sales value for demonstration
                 salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 5000) + 1000);
             }
         });
         const salesChartDataFormatted = monthNames.map((monthName, i) => ({
             month: monthName,
-            sales: salesData[i] || (selectedMonth !== null ? 0 : Math.floor(Math.random() * 5000) + 1000) // Keep placeholder if no filter
+            sales: salesData[i] || (selectedMonth !== null ? 0 : Math.floor(Math.random() * 5000) + 1000)
         }));
         setMonthlySalesData(salesChartDataFormatted);
 
-        // --- Finance Data Processing ---
+        if (selectedMonth !== null) {
+            const daysInMonth = new Date(selectedYear || new Date().getFullYear(), selectedMonth + 1, 0).getDate();
+            const dailyData = Array.from({ length: daysInMonth }, (_, i) => ({
+                day: i + 1,
+                sales: Math.floor(Math.random() * 500) + 100
+            }));
+            setDailySalesData(dailyData);
+        }
+
         const financeSubmissions = dataToProcess.filter(s => s.entryType && s.entryType.startsWith('finance-'));
         
         const monthlyOperatorExpenses: { [key: number]: number } = {};
@@ -160,6 +167,7 @@ function SalesDashboard() {
     
     const handleMonthSelect = (monthIndex: number) => {
         setSelectedMonth(monthIndex);
+        setShowDetailChart(true);
     };
     
     const handleYearSelect = (year: number) => {
@@ -169,6 +177,7 @@ function SalesDashboard() {
     const clearFilters = () => {
         setSelectedMonth(null);
         setSelectedYear(null);
+        setShowDetailChart(false);
     };
 
     const handleBarClick = (data: any) => {
@@ -301,7 +310,7 @@ function SalesDashboard() {
                  <div className="grid grid-cols-1 gap-4">
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}MONTHLY SALES</CardTitle>
+                            <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth === null ? 'YEARLY' : months[selectedMonth].toUpperCase()} SALES</CardTitle>
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -314,6 +323,23 @@ function SalesDashboard() {
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
+                    {showDetailChart && selectedMonth !== null && (
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-lg font-semibold">DAILY SALES FOR {months[selectedMonth].toUpperCase()}</CardTitle>
+                            </CardHeader>
+                            <CardContent className="h-[300px]">
+                                 <ResponsiveContainer width="100%" height="100%">
+                                    <RechartsBarChart data={dailySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
+                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--chart-2) / 0.1)'}} />
+                                        <Bar dataKey="sales" name="Sales" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                                    </RechartsBarChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
@@ -418,8 +444,3 @@ export default function SalesPage() {
 
   return <SalesDashboard />;
 }
-
-    
-
-    
-
