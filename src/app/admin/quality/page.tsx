@@ -4,9 +4,25 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+const initialDefectRateData = [
+    { month: 'Jan', "Defect Rate (%)": 2.5 },
+    { month: 'Feb', "Defect Rate (%)": 2.1 },
+    { month: 'Mar', "Defect Rate (%)": 2.3 },
+    { month: 'Apr', "Defect Rate (%)": 1.9 },
+    { month: 'May', "Defect Rate (%)": 1.5 },
+    { month: 'Jun', "Defect Rate (%)": 1.8 },
+    { month: 'Jul', "Defect Rate (%)": 2.0 },
+    { month: 'Aug', "Defect Rate (%)": 2.2 },
+    { month: 'Sep', "Defect Rate (%)": 1.7 },
+    { month: 'Oct', "Defect Rate (%)": 1.6 },
+    { month: 'Nov', "Defect Rate (%)": 1.9 },
+    { month: 'Dec', "Defect Rate (%)": 2.4 },
+];
 
 function QualityDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -21,6 +37,7 @@ function QualityDashboard() {
   const [totalDefects, setTotalDefects] = useState(125);
   const [totalDowntime, setTotalDowntime] = useState(8);
   const [downtimeMinutes, setDowntimeMinutes] = useState(240);
+  const [defectRateData, setDefectRateData] = useState(initialDefectRateData);
 
 
   useEffect(() => {
@@ -32,6 +49,7 @@ function QualityDashboard() {
       setTotalDefects(Math.floor(Math.random() * 200));
       setTotalDowntime(Math.floor(Math.random() * 10));
       setDowntimeMinutes(Math.floor(Math.random() * 300));
+      setDefectRateData(initialDefectRateData.map(d => ({ ...d, "Defect Rate (%)": +(Math.random() * 5).toFixed(1) })))
     } else {
       setDefectRate(2.5);
       setFirstPassYield(97.5);
@@ -39,6 +57,7 @@ function QualityDashboard() {
       setTotalDefects(125);
       setTotalDowntime(8);
       setDowntimeMinutes(240);
+      setDefectRateData(initialDefectRateData);
     }
   }, [selectedMonth, selectedYear]);
 
@@ -180,6 +199,24 @@ function QualityDashboard() {
                             </CardContent>
                         </Card>
                     </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><TrendingDown /> Defect Rate Over Time</CardTitle>
+                    <CardDescription>Monthly trend of the defect rate percentage.</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={defectRateData}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))"/>
+                            <YAxis stroke="hsl(var(--muted-foreground))"/>
+                            <Tooltip />
+                            <Legend />
+                            <Line type="monotone" dataKey="Defect Rate (%)" stroke="hsl(var(--destructive))" activeDot={{ r: 8 }} />
+                        </LineChart>
+                    </ResponsiveContainer>
                 </CardContent>
             </Card>
         </div>
