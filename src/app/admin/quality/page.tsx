@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer, Layers } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, BarChart as RechartsBarChart } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +25,15 @@ const initialDefectRateData = [
     { month: 'Dec', "Defect Rate (%)": 2.4 },
 ];
 
+const initialCountData = [
+    { month: 'Jan', defects: 20, scrap: 5, rework: 10 },
+    { month: 'Feb', defects: 18, scrap: 4, rework: 8 },
+    { month: 'Mar', defects: 22, scrap: 6, rework: 12 },
+    { month: 'Apr', defects: 15, scrap: 3, rework: 7 },
+    { month: 'May', defects: 12, scrap: 2, rework: 5 },
+    { month: 'Jun', defects: 16, scrap: 4, rework: 9 },
+];
+
 function QualityDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -39,6 +48,7 @@ function QualityDashboard() {
   const [totalDowntime, setTotalDowntime] = useState(8);
   const [downtimeMinutes, setDowntimeMinutes] = useState(240);
   const [defectRateData, setDefectRateData] = useState(initialDefectRateData);
+  const [countData, setCountData] = useState(initialCountData);
 
 
   useEffect(() => {
@@ -51,6 +61,7 @@ function QualityDashboard() {
       setTotalDowntime(Math.floor(Math.random() * 10));
       setDowntimeMinutes(Math.floor(Math.random() * 300));
       setDefectRateData(initialDefectRateData.map(d => ({ ...d, "Defect Rate (%)": +(Math.random() * 5).toFixed(1) })))
+      setCountData(initialCountData.map(d => ({ ...d, defects: Math.floor(Math.random() * 30), scrap: Math.floor(Math.random() * 10), rework: Math.floor(Math.random() * 15) })))
     } else {
       setDefectRate(2.5);
       setFirstPassYield(97.5);
@@ -59,6 +70,7 @@ function QualityDashboard() {
       setTotalDowntime(8);
       setDowntimeMinutes(240);
       setDefectRateData(initialDefectRateData);
+      setCountData(initialCountData);
     }
   }, [selectedMonth, selectedYear]);
 
@@ -202,24 +214,46 @@ function QualityDashboard() {
                     </div>
                 </CardContent>
             </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><TrendingDown /> Defect Rate Over Time</CardTitle>
-                    <CardDescription>Monthly trend of the defect rate percentage.</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={defectRateData}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))"/>
-                            <YAxis stroke="hsl(var(--muted-foreground))"/>
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="Defect Rate (%)" stroke="hsl(var(--destructive))" activeDot={{ r: 8 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><TrendingDown /> Defect Rate Over Time</CardTitle>
+                        <CardDescription>Monthly trend of the defect rate percentage.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                         <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={defectRateData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))"/>
+                                <YAxis stroke="hsl(var(--muted-foreground))"/>
+                                <Tooltip />
+                                <Legend />
+                                <Line type="monotone" dataKey="Defect Rate (%)" stroke="hsl(var(--destructive))" activeDot={{ r: 8 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Layers /> Defect & Rework Analysis</CardTitle>
+                        <CardDescription>Breakdown of defect, scrap, and rework counts.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                         <ResponsiveContainer width="100%" height="100%">
+                            <RechartsBarChart data={countData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                <YAxis stroke="hsl(var(--muted-foreground))" />
+                                <Tooltip />
+                                <Legend />
+                                <Bar dataKey="defects" stackId="a" fill="hsl(var(--destructive))" name="Defect Count" />
+                                <Bar dataKey="scrap" stackId="a" fill="hsl(var(--chart-3))" name="Scrap Count" />
+                                <Bar dataKey="rework" stackId="a" fill="hsl(var(--chart-4))" name="Rework Count" />
+                            </RechartsBarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
       </main>
     </div>
@@ -252,3 +286,5 @@ export default function QualityPage() {
     }
     return <QualityDashboard />
 }
+
+    
