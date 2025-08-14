@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Shield, X } from "lucide-react";
+import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,34 @@ function QualityDashboard() {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
+
+  // Placeholder data for KPIs
+  const [defectRate, setDefectRate] = useState(2.5);
+  const [firstPassYield, setFirstPassYield] = useState(97.5);
+  const [scrapRate, setScrapRate] = useState(1.2);
+  const [totalDefects, setTotalDefects] = useState(125);
+  const [totalDowntime, setTotalDowntime] = useState(8);
+  const [downtimeMinutes, setDowntimeMinutes] = useState(240);
+
+
+  useEffect(() => {
+    if (selectedMonth !== null || selectedYear !== null) {
+      // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
+      setDefectRate(+(Math.random() * 5).toFixed(1));
+      setFirstPassYield(+(95 + Math.random() * 5).toFixed(1));
+      setScrapRate(+(Math.random() * 2).toFixed(1));
+      setTotalDefects(Math.floor(Math.random() * 200));
+      setTotalDowntime(Math.floor(Math.random() * 10));
+      setDowntimeMinutes(Math.floor(Math.random() * 300));
+    } else {
+      setDefectRate(2.5);
+      setFirstPassYield(97.5);
+      setScrapRate(1.2);
+      setTotalDefects(125);
+      setTotalDowntime(8);
+      setDowntimeMinutes(240);
+    }
+  }, [selectedMonth, selectedYear]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -95,14 +123,63 @@ function QualityDashboard() {
             )}
           </Card>
         </aside>
-        <div className="py-4">
+        <div className="py-4 space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Shield /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Quality</CardTitle>
-                    <CardDescription>Quality data and charts will be displayed here.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Shield /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Quality KPIs</CardTitle>
+                    <CardDescription>Overview of key quality metrics.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Coming soon...</p>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><TrendingDown /> DEFECT RATE</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">{defectRate}%</p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><TrendingUp /> FIRST PASS YIELD</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">{firstPassYield}%</p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Trash2 /> SCRAP RATE</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                               <p className="text-3xl font-bold">{scrapRate}%</p>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertCircle /> TOTAL DEFECTS</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">{totalDefects}</p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Clock /> TOTAL DOWNTIME</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                               <p className="text-3xl font-bold">{totalDowntime} <span className="text-lg text-muted-foreground">incidents</span></p>
+                            </CardContent>
+                        </Card>
+                         <Card className="bg-card/80">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Timer /> DOWNTIME MINUTES</CardTitle>
+                            </CardHeader>
+                            <CardContent className="flex items-center justify-between">
+                                <p className="text-3xl font-bold">{downtimeMinutes}</p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </CardContent>
             </Card>
         </div>
