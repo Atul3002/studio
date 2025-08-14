@@ -246,9 +246,9 @@ function QualityDashboard() {
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="defects" stackId="a" fill="hsl(var(--destructive))" name="Defect Count" />
-                                <Bar dataKey="scrap" stackId="a" fill="hsl(var(--chart-3))" name="Scrap Count" />
-                                <Bar dataKey="rework" stackId="a" fill="hsl(var(--chart-4))" name="Rework Count" />
+                                <Bar dataKey="defects" stackId="a" fill="hsl(0 84.2% 60.2%)" name="Defect Count" />
+                                <Bar dataKey="scrap" stackId="a" fill="hsl(43 74% 66%)" name="Scrap Count" />
+                                <Bar dataKey="rework" stackId="a" fill="hsl(340 75% 55%)" name="Rework Count" />
                             </RechartsBarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -286,5 +286,7 @@ export default function QualityPage() {
     }
     return <QualityDashboard />
 }
+
+    
 
     
