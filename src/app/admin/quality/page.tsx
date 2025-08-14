@@ -246,7 +246,7 @@ function QualityDashboard() {
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="defects" stackId="a" fill="hsl(0 84.2% 60.2%)" name="Defect Count">
+                                <Bar dataKey="defects" stackId="a" fill="hsl(200 80% 60%)" name="Defect Count">
                                     <LabelList dataKey="defects" position="center" className="fill-white"/>
                                 </Bar>
                                 <Bar dataKey="scrap" stackId="a" fill="hsl(43 74% 66%)" name="Scrap Count">
@@ -292,5 +292,3 @@ export default function QualityPage() {
     }
     return <QualityDashboard />
 }
-
-    
