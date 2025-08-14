@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer, Layers } from "lucide-react";
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, BarChart as RechartsBarChart } from "recharts";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, BarChart as RechartsBarChart, LabelList } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -246,9 +246,15 @@ function QualityDashboard() {
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
                                 <Tooltip />
                                 <Legend />
-                                <Bar dataKey="defects" stackId="a" fill="hsl(0 84.2% 60.2%)" name="Defect Count" />
-                                <Bar dataKey="scrap" stackId="a" fill="hsl(43 74% 66%)" name="Scrap Count" />
-                                <Bar dataKey="rework" stackId="a" fill="hsl(340 75% 55%)" name="Rework Count" />
+                                <Bar dataKey="defects" stackId="a" fill="hsl(0 84.2% 60.2%)" name="Defect Count">
+                                    <LabelList dataKey="defects" position="center" className="fill-white"/>
+                                </Bar>
+                                <Bar dataKey="scrap" stackId="a" fill="hsl(43 74% 66%)" name="Scrap Count">
+                                    <LabelList dataKey="scrap" position="center" className="fill-black"/>
+                                </Bar>
+                                <Bar dataKey="rework" stackId="a" fill="hsl(340 75% 55%)" name="Rework Count">
+                                    <LabelList dataKey="rework" position="center" className="fill-white"/>
+                                </Bar>
                             </RechartsBarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -286,7 +292,5 @@ export default function QualityPage() {
     }
     return <QualityDashboard />
 }
-
-    
 
     
