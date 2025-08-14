@@ -8,6 +8,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import LoginForm from "@/components/login-form";
 
 const initialDefectRateData = [
     { month: 'Jan', "Defect Rate (%)": 2.5 },
@@ -226,5 +227,28 @@ function QualityDashboard() {
 }
 
 export default function QualityPage() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const loggedIn = sessionStorage.getItem("admin-authenticated");
+        if (loggedIn) {
+            setIsAuthenticated(true);
+        }
+    }, []);
+
+    const handleLogin = () => {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("admin-authenticated", "true");
+    };
+
+    if (!isAuthenticated) {
+        return (
+            <LoginForm
+                role="Admin"
+                correctPassword="admin123"
+                onLoginSuccess={handleLogin}
+            />
+        );
+    }
     return <QualityDashboard />
 }
