@@ -241,7 +241,6 @@ function QualityDashboard() {
                     <CardContent className="h-[300px]">
                          <ResponsiveContainer width="100%" height="100%">
                             <RechartsBarChart data={countData}>
-                                <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
                                 <Tooltip />
