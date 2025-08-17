@@ -25,7 +25,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <div className="sidebar-container">
+        <div className="sidebar-container group">
           <button className="z-50 p-2 rounded-md hover:bg-accent">
             <Menu className="h-8 w-8" />
           </button>
