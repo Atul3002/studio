@@ -3,12 +3,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine, LineChart, Line } from "recharts";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { BarChart, Download, X, Cog, Star, Trophy, AlertTriangle, TrendingDown, Clock, Truck, ShieldAlert, PackageSearch } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSubmissions } from "@/app/actions";
+import { ChartTypeSwitcher } from "@/components/chart-type-switcher";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -52,12 +53,13 @@ const initialSupplierDefectData = [
 ];
 
 const initialDeliveryTimeData = [
-    { supplier: 'Supplier A', time: 5 },
-    { supplier: 'Supplier B', time: 7 },
-    { supplier: 'Supplier C', time: 4 },
-    { supplier: 'Supplier D', time: 6 },
+    { supplier: 'Supplier A', value: 5 },
+    { supplier: 'Supplier B', value: 7 },
+    { supplier: 'Supplier C', value: 4 },
+    { supplier: 'Supplier D', value: 6 },
 ];
 
+const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 function ProductionDashboard() {
     const [waterfallData, setWaterfallData] = useState<WaterfallData[]>([]);
@@ -70,6 +72,13 @@ function ProductionDashboard() {
     const [lineChartData, setLineChartData] = useState(initialLineData);
     const [supplierDefectData, setSupplierDefectData] = useState(initialSupplierDefectData);
     const [deliveryTimeData, setDeliveryTimeData] = useState(initialDeliveryTimeData);
+
+    const [defectRateChartType, setDefectRateChartType] = useState<'line' | 'bar'>('line');
+    const [availabilityChartType, setAvailabilityChartType] = useState<'line' | 'bar'>('line');
+    const [leadTimeChartType, setLeadTimeChartType] = useState<'line' | 'bar'>('line');
+    const [supplierDefectChartType, setSupplierDefectChartType] = useState<'bar' | 'pie'>('bar');
+    const [deliveryTimeChartType, setDeliveryTimeChartType] = useState<'bar' | 'pie'>('bar');
+
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025];
@@ -92,7 +101,7 @@ function ProductionDashboard() {
                     leadTime: parseFloat((Math.random() * (7 - 4) + 4).toFixed(1))
                 })));
                 setSupplierDefectData(initialSupplierDefectData.map(item => ({...item, defectRate: parseFloat((Math.random() * 3).toFixed(1)) })));
-                setDeliveryTimeData(initialDeliveryTimeData.map(item => ({...item, time: Math.floor(Math.random() * (8 - 3) + 3) })))
+                setDeliveryTimeData(initialDeliveryTimeData.map(item => ({...item, value: Math.floor(Math.random() * (8 - 3) + 3) })))
             } else {
                 setLineChartData(initialLineData);
                 setSupplierDefectData(initialSupplierDefectData);
@@ -348,43 +357,73 @@ function ProductionDashboard() {
                 </Card>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                      <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base"><TrendingDown /> Defect Rate</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                             <div className="space-y-1">
+                                <CardTitle className="flex items-center gap-2 text-base"><TrendingDown /> Defect Rate</CardTitle>
+                             </div>
+                             <ChartTypeSwitcher currentType={defectRateChartType} onTypeChange={setDefectRateChartType} availableTypes={['line', 'bar']} />
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Line type="monotone" dataKey="defectRate" name="Defect Rate (%)" stroke="hsl(var(--destructive))" />
-                                </LineChart>
+                                {defectRateChartType === 'line' ? (
+                                    <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Line type="monotone" dataKey="defectRate" name="Defect Rate (%)" stroke="hsl(var(--destructive))" />
+                                    </LineChart>
+                                ) : (
+                                    <RechartsBarChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Bar dataKey="defectRate" name="Defect Rate (%)" fill="hsl(var(--destructive))" />
+                                    </RechartsBarChart>
+                                )}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                      <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base"><Star /> Availability</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div className="space-y-1">
+                                <CardTitle className="flex items-center gap-2 text-base"><Star /> Availability</CardTitle>
+                            </div>
+                            <ChartTypeSwitcher currentType={availabilityChartType} onTypeChange={setAvailabilityChartType} availableTypes={['line', 'bar']} />
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Line type="monotone" dataKey="availability" name="Availability (%)" stroke="hsl(var(--chart-2))" />
-                                </LineChart>
+                                {availabilityChartType === 'line' ? (
+                                    <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Line type="monotone" dataKey="availability" name="Availability (%)" stroke="hsl(var(--chart-2))" />
+                                    </LineChart>
+                                ) : (
+                                    <RechartsBarChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Bar dataKey="availability" name="Availability (%)" fill="hsl(var(--chart-2))" />
+                                    </RechartsBarChart>
+                                )}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                      <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base"><Clock /> Lead Time</CardTitle>
+                         <CardHeader className="flex flex-row items-center justify-between">
+                            <div className="space-y-1">
+                                <CardTitle className="flex items-center gap-2 text-base"><Clock /> Lead Time</CardTitle>
+                            </div>
+                            <ChartTypeSwitcher currentType={leadTimeChartType} onTypeChange={setLeadTimeChartType} availableTypes={['line', 'bar']} />
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
+                               {leadTimeChartType === 'line' ? (
                                 <LineChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
@@ -392,42 +431,81 @@ function ProductionDashboard() {
                                     <Tooltip content={<CustomTooltip />} />
                                     <Line type="monotone" dataKey="leadTime" name="Lead Time (Days)" stroke="hsl(var(--chart-4))" />
                                 </LineChart>
+                               ) : (
+                                <RechartsBarChart data={lineChartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Bar dataKey="leadTime" name="Lead Time (Days)" fill="hsl(var(--chart-4))" />
+                                </RechartsBarChart>
+                               )}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                 </div>
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-base"><ShieldAlert /> Supplier Defect Analysis</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div className="space-y-1">
+                                <CardTitle className="flex items-center gap-2 text-base"><ShieldAlert /> Supplier Defect Analysis</CardTitle>
+                            </div>
+                            <ChartTypeSwitcher currentType={supplierDefectChartType} onTypeChange={setSupplierDefectChartType} availableTypes={['bar', 'pie']} />
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsBarChart data={supplierDefectData}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Bar dataKey="defectRate" name="Defect Rate (%)" fill="hsl(var(--destructive))" />
-                                </RechartsBarChart>
+                                {supplierDefectChartType === 'bar' ? (
+                                    <RechartsBarChart data={supplierDefectData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis stroke="hsl(var(--muted-foreground))" />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Bar dataKey="defectRate" name="Defect Rate (%)" fill="hsl(var(--destructive))" />
+                                    </RechartsBarChart>
+                                ) : (
+                                    <PieChart>
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Pie data={supplierDefectData} dataKey="defectRate" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                                             {supplierDefectData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                )}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                      <Card>
-                        <CardHeader>
-                             <CardTitle className="flex items-center gap-2 text-base"><Truck /> Delivery Time Analysis</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                             <div className="space-y-1">
+                                <CardTitle className="flex items-center gap-2 text-base"><Truck /> Delivery Time Analysis</CardTitle>
+                            </div>
+                            <ChartTypeSwitcher currentType={deliveryTimeChartType} onTypeChange={setDeliveryTimeChartType} availableTypes={['bar', 'pie']} />
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsBarChart layout="vertical" data={deliveryTimeData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" />
-                                    <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
-                                    <YAxis dataKey="supplier" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                    <Bar dataKey="time" name="Delivery Time (Days)" fill="hsl(var(--chart-5))" />
-                                </RechartsBarChart>
+                                {deliveryTimeChartType === 'bar' ? (
+                                    <RechartsBarChart layout="vertical" data={deliveryTimeData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis type="number" stroke="hsl(var(--muted-foreground))" />
+                                        <YAxis dataKey="supplier" type="category" stroke="hsl(var(--muted-foreground))" width={80} />
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Bar dataKey="value" name="Delivery Time (Days)" fill="hsl(var(--chart-5))" />
+                                    </RechartsBarChart>
+                                ) : (
+                                    <PieChart>
+                                        <Tooltip content={<CustomTooltip />} />
+                                        <Legend />
+                                        <Pie data={deliveryTimeData} dataKey="value" nameKey="supplier" cx="50%" cy="50%" outerRadius={80} label>
+                                             {deliveryTimeData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
+                                )}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
@@ -443,3 +521,4 @@ export default function ProductionPage() {
   return <ProductionDashboard />;
 }
 
+    

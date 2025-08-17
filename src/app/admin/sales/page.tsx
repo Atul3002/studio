@@ -4,19 +4,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, Area, AreaChart as RechartsAreaChart } from "recharts";
-import { Download, BarChart, PieChart, TrendingUp, Zap, ShieldCheck, Star, Trophy, AlertTriangle, ShoppingCart, User, Cog, X, DollarSign, CreditCard, Banknote, Building, Wrench, Wallet, TrendingDown } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart } from "recharts";
+import { Download, BarChart, PieChart as PieChartIcon, LineChart as LineChartIcon, TrendingUp, X, DollarSign, CreditCard, Banknote, Building, Wrench, Wallet, TrendingDown } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { getSubmissions } from "@/app/actions";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { ChartTypeSwitcher } from "@/components/chart-type-switcher";
 
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF1919'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -24,7 +21,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
         <p className="label text-sm text-foreground">{`${label}`}</p>
         {payload.map((pld: any, index: number) => (
-            <p key={index} className="intro text-xs" style={{ color: pld.color || pld.fill }}>{`${pld.name}: ${pld.value.toLocaleString()}`}</p>
+            <p key={index} className="intro text-xs" style={{ color: pld.color || pld.fill }}>{`${pld.name}: ${pld.value.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`}</p>
         ))}
       </div>
     );
@@ -58,6 +55,13 @@ function SalesDashboard() {
     const years = [2023, 2024, 2025];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+    const [monthlySalesChartType, setMonthlySalesChartType] = useState<'bar' | 'line' | 'pie'>('bar');
+    const [dailySalesChartType, setDailySalesChartType] = useState<'bar' | 'line'>('bar');
+    const [paymentModeChartType, setPaymentModeChartType] = useState<'pie' | 'bar'>('pie');
+    const [operatorExpensesChartType, setOperatorExpensesChartType] = useState<'bar' | 'line'>('bar');
+    const [machineExpensesChartType, setMachineExpensesChartType] = useState<'pie' | 'bar'>('pie');
+    const [factoryExpensesChartType, setFactoryExpensesChartType] = useState<'line' | 'bar'>('line');
+
     useEffect(() => {
         getSubmissions().then(data => {
             setAllSubmissions(data);
@@ -78,31 +82,30 @@ function SalesDashboard() {
         setTotalProfit(125000);
         setProfitPercentage(25);
         setTotalRevenue(600000);
-        setTotalExpenses(475000);
-
+        
         setPaymentModeData([
-            { name: 'Online', value: 450, icon: CreditCard },
-            { name: 'Cash', value: 250, icon: Banknote },
+            { name: 'Online', value: 450000, icon: CreditCard },
+            { name: 'Cash', value: 250000, icon: Banknote },
         ]);
         
         const salesData: { [key: number]: number } = {};
         dataToProcess.forEach(s => {
             if (s.serialNumber) { 
                 const month = new Date(s.id).getMonth();
-                salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 5000) + 1000);
+                salesData[month] = (salesData[month] || 0) + (Math.floor(Math.random() * 50000) + 10000);
             }
         });
         const salesChartDataFormatted = monthNames.map((monthName, i) => ({
-            month: monthName,
-            sales: salesData[i] || (selectedMonth !== null ? 0 : Math.floor(Math.random() * 5000) + 1000)
+            name: monthName,
+            value: salesData[i] || (selectedMonth !== null ? 0 : Math.floor(Math.random() * 50000) + 10000)
         }));
         setMonthlySalesData(salesChartDataFormatted);
 
         if (selectedMonth !== null) {
             const daysInMonth = new Date(selectedYear || new Date().getFullYear(), selectedMonth + 1, 0).getDate();
             const dailyData = Array.from({ length: daysInMonth }, (_, i) => ({
-                day: i + 1,
-                sales: Math.floor(Math.random() * 500) + 100
+                name: (i + 1).toString(),
+                value: Math.floor(Math.random() * 5000) + 1000
             }));
             setDailySalesData(dailyData);
         }
@@ -112,10 +115,12 @@ function SalesDashboard() {
         const monthlyOperatorExpenses: { [key: number]: number } = {};
         const monthlyFactoryExpenses: { [key: number]: number } = {};
         const machineExpenses: { [key: string]: number } = {};
+        let totalExp = 0;
 
         financeSubmissions.forEach(s => {
              const month = new Date(s.id).getMonth();
              const amount = parseFloat(s.amount) || 0;
+             totalExp += amount;
 
             if (s.entryType === 'finance-operator') {
                 monthlyOperatorExpenses[month] = (monthlyOperatorExpenses[month] || 0) + amount;
@@ -125,16 +130,18 @@ function SalesDashboard() {
                 machineExpenses[s.machine] = (machineExpenses[s.machine] || 0) + amount;
             }
         });
+        setTotalExpenses(totalExp);
+
 
         const operatorExpenseDataFormatted = monthNames.map((monthName, i) => ({
-            month: monthName,
-            expenses: monthlyOperatorExpenses[i] || 0,
+            name: monthName,
+            value: monthlyOperatorExpenses[i] || 0,
         }));
         setMonthlyOperatorExpensesData(operatorExpenseDataFormatted);
 
         const factoryExpenseDataFormatted = monthNames.map((monthName, i) => ({
-            month: monthName,
-            expenses: monthlyFactoryExpenses[i] || 0,
+            name: monthName,
+            value: monthlyFactoryExpenses[i] || 0,
         }));
         setMonthlyFactoryExpensesData(factoryExpenseDataFormatted);
 
@@ -182,13 +189,51 @@ function SalesDashboard() {
 
     const handleBarClick = (data: any) => {
         if (data && data.activePayload && data.activePayload.length > 0) {
-            const monthName = data.activePayload[0].payload.month;
+            const monthName = data.activePayload[0].payload.name;
             const monthIndex = monthNames.indexOf(monthName);
             if (monthIndex !== -1) {
                 handleMonthSelect(monthIndex);
             }
         }
     };
+    
+    const renderChart = (type: 'bar' | 'line' | 'pie', data: any[], dataKey: string, name: string, color: string, xAxisKey: string = "name") => {
+        if (type === 'bar') {
+            return (
+                <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }} onClick={handleBarClick}>
+                    <XAxis dataKey={xAxisKey} stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Number(value).toLocaleString()}`} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsla(var(--primary-hsl) / 0.1)' }} />
+                    <Bar dataKey={dataKey} name={name} fill={color} radius={[4, 4, 0, 0]} />
+                </RechartsBarChart>
+            )
+        }
+        if (type === 'line') {
+            return (
+                <RechartsLineChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                    <XAxis dataKey={xAxisKey} stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Number(value).toLocaleString()}`} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line type="monotone" dataKey={dataKey} name={name} stroke={color} />
+                </RechartsLineChart>
+            )
+        }
+        if (type === 'pie') {
+            return (
+                 <RechartsPieChart>
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Pie data={data} dataKey={dataKey} nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                    </Pie>
+                </RechartsPieChart>
+            )
+        }
+        return null;
+    }
+
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -284,7 +329,7 @@ function SalesDashboard() {
                     </Card>
                     <Card className="bg-card/80">
                         <CardHeader>
-                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><ShoppingCart /> TOTAL SALE</CardTitle>
+                            <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Wallet /> TOTAL SALE</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <p className="text-3xl font-bold">₹{totalSale.toLocaleString()}</p>
@@ -309,33 +354,25 @@ function SalesDashboard() {
                 </div>
                  <div className="grid grid-cols-1 gap-4">
                     <Card className="bg-card/80">
-                        <CardHeader>
+                        <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="text-lg font-semibold">{selectedYear ? `${selectedYear} ` : ''}{selectedMonth === null ? 'YEARLY' : months[selectedMonth].toUpperCase()} SALES</CardTitle>
+                             <ChartTypeSwitcher currentType={monthlySalesChartType} onTypeChange={setMonthlySalesChartType} availableTypes={['bar', 'line', 'pie']} />
                         </CardHeader>
                         <CardContent className="h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsBarChart data={monthlySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }} onClick={handleBarClick}>
-                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--primary) / 0.1)'}} />
-                                    <Bar dataKey="sales" name="Sales" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                                </RechartsBarChart>
+                               {renderChart(monthlySalesChartType, monthlySalesData, 'value', 'Sales', 'hsl(var(--primary))')}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                     {showDetailChart && selectedMonth !== null && (
                          <Card className="bg-card/80">
-                            <CardHeader>
+                             <CardHeader className="flex flex-row items-center justify-between">
                                 <CardTitle className="text-lg font-semibold">DAILY SALES FOR {months[selectedMonth].toUpperCase()}</CardTitle>
+                                <ChartTypeSwitcher currentType={dailySalesChartType} onTypeChange={setDailySalesChartType} availableTypes={['bar', 'line']} />
                             </CardHeader>
                             <CardContent className="h-[300px]">
                                  <ResponsiveContainer width="100%" height="100%">
-                                    <RechartsBarChart data={dailySalesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                        <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                        <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
-                                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--chart-2) / 0.1)'}} />
-                                        <Bar dataKey="sales" name="Sales" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
-                                    </RechartsBarChart>
+                                    {renderChart(dailySalesChartType, dailySalesData, 'value', 'Sales', 'hsl(var(--chart-2))')}
                                 </ResponsiveContainer>
                             </CardContent>
                         </Card>
@@ -343,69 +380,47 @@ function SalesDashboard() {
                 </div>
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <Card className="bg-card/80">
-                        <CardHeader>
+                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="text-lg font-semibold flex items-center gap-2"><CreditCard /> PAYMENT MODE</CardTitle>
+                             <ChartTypeSwitcher currentType={paymentModeChartType} onTypeChange={setPaymentModeChartType} availableTypes={['pie', 'bar']} />
                         </CardHeader>
                         <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <RechartsPieChart>
-                                    <Pie data={paymentModeData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" paddingAngle={5}>
-                                        {paymentModeData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend iconType="circle" />
-                                </RechartsPieChart>
+                                {renderChart(paymentModeChartType, paymentModeData, 'value', 'Payment Mode', 'hsl(var(--chart-1))')}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                     <Card className="bg-card/80">
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><User /> Monthly Operator Expenses</CardTitle>
+                         <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wrench /> Operator Expenses</CardTitle>
+                            <ChartTypeSwitcher currentType={operatorExpensesChartType} onTypeChange={setOperatorExpensesChartType} availableTypes={['bar', 'line']} />
                         </CardHeader>
                          <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                               <RechartsBarChart data={monthlyOperatorExpensesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
-                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--chart-1) / 0.1)'}} />
-                                    <Bar dataKey="expenses" name="Operator Expenses" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-                                </RechartsBarChart>
+                              {renderChart(operatorExpensesChartType, monthlyOperatorExpensesData, 'value', 'Operator Expenses', 'hsl(var(--chart-3))')}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                     <Card className="bg-card/80">
-                        <CardHeader>
-                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wrench /> Machine-wise Expense Breakdown</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="text-lg font-semibold flex items-center gap-2"><Wrench /> Machine-wise Expense</CardTitle>
+                            <ChartTypeSwitcher currentType={machineExpensesChartType} onTypeChange={setMachineExpensesChartType} availableTypes={['pie', 'bar']} />
                         </CardHeader>
                          <CardContent className="h-[250px]">
                             <ResponsiveContainer width="100%" height="100%">
-                               <RechartsPieChart>
-                                    <Pie data={machineExpensesBreakdownData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} fill="#8884d8" label>
-                                        {machineExpensesBreakdownData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip content={<CustomTooltip />} />
-                                    <Legend />
-                                </RechartsPieChart>
+                               {renderChart(machineExpensesChartType, machineExpensesBreakdownData, 'value', 'Machine Expenses', 'hsl(var(--chart-4))')}
                             </ResponsiveContainer>
                         </CardContent>
                     </Card>
                 </div>
                 <Card className="bg-card/80">
-                    <CardHeader>
+                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg font-semibold flex items-center gap-2"><Building /> Monthly Factory Expenses</CardTitle>
+                        <ChartTypeSwitcher currentType={factoryExpensesChartType} onTypeChange={setFactoryExpensesChartType} availableTypes={['line', 'bar']} />
                     </CardHeader>
                     <CardContent className="h-[250px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsLineChart data={monthlyFactoryExpensesData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value.toLocaleString()}`} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Line type="monotone" dataKey="expenses" name="Factory Expenses" stroke="hsl(var(--chart-2))" />
-                            </RechartsLineChart>
+                           {renderChart(factoryExpensesChartType, monthlyFactoryExpensesData, 'value', 'Factory Expenses', 'hsl(var(--chart-2))')}
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
@@ -444,3 +459,5 @@ export default function SalesPage() {
 
   return <SalesDashboard />;
 }
+
+    
