@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Trash2, BarChart, LineChart, PieChart as PieChartIcon, Save } from "lucide-react";
-import { ResponsiveContainer, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, Pie, PieChart as RechartsPieChart, XAxis, YAxis, Tooltip, Legend, Cell } from "recharts";
+import { Plus, Trash2, BarChart, LineChart, PieChart as PieChartIcon, Save, AreaChart, ScatterChart, Layers } from "lucide-react";
+import { ResponsiveContainer, Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, Pie, PieChart as RechartsPieChart, XAxis, YAxis, Tooltip, Legend, Cell, Area, AreaChart as RechartsAreaChart, Scatter, ScatterChart as RechartsScatterChart, CartesianGrid } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,18 +12,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getSubmissions } from "@/app/actions";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ChartConfig {
   id: string;
-  type: 'bar' | 'line' | 'pie';
+  type: 'bar' | 'line' | 'pie' | 'area' | 'scatter' | 'stacked-bar';
   title: string;
   categoryKey: string;
   valueKey: string;
+  valueKey2?: string; // For scatter plots
 }
 
 interface ChartData {
     name: string;
     value: number;
+    value2?: number;
 }
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
@@ -32,57 +35,108 @@ const availableCharts = [
   { type: 'bar' as const, name: 'Bar Chart', icon: BarChart },
   { type: 'line' as const, name: 'Line Chart', icon: LineChart },
   { type: 'pie' as const, name: 'Pie Chart', icon: PieChartIcon },
+  { type: 'area' as const, name: 'Area Chart', icon: AreaChart },
+  { type: 'scatter' as const, name: 'Scatter Plot', icon: ScatterChart },
+  { type: 'stacked-bar' as const, name: 'Stacked Bar Chart', icon: Layers },
 ];
 
-function processData(submissions: any[], categoryKey: string, valueKey: string): ChartData[] {
-    if (!categoryKey || !valueKey) return [];
+function processData(submissions: any[], config: ChartConfig): any[] {
+    if (!config.categoryKey || !config.valueKey) return [];
+    
+    if (config.type === 'stacked-bar') {
+        const aggregatedData = submissions.reduce((acc, curr) => {
+            const category = curr[config.categoryKey];
+            if (category) {
+                 if (!acc[category]) acc[category] = {};
+                 
+                 const valueKeyName = curr[config.valueKey];
+                 const value = parseFloat(curr[config.valueKey2 || ''] || '1'); // Default to 1 if no value for counting
+
+                 if(valueKeyName) {
+                    if (!acc[category][valueKeyName]) {
+                        acc[category][valueKeyName] = 0;
+                    }
+                    acc[category][valueKeyName] += value;
+                 }
+            }
+            return acc;
+        }, {} as {[key:string]: {[key:string]: number}});
+        
+        const allValueKeys = new Set<string>();
+        Object.values(aggregatedData).forEach(cat => {
+            Object.keys(cat).forEach(key => allValueKeys.add(key));
+        });
+
+        return Object.entries(aggregatedData).map(([name, values]) => ({
+            name,
+            ...Object.fromEntries(Array.from(allValueKeys).map(key => [key, values[key] || 0]))
+        }));
+    }
 
     const aggregatedData = submissions.reduce((acc, curr) => {
-        const category = curr[categoryKey];
-        const value = parseFloat(curr[valueKey]) || 0;
+        const category = curr[config.categoryKey];
+        const value = parseFloat(curr[config.valueKey]) || 0;
+        const value2 = config.valueKey2 ? (parseFloat(curr[config.valueKey2]) || 0) : undefined;
 
         if (category) {
             if (!acc[category]) {
-                acc[category] = 0;
+                acc[category] = { sum: 0, sum2: 0, count: 0 };
             }
-            acc[category] += value;
+            acc[category].sum += value;
+            if(value2 !== undefined) acc[category].sum2 += value2;
+            acc[category].count += 1;
         }
         return acc;
-    }, {} as { [key: string]: number });
+    }, {} as { [key: string]: { sum: number; sum2: number; count: number } });
 
-    return Object.entries(aggregatedData).map(([name, value]) => ({ name, value }));
+    return Object.entries(aggregatedData).map(([name, data]) => ({ 
+        name, 
+        value: data.sum,
+        value2: config.valueKey2 ? data.sum2 : undefined,
+    }));
 }
 
 
-function ChartRenderer({ type, data }: { type: 'bar' | 'line' | 'pie', data: ChartData[] }) {
+function ChartRenderer({ type, data, config }: { type: ChartConfig['type'], data: any[], config: ChartConfig }) {
+    const commonProps = {
+        data: data,
+        margin:{ top: 5, right: 30, left: 20, bottom: 80 }
+    };
+    const commonXAxis = <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} angle={-45} textAnchor="end" />;
+    const commonYAxis = <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />;
+    const commonTooltip = <Tooltip />;
+    const commonLegend = <Legend wrapperStyle={{ bottom: 20 }} />;
+
     if (type === 'bar') {
         return (
-            <RechartsBarChart data={data}>
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} angle={-30} textAnchor="end" height={80}/>
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="value" name="Value" fill="hsl(var(--primary))" />
+            <RechartsBarChart {...commonProps}>
+                <CartesianGrid strokeDasharray="3 3" />
+                {commonXAxis}
+                {commonYAxis}
+                {commonTooltip}
+                {commonLegend}
+                <Bar dataKey="value" name={config.valueKey} fill="hsl(var(--primary))" />
             </RechartsBarChart>
         )
     }
     if (type === 'line') {
         return (
-            <RechartsLineChart data={data}>
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} interval={0} angle={-30} textAnchor="end" height={80}/>
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="value" name="Value" stroke="hsl(var(--primary))" />
+            <RechartsLineChart {...commonProps}>
+                 <CartesianGrid strokeDasharray="3 3" />
+                {commonXAxis}
+                {commonYAxis}
+                {commonTooltip}
+                {commonLegend}
+                <Line type="monotone" dataKey="value" name={config.valueKey} stroke="hsl(var(--primary))" />
             </RechartsLineChart>
         )
     }
     if (type === 'pie') {
         return (
-            <RechartsPieChart>
-                <Tooltip />
-                <Legend />
-                <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+            <RechartsPieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                {commonTooltip}
+                {commonLegend}
+                <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
                    {data.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -90,13 +144,58 @@ function ChartRenderer({ type, data }: { type: 'bar' | 'line' | 'pie', data: Cha
             </RechartsPieChart>
         )
     }
+    if (type === 'area') {
+        return (
+            <RechartsAreaChart {...commonProps}>
+                <CartesianGrid strokeDasharray="3 3" />
+                {commonXAxis}
+                {commonYAxis}
+                {commonTooltip}
+                {commonLegend}
+                <Area type="monotone" dataKey="value" name={config.valueKey} stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+            </RechartsAreaChart>
+        );
+    }
+    if (type === 'scatter') {
+        return (
+            <RechartsScatterChart {...commonProps}>
+                <CartesianGrid strokeDasharray="3 3" />
+                {commonXAxis}
+                {commonYAxis}
+                {commonTooltip}
+                {commonLegend}
+                <Scatter name={config.title} dataKey="value" fill="hsl(var(--primary))" />
+            </RechartsScatterChart>
+        );
+    }
+     if (type === 'stacked-bar') {
+        const allValueKeys = new Set<string>();
+        data.forEach(d => {
+            Object.keys(d).forEach(key => {
+                if (key !== 'name') allValueKeys.add(key);
+            });
+        });
+
+        return (
+            <RechartsBarChart {...commonProps}>
+                <CartesianGrid strokeDasharray="3 3" />
+                {commonXAxis}
+                {commonYAxis}
+                {commonTooltip}
+                {commonLegend}
+                {Array.from(allValueKeys).map((key, index) => (
+                    <Bar key={key} dataKey={key} stackId="a" fill={COLORS[index % COLORS.length]} />
+                ))}
+            </RechartsBarChart>
+        );
+    }
     return null;
 }
 
 function ReportsPage() {
   const [dashboardCharts, setDashboardCharts] = useState<ChartConfig[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [chartTypeToAdd, setChartTypeToAdd] = useState<'bar' | 'line' | 'pie' | null>(null);
+  const [chartTypeToAdd, setChartTypeToAdd] = useState<ChartConfig['type'] | null>(null);
   const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
   const [availableFields, setAvailableFields] = useState<string[]>([]);
 
@@ -111,7 +210,9 @@ function ReportsPage() {
       if (data.length > 0) {
         // Get all unique keys from all submission objects
         const allKeys = data.reduce((acc, curr) => {
-          Object.keys(curr).forEach(key => acc.add(key));
+          Object.keys(curr).forEach(key => {
+            if(key !== 'id') acc.add(key);
+          });
           return acc;
         }, new Set<string>());
         
@@ -120,7 +221,7 @@ function ReportsPage() {
     });
   }, []);
 
-  const handleAddChartClick = (type: 'bar' | 'line' | 'pie') => {
+  const handleAddChartClick = (type: ChartConfig['type']) => {
     setChartTypeToAdd(type);
     setIsDialogOpen(true);
   };
@@ -149,9 +250,9 @@ function ReportsPage() {
     const [title, setTitle] = useState("");
     const [categoryKey, setCategoryKey] = useState("");
     const [valueKey, setValueKey] = useState("");
+    const [valueKey2, setValueKey2] = useState("");
     
     const numericFields = availableFields.filter(field => {
-      // A simple heuristic to find numeric fields: check if some values can be parsed as floats
       return allSubmissions.some(s => s[field] && !isNaN(parseFloat(s[field])));
     });
     
@@ -160,7 +261,8 @@ function ReportsPage() {
             handleSaveChart({
                 title,
                 categoryKey,
-                valueKey
+                valueKey,
+                ...(chartTypeToAdd === 'scatter' || chartTypeToAdd === 'stacked-bar' ? { valueKey2 } : {})
             });
         }
     };
@@ -178,7 +280,7 @@ function ReportsPage() {
               <Input id="chart-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Rejections by Machine" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="chart-category">Category (X-Axis)</Label>
+              <Label htmlFor="chart-category">{chartTypeToAdd === 'scatter' ? 'X-Axis' : 'Category'}</Label>
               <Select value={categoryKey} onValueChange={setCategoryKey}>
                 <SelectTrigger id="chart-category"><SelectValue placeholder="Select a category field..." /></SelectTrigger>
                 <SelectContent>
@@ -187,14 +289,25 @@ function ReportsPage() {
               </Select>
             </div>
              <div className="space-y-2">
-              <Label htmlFor="chart-value">Value (Y-Axis)</Label>
+              <Label htmlFor="chart-value">{chartTypeToAdd === 'scatter' ? 'Y-Axis' : (chartTypeToAdd === 'stacked-bar' ? 'Bar Segments' : 'Value')}</Label>
               <Select value={valueKey} onValueChange={setValueKey}>
                 <SelectTrigger id="chart-value"><SelectValue placeholder="Select a value field..." /></SelectTrigger>
                 <SelectContent>
-                  {numericFields.map(field => <SelectItem key={field} value={field}>{field}</SelectItem>)}
+                  {chartTypeToAdd === 'stacked-bar' ? availableFields.map(field => <SelectItem key={field} value={field}>{field}</SelectItem>) : numericFields.map(field => <SelectItem key={field} value={field}>{field}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            {(chartTypeToAdd === 'scatter' || chartTypeToAdd === 'stacked-bar') && (
+                <div className="space-y-2">
+                  <Label htmlFor="chart-value2">{chartTypeToAdd === 'stacked-bar' ? 'Bar Value (Optional, defaults to count)' : 'Z-Axis (Size)'}</Label>
+                  <Select value={valueKey2} onValueChange={setValueKey2}>
+                    <SelectTrigger id="chart-value2"><SelectValue placeholder="Select a second value field..." /></SelectTrigger>
+                    <SelectContent>
+                      {numericFields.map(field => <SelectItem key={field} value={field}>{field}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+            )}
           </div>
           <DialogFooter>
             <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
@@ -220,16 +333,20 @@ function ReportsPage() {
                     <CardTitle>Component Library</CardTitle>
                     <CardDescription>Add charts to your dashboard.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-2">
-                    {availableCharts.map(chart => {
-                        const Icon = chart.icon;
-                        return (
-                             <Button key={chart.type} variant="outline" className="w-full justify-start gap-2" onClick={() => handleAddChartClick(chart.type)}>
-                                <Icon className="h-5 w-5 text-primary"/>
-                                <span className="font-medium">{chart.name}</span>
-                            </Button>
-                        )
-                    })}
+                <CardContent>
+                    <ScrollArea className="h-96">
+                        <div className="space-y-2 pr-4">
+                        {availableCharts.map(chart => {
+                            const Icon = chart.icon;
+                            return (
+                                 <Button key={chart.type} variant="outline" className="w-full justify-start gap-2" onClick={() => handleAddChartClick(chart.type)}>
+                                    <Icon className="h-5 w-5 text-primary"/>
+                                    <span className="font-medium">{chart.name}</span>
+                                </Button>
+                            )
+                        })}
+                        </div>
+                    </ScrollArea>
                 </CardContent>
             </Card>
         </aside>
@@ -243,20 +360,20 @@ function ReportsPage() {
                 </div>
             ) : (
                 <div className="grid gap-8 md:grid-cols-2">
-                    {dashboardCharts.map(chart => {
-                         const chartData = processData(allSubmissions, chart.categoryKey, chart.valueKey);
+                    {dashboardCharts.map(chartConfig => {
+                         const chartData = processData(allSubmissions, chartConfig);
                          return (
-                             <Card key={chart.id}>
+                             <Card key={chartConfig.id}>
                                 <CardHeader className="flex flex-row items-center justify-between">
-                                    <CardTitle>{chart.title}</CardTitle>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteChart(chart.id)}>
+                                    <CardTitle>{chartConfig.title}</CardTitle>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => handleDeleteChart(chartConfig.id)}>
                                         <Trash2 className="w-4 h-4" />
                                     </Button>
                                 </CardHeader>
                                 <CardContent className="h-[400px]">
                                     {chartData.length > 0 ? (
                                         <ResponsiveContainer width="100%" height="100%">
-                                           <ChartRenderer type={chart.type} data={chartData} />
+                                           <ChartRenderer type={chartConfig.type} data={chartData} config={chartConfig} />
                                         </ResponsiveContainer>
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -271,7 +388,7 @@ function ReportsPage() {
             )}
         </div>
       </main>
-      <ChartConfigDialog />
+      {isDialogOpen && <ChartConfigDialog />}
     </div>
   );
 }
