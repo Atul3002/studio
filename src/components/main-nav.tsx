@@ -48,10 +48,7 @@ export function MainNav() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarMenuButton
-          asChild
-          tooltip={{ children: "Organization" }}
-        >
+        <SidebarMenuButton asChild tooltip={{ children: "Organization" }}>
           <Link href="#">
             <Building2 />
           </Link>
@@ -89,7 +86,7 @@ export function MainNav() {
 
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip={{ children: "Reports" }}>
-          <Link href="#">
+          <Link href="/reports">
             <LineChart />
           </Link>
         </SidebarMenuButton>
