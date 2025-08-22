@@ -53,7 +53,6 @@ export function MainNav() {
             tooltip={{ children: "Organization" }}
           >
             <Building2 />
-            <span>Organization</span>
           </SidebarMenuButton>
         </Link>
       </SidebarMenuItem>
@@ -66,7 +65,6 @@ export function MainNav() {
               isActive={departmentLinks.some((item) => pathname.startsWith(item.href))}
             >
               <LayoutDashboard />
-              <span>Departments</span>
             </SidebarMenuButton>
           </CollapsibleTrigger>
           <CollapsibleContent>
@@ -92,7 +90,6 @@ export function MainNav() {
         <Link href="#">
           <SidebarMenuButton tooltip={{ children: "Reports" }}>
             <LineChart />
-            <span>Reports</span>
           </SidebarMenuButton>
         </Link>
       </SidebarMenuItem>
@@ -101,7 +98,6 @@ export function MainNav() {
         <Link href="#">
           <SidebarMenuButton tooltip={{ children: "KPI" }}>
             <Target />
-            <span>KPI</span>
           </SidebarMenuButton>
         </Link>
       </SidebarMenuItem>
@@ -110,7 +106,6 @@ export function MainNav() {
         <Link href="#">
           <SidebarMenuButton tooltip={{ children: "Contact Us" }}>
             <Phone />
-            <span>Contact Us</span>
           </SidebarMenuButton>
         </Link>
       </SidebarMenuItem>
