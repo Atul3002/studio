@@ -62,7 +62,7 @@ function QualityDashboard() {
     <div className="flex min-h-screen w-full flex-col">
       <div className="flex flex-col sm:gap-4 sm:py-4">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-          <h1 className="font-headline text-2xl font-semibold pl-20">Quality Team</h1>
+          <h1 className="font-headline text-2xl font-semibold pl-20">Quality Control</h1>
         </header>
         <main className="grid flex-1 items-start gap-8 p-4 sm:px-6 sm:py-0 md:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
              <Card>
@@ -147,7 +147,7 @@ function QualityDashboard() {
                     <div className="space-y-2">
                        <h3 className="font-semibold">Analysis Results:</h3>
                        <pre className="p-4 bg-muted rounded-md text-sm whitespace-pre-wrap">
-                         {JSON.stringify(analysisResult, null, 2)}
+                         {analysisResult.extractedText}
                        </pre>
                     </div>
                   )}

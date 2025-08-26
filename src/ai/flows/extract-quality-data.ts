@@ -1,9 +1,9 @@
 
 'use server';
 /**
- * @fileOverview An AI flow for extracting quality control data from an image.
+ * @fileOverview An AI flow for extracting text from an image.
  *
- * - extractQualityData - A function that handles the quality data extraction process.
+ * - extractQualityData - A function that handles the text extraction process.
  * - ExtractQualityDataInput - The input type for the extractQualityData function.
  * - ExtractedQualityData - The return type for the extractQualityData function.
  */
@@ -21,19 +21,7 @@ const ExtractQualityDataInputSchema = z.object({
 export type ExtractQualityDataInput = z.infer<typeof ExtractQualityDataInputSchema>;
 
 const ExtractedQualityDataSchema = z.object({
-  partId: z.string().describe('The identification number or name of the part, if visible.'),
-  serialNumber: z.string().describe('The serial number of the part, if visible.'),
-  dimensions: z.object({
-    length: z.string().describe('The measured length of the part in millimeters.'),
-    width: z.string().describe('The measured width of the part in millimeters.'),
-    height: z.string().describe('The measured height of the part in millimeters.'),
-  }).describe('The measured dimensions of the part.'),
-  defects: z.array(z.object({
-    type: z.string().describe('The type of defect found (e.g., scratch, dent, crack, discoloration).'),
-    description: z.string().describe('A brief description of the defect.'),
-    location: z.string().describe('The location of the defect on the part.'),
-  })).describe('A list of any defects identified on the part.'),
-  overallQuality: z.enum(['Pass', 'Fail', 'Review']).describe('The overall quality assessment of the part based on the analysis.'),
+  extractedText: z.string().describe('All the text extracted from the image.'),
 });
 export type ExtractedQualityData = z.infer<typeof ExtractedQualityDataSchema>;
 
@@ -45,11 +33,7 @@ const prompt = ai.definePrompt({
   name: 'extractQualityDataPrompt',
   input: {schema: ExtractQualityDataInputSchema},
   output: {schema: ExtractedQualityDataSchema},
-  prompt: `You are a highly-trained quality control inspector for a manufacturing company. Your task is to analyze the provided image of a component and extract specific quality control information.
-
-Carefully examine the image for any identifying numbers, dimensions, and visual defects. Measure any visible dimensions accurately.
-
-Based on your analysis, provide a structured report of your findings. Identify the part, list any defects you find with details, and give an overall quality assessment.
+  prompt: `You are an OCR (Optical Character Recognition) engine. Your task is to extract any and all text visible in the provided image. Return the extracted text in the 'extractedText' field.
 
 Photo of the component: {{media url=photoDataUri}}`,
 });
