@@ -6,8 +6,8 @@ import Image from "next/image";
 import { Plus, Trash2, Edit, Save, X, Type, Pilcrow, ImageIcon, Target, BarChart, DollarSign, Users, TrendingUp, TrendingDown, Package, Building2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -327,5 +327,3 @@ function OrganizationPage() {
 }
 
 export default OrganizationPage;
-
-    
