@@ -3,12 +3,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Briefcase, Users, FileText, Target, Shield, X, Archive, Cog } from "lucide-react";
+import Papa from "papaparse";
+import { BarChart, Briefcase, Users, FileText, Target, Shield, X, Archive, Cog, Download } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text, Label as RechartsLabel, Sector } from "recharts";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import LoginForm from "@/components/login-form";
+import { getSubmissions } from "@/app/actions";
 
 const initialChartData = [
   { name: "Sales", value: 85, fullMark: 100, color: "hsl(var(--chart-1))" },
@@ -140,11 +142,16 @@ function AdminDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [chartData, setChartData] = useState(initialChartData);
+  const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
 
   useEffect(() => {
+    getSubmissions().then(data => {
+        setAllSubmissions(data);
+    });
+
     if (selectedMonth !== null || selectedYear !== null) {
       // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
       const newChartData = initialChartData.map(item => ({
@@ -170,6 +177,28 @@ function AdminDashboard() {
     setSelectedYear(null);
   };
 
+  const downloadCSV = () => {
+        const allKeys = allSubmissions.reduce((acc, curr) => {
+            Object.keys(curr).forEach(key => acc.add(key));
+            return acc;
+        }, new Set<string>());
+
+        const csv = Papa.unparse({
+            fields: Array.from(allKeys),
+            data: allSubmissions
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "submissions.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/40 bg-background/95 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -189,6 +218,12 @@ function AdminDashboard() {
             <Link href="/admin/oee" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">OEE</Link>
             <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
         </nav>
+        <div className="ml-auto">
+             <Button size="sm" className="gap-1" onClick={downloadCSV} disabled={allSubmissions.length === 0}>
+                <Download className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Download CSV</span>
+             </Button>
+        </div>
       </header>
       <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
         <aside className="py-4 space-y-4">
