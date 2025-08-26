@@ -39,7 +39,7 @@ const departmentLinks = [
   { href: "/operator", icon: Wrench, title: "Operator" },
   { href: "/finance", icon: DollarSign, title: "Finance" },
   { href: "/store", icon: Archive, title: "Store" },
-  { href: "/quality", icon: Gem, title: "Quality" },
+  { href: "/quality", icon: Gem, title: "Quality Control" },
 ]
 
 export function MainNav() {
