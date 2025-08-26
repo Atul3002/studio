@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { Plus, Trash2, Edit, Save, X, Type, Pilcrow, ImageIcon, Target, BarChart, DollarSign, Users, TrendingUp, TrendingDown, Package } from "lucide-react";
+import { Plus, Trash2, Edit, Save, X, Type, Pilcrow, ImageIcon, Target, BarChart, DollarSign, Users, TrendingUp, TrendingDown, Package, Building2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
