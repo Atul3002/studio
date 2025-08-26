@@ -7,7 +7,7 @@ import { Plus, Trash2, Edit, Save, X, Type, Pilcrow, ImageIcon, Target, BarChart
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,6 +118,38 @@ function OrganizationPage() {
         setBlocks(newBlocks);
         localStorage.setItem("customOrganizationPage", JSON.stringify(newBlocks));
     };
+    
+    const renderBlock = (block: Block, kpiData: { [key: string]: string | number }) => {
+        const { id, type, content } = block;
+
+        return (
+            <div key={id} className="relative group p-4 border rounded-lg bg-card/50 hover:bg-card/80 transition-colors">
+                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDeleteBlock(id)}>
+                    <Trash2 className="w-4 h-4" />
+                </Button>
+                {type === 'header' && <h2 className="text-3xl font-bold tracking-tight">{content.text}</h2>}
+                {type === 'text' && <p className="text-muted-foreground whitespace-pre-wrap">{content.text}</p>}
+                {type === 'image' && content.src && (
+                    <div className="relative aspect-video">
+                        <Image src={content.src} alt="Custom content" layout="fill" objectFit="contain" className="rounded-md" />
+                    </div>
+                )}
+                {type === 'kpi' && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-medium text-primary flex items-center justify-between">
+                          <span className="flex items-center gap-2">{iconComponents[content.icon] && React.createElement(iconComponents[content.icon], {className: "w-4 h-4"})} {content.title}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-3xl font-bold">{kpiData[content.id] ?? '...'}</p>
+                        <p className="text-xs text-muted-foreground">{`${content.metric} of ${content.dataSource}`}</p>
+                      </CardContent>
+                    </Card>
+                )}
+            </div>
+        );
+    }
 
     const BlockConfigDialog = () => {
         const [header, setHeader] = useState('');
@@ -235,38 +267,6 @@ function OrganizationPage() {
           </Dialog>
         );
     }
-    
-    const renderBlock = (block: Block) => {
-        const { id, type, content } = block;
-
-        return (
-            <div key={id} className="relative group p-4 border rounded-lg bg-card/50 hover:bg-card/80 transition-colors">
-                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDeleteBlock(id)}>
-                    <Trash2 className="w-4 h-4" />
-                </Button>
-                {type === 'header' && <h2 className="text-3xl font-bold tracking-tight">{content.text}</h2>}
-                {type === 'text' && <p className="text-muted-foreground whitespace-pre-wrap">{content.text}</p>}
-                {type === 'image' && content.src && (
-                    <div className="relative aspect-video">
-                        <Image src={content.src} alt="Custom content" layout="fill" objectFit="contain" className="rounded-md" />
-                    </div>
-                )}
-                {type === 'kpi' && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-sm font-medium text-primary flex items-center justify-between">
-                          <span className="flex items-center gap-2">{iconComponents[content.icon] && React.createElement(iconComponents[content.icon], {className: "w-4 h-4"})} {content.title}</span>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-3xl font-bold">{kpiData[content.id] ?? '...'}</p>
-                        <p className="text-xs text-muted-foreground">{`${content.metric} of ${content.dataSource}`}</p>
-                      </CardContent>
-                    </Card>
-                )}
-            </div>
-        );
-    }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -314,7 +314,7 @@ function OrganizationPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {blocks.map(block => renderBlock(block))}
+                            {blocks.map(block => renderBlock(block, kpiData))}
                         </div>
                     )}
                 </CardContent>
