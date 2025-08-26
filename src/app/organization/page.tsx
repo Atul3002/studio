@@ -7,7 +7,7 @@ import { Plus, Trash2, Edit, Save, X, Type, Pilcrow, ImageIcon, Target, BarChart
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -119,7 +119,7 @@ function OrganizationPage() {
         localStorage.setItem("customOrganizationPage", JSON.stringify(newBlocks));
     };
     
-    const renderBlock = (block: Block, kpiData: { [key: string]: string | number }) => {
+    const renderBlock = (block: Block) => {
         const { id, type, content } = block;
 
         return (
@@ -271,7 +271,7 @@ function OrganizationPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-        <div className="flex items-center gap-2 pl-20">
+        <div className="flex items-center gap-2 pl-20 pt-[25px]">
           <Building2 className="h-6 w-6" />
           <h1 className="text-xl font-semibold">ORGANIZATION PAGE BUILDER</h1>
         </div>
@@ -314,7 +314,7 @@ function OrganizationPage() {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {blocks.map(block => renderBlock(block, kpiData))}
+                            {blocks.map(block => renderBlock(block))}
                         </div>
                     )}
                 </CardContent>
