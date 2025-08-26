@@ -1,22 +1,31 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { LineChart, BarChart, Users, AlertCircle, CheckSquare, TrendingUp, Upload, Bot } from "lucide-react";
+import { LineChart, BarChart, Users, AlertCircle, CheckSquare, TrendingUp, Upload, Bot, Clock } from "lucide-react";
 import LoginForm from "@/components/login-form";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { extractQualityData, type ExtractedQualityData } from "@/ai/flows/extract-quality-data";
+import { saveSubmission } from "@/app/actions";
 
 function QualityDashboard() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<ExtractedQualityData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { toast } = useToast();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -46,6 +55,19 @@ function QualityDashboard() {
     try {
       const result = await extractQualityData({ photoDataUri: imagePreview });
       setAnalysisResult(result);
+      
+      // Save the result
+      await saveSubmission({
+        entryType: 'qualityAnalysis',
+        timestamp: new Date().toLocaleString(),
+        extractedText: result.extractedText,
+      });
+
+      toast({
+        title: "Analysis Complete",
+        description: "The extracted data has been saved.",
+      });
+
     } catch (error) {
       console.error("Analysis failed:", error);
       toast({
@@ -127,8 +149,16 @@ function QualityDashboard() {
             </Card>
             <Card className="md:col-span-2 lg:col-span-3">
               <CardHeader>
-                  <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot /> Image-Based Quality Analysis</CardTitle>
-                  <CardDescription>Upload an image of a component to automatically extract quality control data.</CardDescription>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="font-headline text-xl flex items-center gap-2"><Bot /> Image-Based Quality Analysis</CardTitle>
+                      <CardDescription>Upload an image of a component to automatically extract quality control data.</CardDescription>
+                    </div>
+                    <div className="text-sm text-muted-foreground font-mono flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      <span>{currentTime.toLocaleTimeString()}</span>
+                    </div>
+                  </div>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">

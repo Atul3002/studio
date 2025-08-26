@@ -3,11 +3,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer, Layers } from "lucide-react";
+import Papa from "papaparse";
+import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, AlertCircle, Clock, Timer, Layers, Download } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, BarChart as RechartsBarChart, LabelList } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getSubmissions } from "@/app/actions";
 import LoginForm from "@/components/login-form";
 
 const initialDefectRateData = [
@@ -37,6 +40,7 @@ const initialCountData = [
 function QualityDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [qualitySubmissions, setQualitySubmissions] = useState<any[]>([]);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
 
@@ -52,6 +56,11 @@ function QualityDashboard() {
 
 
   useEffect(() => {
+    getSubmissions().then(data => {
+        const filteredData = data.filter(s => s.entryType === 'qualityAnalysis');
+        setQualitySubmissions(filteredData);
+    });
+
     if (selectedMonth !== null || selectedYear !== null) {
       // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
       setDefectRate(+(Math.random() * 5).toFixed(1));
@@ -86,6 +95,19 @@ function QualityDashboard() {
     setSelectedMonth(null);
     setSelectedYear(null);
   };
+  
+  const downloadCSV = () => {
+        const csv = Papa.unparse(qualitySubmissions);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "quality_analysis_submissions.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -260,6 +282,44 @@ function QualityDashboard() {
                     </CardContent>
                 </Card>
             </div>
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Image Analysis Submissions</CardTitle>
+                        <CardDescription>Data extracted from image analysis on the Quality Control page.</CardDescription>
+                    </div>
+                    <Button size="sm" onClick={downloadCSV} disabled={qualitySubmissions.length === 0}>
+                        <Download className="h-4 w-4 mr-2" />
+                        Download CSV
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date of Analysis</TableHead>
+                                <TableHead>Extracted Text</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {qualitySubmissions.length > 0 ? (
+                                qualitySubmissions.map((sub, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="font-medium">{sub.timestamp}</TableCell>
+                                        <TableCell className="whitespace-pre-wrap">{sub.extractedText}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={2} className="h-24 text-center">
+                                        No submissions yet.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
         </div>
       </main>
     </div>
