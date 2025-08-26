@@ -49,7 +49,7 @@ export function MainNav() {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip={{ children: "Organization" }}>
-          <Link href="#">
+          <Link href="/organization">
             <Building2 />
           </Link>
         </SidebarMenuButton>
