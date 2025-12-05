@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink, Clock } from "lucide-react";
+import { ArrowLeft, CheckCircle, Package, Hash, KeyRound, Wrench, ExternalLink, Clock, PlusCircle, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { saveSubmission } from "@/app/actions";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -53,8 +53,7 @@ function OperatorWorkflow() {
   });
 
   const [dimensionChecks, setDimensionChecks] = useState<DimensionCheck[]>([
-      { catNo: '11111111', status: '', reason: '' },
-      { catNo: '22222222', status: '', reason: '' }
+      { catNo: '', status: '', reason: '' },
   ]);
   
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -82,17 +81,28 @@ function OperatorWorkflow() {
       const currentCheck = { ...newChecks[index] };
       
       if (field === 'status') {
-          currentCheck.status = value as 'ok' | 'not-ok';
+          currentCheck.status = value as 'ok' | 'not-ok' | '';
           if (value === 'ok') {
               currentCheck.reason = ''; // Clear reason if status is OK
           }
-      } else if (field === 'reason') {
-          currentCheck.reason = value;
+      } else {
+        (currentCheck as any)[field] = value;
       }
 
       newChecks[index] = currentCheck;
       setDimensionChecks(newChecks);
   };
+
+  const handleAddDimensionCheck = () => {
+    setDimensionChecks(prev => [...prev, { catNo: '', status: '', reason: '' }]);
+  };
+
+  const handleRemoveDimensionCheck = (index: number) => {
+    if (dimensionChecks.length > 1) {
+        setDimensionChecks(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
 
   const handleDataSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -131,8 +141,7 @@ function OperatorWorkflow() {
         gaugeChecked: "yes",
       });
       setDimensionChecks([
-          { catNo: '11111111', status: '', reason: '' },
-          { catNo: '22222222', status: '', reason: '' }
+          { catNo: '', status: '', reason: '' },
       ]);
       setIsSubmitted(false);
   }
@@ -355,8 +364,9 @@ function OperatorWorkflow() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>CAT No.</TableHead>
-                                    <TableHead className="text-center">Ok</TableHead>
-                                    <TableHead className="text-center">Not ok (Reason)</TableHead>
+                                    <TableHead className="text-center w-20">Ok</TableHead>
+                                    <TableHead className="text-center w-[60%]">Not ok (Reason)</TableHead>
+                                    <TableHead className="w-10"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -366,8 +376,9 @@ function OperatorWorkflow() {
                                             <Input 
                                                 type="text" 
                                                 value={check.catNo} 
-                                                readOnly
-                                                className="text-lg bg-muted/50"
+                                                onChange={(e) => handleDimensionCheckChange(index, 'catNo', e.target.value)}
+                                                className="text-lg"
+                                                required
                                             />
                                         </TableCell>
                                         <TableCell className="text-center">
@@ -380,33 +391,44 @@ function OperatorWorkflow() {
                                             </RadioGroup>
                                         </TableCell>
                                         <TableCell className="text-center">
-                                            <RadioGroup 
-                                                value={check.status} 
-                                                onValueChange={(value) => handleDimensionCheckChange(index, 'status', value)}
-                                                className="justify-center"
-                                            >
-                                                <RadioGroupItem value="not-ok" id={`dim-check-${index}-not-ok`} />
-                                            </RadioGroup>
-                                            {check.status === 'not-ok' && (
-                                                <Input
-                                                    type="text"
-                                                    placeholder="Reason"
-                                                    value={check.reason}
-                                                    onChange={(e) => handleDimensionCheckChange(index, 'reason', e.target.value)}
-                                                    className="mt-2 text-sm"
-                                                    required
-                                                />
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <RadioGroup 
+                                                    value={check.status} 
+                                                    onValueChange={(value) => handleDimensionCheckChange(index, 'status', value)}
+                                                    className="justify-center"
+                                                >
+                                                    <RadioGroupItem value="not-ok" id={`dim-check-${index}-not-ok`} />
+                                                </RadioGroup>
+                                                {check.status === 'not-ok' && (
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Reason"
+                                                        value={check.reason}
+                                                        onChange={(e) => handleDimensionCheckChange(index, 'reason', e.target.value)}
+                                                        className="text-sm"
+                                                        required
+                                                    />
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveDimensionCheck(index)} disabled={dimensionChecks.length === 1}>
+                                                <Trash2 className="w-4 h-4 text-destructive" />
+                                            </Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
+                         <Button variant="outline" size="sm" type="button" onClick={handleAddDimensionCheck} className="mt-2">
+                            <PlusCircle className="w-4 h-4 mr-2" />
+                            Add Row
+                        </Button>
                     </div>
                      <RadioGroup 
                         value={formData.dimensionMeasureStatus} 
                         onValueChange={(value) => handleRadioChange("dimensionMeasureStatus", value)}
-                        className="flex space-x-4"
+                        className="flex space-x-4 pt-4"
                     >
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="ok" id="dim-ok" />

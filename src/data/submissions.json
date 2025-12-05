@@ -399,5 +399,17 @@
     "machine": "CNC machine",
     "amount": "123",
     "description": "sdssss"
+  },
+  {
+    "id": "2025-08-26T08:51:47.853Z",
+    "entryType": "qualityAnalysis",
+    "timestamp": "8/26/2025, 2:21:47 PM",
+    "extractedText": "Torque Gap-setting Roting\n27\n533\n860A\n2) 38\n6 mm\n1280 A\n3) 49\n7mm\n2000A\n4) 60\n10mm\n3150 A\n2025/8/26 11:39"
+  },
+  {
+    "id": "2025-08-26T10:30:05.466Z",
+    "entryType": "qualityAnalysis",
+    "timestamp": "8/26/2025, 4:00:05 PM",
+    "extractedText": "Torque Gap-setting Roting\n1) 27\n5 mm\n860A\n2) 38\n6 mm\n1280 A\n3) 49\n7mm\n2000A\n4) 60\n10mm\n3150 A\n2025/8/26 11:39"
   }
 ]
