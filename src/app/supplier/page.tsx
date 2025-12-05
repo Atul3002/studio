@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Truck, CheckCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Truck, CheckCircle, Cog } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,13 @@ const initialFormState = {
     inspection: "",
     packing: "",
     dispatch: "",
+    machineName: "",
+    machineNumber: "",
+    machinePower: "",
+    tonnage: "",
+    machineCapacity: "",
+    settingTime: "",
+    machineSpeed: "",
 };
 
 
@@ -106,7 +113,7 @@ function SupplierDashboard() {
                             <CardDescription>Fill in the details for the new supplier data record.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-8">
-                            <div className="space-y-4 pt-4">
+                           <div className="space-y-4 pt-4">
                                  <h3 className="text-lg font-semibold">Product & Customer Details</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    <div className="space-y-2">
@@ -161,6 +168,39 @@ function SupplierDashboard() {
                                     <div className="space-y-2">
                                         <Label htmlFor="rmLeadTime">RM Lead Time (Days)</Label>
                                         <Input id="rmLeadTime" type="number" value={formData.rmLeadTime} onChange={handleInputChange} required />
+                                    </div>
+                                </div>
+                            </div>
+                             <div className="space-y-4 pt-4 border-t">
+                                <h3 className="text-lg font-semibold flex items-center gap-2"><Cog />Machine Details</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     <div className="space-y-2">
+                                        <Label htmlFor="machineName">Machine Name</Label>
+                                        <Input id="machineName" value={formData.machineName} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="machineNumber">Machine Number</Label>
+                                        <Input id="machineNumber" value={formData.machineNumber} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="machinePower">Machine Power (kW)</Label>
+                                        <Input id="machinePower" type="number" value={formData.machinePower} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tonnage">Tonnage</Label>
+                                        <Input id="tonnage" type="number" value={formData.tonnage} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="machineCapacity">Machine Capacity</Label>
+                                        <Input id="machineCapacity" value={formData.machineCapacity} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="settingTime">Setting Time (min)</Label>
+                                        <Input id="settingTime" type="number" value={formData.settingTime} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="machineSpeed">Machine Speed</Label>
+                                        <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} />
                                     </div>
                                 </div>
                             </div>
