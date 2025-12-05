@@ -458,5 +458,32 @@
         "reason": ""
       }
     ]
+  },
+  {
+    "id": "2025-12-05T16:58:26.671Z",
+    "entryType": "supplierData",
+    "srNo": "1",
+    "catNo": "139338",
+    "description": "50 PISTON\n",
+    "finishQty": "300",
+    "customerPo": "300",
+    "customerDate": "December 11th, 2025",
+    "rmDescription": "DIA 60.5 - T6",
+    "rmRate": "340",
+    "scrapKg": "790",
+    "rmLeadTime": "45",
+    "blankCutting": "24",
+    "tapping": "424",
+    "finishing": "43",
+    "inspection": "24",
+    "packing": "24",
+    "dispatch": "35",
+    "machineName": "cnc",
+    "machineNumber": "22",
+    "machinePower": "2",
+    "tonnage": "2",
+    "machineCapacity": "2",
+    "settingTime": "2",
+    "machineSpeed": "2"
   }
 ]
