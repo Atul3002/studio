@@ -15,6 +15,7 @@ import {
   Phone,
   ShieldCheck,
   Target,
+  Truck,
   Wrench,
 } from "lucide-react"
 
@@ -40,6 +41,7 @@ const departmentLinks = [
   { href: "/finance", icon: DollarSign, title: "Finance" },
   { href: "/store", icon: Archive, title: "Store" },
   { href: "/quality", icon: Gem, title: "Quality Control" },
+  { href: "/supplier", icon: Truck, title: "Supplier" },
 ]
 
 export function MainNav() {

@@ -411,5 +411,52 @@
     "entryType": "qualityAnalysis",
     "timestamp": "8/26/2025, 4:00:05 PM",
     "extractedText": "Torque Gap-setting Roting\n1) 27\n5 mm\n860A\n2) 38\n6 mm\n1280 A\n3) 49\n7mm\n2000A\n4) 60\n10mm\n3150 A\n2025/8/26 11:39"
+  },
+  {
+    "id": "2025-12-05T13:57:11.340Z",
+    "machine": "Unselected",
+    "productType": "GIS",
+    "station": "2",
+    "operatorName": "50 PISTON",
+    "shiftDetails": "",
+    "entryTime": "00:32",
+    "exitTime": "11:34",
+    "serialNumber": "300",
+    "machineSpeed": "-1",
+    "machineFeed": "134",
+    "vibrationLevel": "214",
+    "coolantStatus": "124",
+    "toolWearStatus": "ok",
+    "toolWearReason": "",
+    "dimensionMeasureStatus": "ok",
+    "dimensionMeasureReason": "",
+    "problem": "Failure",
+    "otherProblemReason": "",
+    "materialAvailability": "",
+    "machineFailure": "no",
+    "machineFailureReason": "",
+    "gaugeChecked": "yes",
+    "dimensionChecks": [
+      {
+        "catNo": "139338",
+        "status": "ok",
+        "reason": ""
+      },
+      {
+        "catNo": "1768600",
+        "status": "",
+        "reason": ""
+      },
+      {
+        "catNo": "139359",
+        "status": "",
+        "reason": ""
+      },
+      {
+        "catNo": "139362",
+        "status": "",
+        "reason": ""
+      }
+    ]
   }
 ]
