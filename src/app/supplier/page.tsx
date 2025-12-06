@@ -125,24 +125,8 @@ function SupplierDashboard() {
                                         <Input id="catNo" value={formData.catNo} onChange={handleInputChange} required />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="finishQty">Finish QTY</Label>
-                                        <Input id="finishQty" type="number" value={formData.finishQty} onChange={handleInputChange} required />
-                                    </div>
-                                    <div className="space-y-2">
                                         <Label htmlFor="customerPo">Customer PO Nos</Label>
                                         <Input id="customerPo" value={formData.customerPo} onChange={handleInputChange} required />
-                                    </div>
-                                   <div className="space-y-2">
-                                        <Label htmlFor="customerDate">Customer Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button id="customerDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.customerDate && "text-muted-foreground")}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {formData.customerDate ? format(formData.customerDate, "PPP") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.customerDate} onSelect={handleDateChange} initialFocus/></PopoverContent>
-                                        </Popover>
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label htmlFor="description">Description</Label>
@@ -230,6 +214,22 @@ function SupplierDashboard() {
                                     <div className="space-y-2">
                                         <Label htmlFor="dispatch">Dispatch</Label>
                                         <Input id="dispatch" value={formData.dispatch} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="finishQty">Finish QTY</Label>
+                                        <Input id="finishQty" type="number" value={formData.finishQty} onChange={handleInputChange} required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customerDate">Customer Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button id="customerDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.customerDate && "text-muted-foreground")}>
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.customerDate ? format(formData.customerDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.customerDate} onSelect={handleDateChange} initialFocus/></PopoverContent>
+                                        </Popover>
                                     </div>
                                 </div>
                             </div>
