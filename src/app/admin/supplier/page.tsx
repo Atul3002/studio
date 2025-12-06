@@ -3,16 +3,75 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Truck, X } from "lucide-react";
+import { BarChart, Truck, X, CheckCircle, Circle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getSubmissions } from "@/app/actions";
+
+interface TimelineStep {
+    name: string;
+    completed: boolean;
+}
+
+interface ProcessedTimeline {
+    catNo: string;
+    steps: TimelineStep[];
+}
+
+function getProcessedTimelines(submissions: any[]): ProcessedTimeline[] {
+    const supplierSubmissions = submissions.filter(s => s.entryType === 'supplierData');
+    
+    return supplierSubmissions.map(sub => ({
+        catNo: sub.catNo || 'N/A',
+        steps: [
+            { name: "Customer Qty", completed: !!sub.customerQuantity },
+            { name: "Inspection", completed: !!sub.inspection },
+            { name: "Packing", completed: !!sub.packing },
+            { name: "Dispatch", completed: !!sub.dispatch },
+        ]
+    }));
+}
+
+function ProcessTimeline({ timeline }: { timeline: ProcessedTimeline }) {
+    return (
+        <div className="p-4 border-b">
+            <h4 className="font-semibold text-md mb-4">CAT No: {timeline.catNo}</h4>
+            <div className="relative flex items-center justify-between w-full">
+                {/* Timeline line */}
+                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2" />
+                
+                {timeline.steps.map((step, index) => (
+                    <div key={index} className="relative z-10 flex flex-col items-center">
+                        <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step.completed ? 'bg-primary' : 'bg-muted border-2 border-primary'}`}>
+                            {step.completed ? (
+                                <CheckCircle className="h-5 w-5 text-primary-foreground" />
+                            ) : (
+                                <Circle className="h-4 w-4 text-primary/50" />
+                            )}
+                        </div>
+                        <p className="text-xs text-center mt-2 w-20">{step.name}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
 
 function SupplierDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [timelines, setTimelines] = useState<ProcessedTimeline[]>([]);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
+
+  useEffect(() => {
+    getSubmissions().then(data => {
+        // TODO: Filter by month/year if needed
+        const processed = getProcessedTimelines(data);
+        setTimelines(processed);
+    })
+  }, [selectedMonth, selectedYear]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -100,11 +159,21 @@ function SupplierDashboard() {
         <div className="py-4">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Truck /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Supplier</CardTitle>
-                    <CardDescription>Supplier data and charts will be displayed here.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Truck /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Supplier Process Tracking</CardTitle>
+                    <CardDescription>Visual timeline of key process checkpoints for each supplier entry.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p>Coming soon...</p>
+                    {timelines.length > 0 ? (
+                        <div className="space-y-6">
+                            {timelines.map((timeline, index) => (
+                                <ProcessTimeline key={index} timeline={timeline} />
+                            ))}
+                        </div>
+                    ) : (
+                         <div className="flex items-center justify-center h-48">
+                            <p>No supplier data found for the selected period.</p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
@@ -116,3 +185,5 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+    
