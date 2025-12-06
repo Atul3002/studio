@@ -512,5 +512,31 @@
     "machineCapacity": "3",
     "settingTime": "3",
     "machineSpeed": "3"
+  },
+  {
+    "id": "2025-12-06T11:07:20.309Z",
+    "entryType": "supplierData",
+    "srNo": "3",
+    "catNo": "1`3123",
+    "description": "M12X60 HT GRADE 8.8 HEX HEAD BOLT ROHS\n",
+    "customerQuantity": "50",
+    "customerDate": "December 2nd, 2025",
+    "rmDescription": "DIA 60.5 - T6",
+    "rmRate": "34",
+    "scrapKg": "345",
+    "rmLeadTime": "545",
+    "blankCutting": "224",
+    "tapping": "24",
+    "finishing": "24",
+    "inspection": "40",
+    "packing": "20",
+    "dispatch": "10",
+    "machineName": "214",
+    "machineNumber": "25",
+    "machinePower": "35",
+    "tonnage": "325",
+    "machineCapacity": "53",
+    "settingTime": "235",
+    "machineSpeed": "35"
   }
 ]

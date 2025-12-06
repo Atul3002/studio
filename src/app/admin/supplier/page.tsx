@@ -25,10 +25,10 @@ function getProcessedTimelines(submissions: any[]): ProcessedTimeline[] {
     return supplierSubmissions.map(sub => ({
         catNo: sub.catNo || 'N/A',
         steps: [
-            { name: "Customer Qty", completed: !!sub.customerQuantity },
-            { name: "Inspection", completed: !!sub.inspection },
-            { name: "Packing", completed: !!sub.packing },
-            { name: "Dispatch", completed: !!sub.dispatch },
+            { name: "Customer Qty", completed: !!sub.customerQuantity && sub.customerQuantity !== '0' },
+            { name: "Inspection", completed: !!sub.inspection && sub.inspection !== '0' },
+            { name: "Packing", completed: !!sub.packing && sub.packing !== '0' },
+            { name: "Dispatch", completed: !!sub.dispatch && sub.dispatch !== '0' },
         ]
     }));
 }
