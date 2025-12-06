@@ -25,7 +25,7 @@ const initialFormState = {
     catNo: "",
     description: "",
     finishQty: "",
-    customerPo: "",
+    customerQuantity: "",
     customerDate: undefined as Date | undefined,
     rmDescription: "",
     rmRate: "",
@@ -114,7 +114,7 @@ function SupplierDashboard() {
                         </CardHeader>
                         <CardContent className="space-y-8">
                            <div className="space-y-4 pt-4">
-                                 <h3 className="text-lg font-semibold">Product & Customer Details</h3>
+                                <h3 className="text-lg font-semibold">Product & Customer Details</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                    <div className="space-y-2">
                                         <Label htmlFor="srNo">Sr No</Label>
@@ -131,7 +131,56 @@ function SupplierDashboard() {
                                 </div>
                             </div>
                             <div className="space-y-4 pt-4 border-t">
-                                 <h3 className="text-lg font-semibold">Raw Material Details</h3>
+                                <h3 className="text-lg font-semibold">Process Tracking</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customerQuantity">Customer Quantity</Label>
+                                        <Input id="customerQuantity" value={formData.customerQuantity} onChange={handleInputChange} required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="finishQty">Finish QTY</Label>
+                                        <Input id="finishQty" type="number" value={formData.finishQty} onChange={handleInputChange} required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customerDate">Customer Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button id="customerDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.customerDate && "text-muted-foreground")}>
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.customerDate ? format(formData.customerDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.customerDate} onSelect={handleDateChange} initialFocus/></PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="blankCutting">Blank Cutting</Label>
+                                        <Input id="blankCutting" value={formData.blankCutting} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tapping">Tapping</Label>
+                                        <Input id="tapping" value={formData.tapping} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="finishing">Finishing</Label>
+                                        <Input id="finishing" value={formData.finishing} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="inspection">Inspection</Label>
+                                        <Input id="inspection" value={formData.inspection} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="packing">Packing</Label>
+                                        <Input id="packing" value={formData.packing} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="dispatch">Dispatch</Label>
+                                        <Input id="dispatch" value={formData.dispatch} onChange={handleInputChange} />
+                                    </div>
+                                </div>
+                            </div>
+                             <div className="space-y-4 pt-4 border-t">
+                                <h3 className="text-lg font-semibold">Raw Material Details</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                      <div className="space-y-2">
                                         <Label htmlFor="rmDescription">RM Description</Label>
@@ -181,55 +230,6 @@ function SupplierDashboard() {
                                     <div className="space-y-2">
                                         <Label htmlFor="machineSpeed">Machine Speed</Label>
                                         <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="space-y-4 pt-4 border-t">
-                                <h3 className="text-lg font-semibold">Process Tracking</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="customerPo">Customer PO Nos</Label>
-                                        <Input id="customerPo" value={formData.customerPo} onChange={handleInputChange} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="blankCutting">Blank Cutting</Label>
-                                        <Input id="blankCutting" value={formData.blankCutting} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="tapping">Tapping</Label>
-                                        <Input id="tapping" value={formData.tapping} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="finishing">Finishing</Label>
-                                        <Input id="finishing" value={formData.finishing} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="inspection">Inspection</Label>
-                                        <Input id="inspection" value={formData.inspection} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="packing">Packing</Label>
-                                        <Input id="packing" value={formData.packing} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="dispatch">Dispatch</Label>
-                                        <Input id="dispatch" value={formData.dispatch} onChange={handleInputChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="finishQty">Finish QTY</Label>
-                                        <Input id="finishQty" type="number" value={formData.finishQty} onChange={handleInputChange} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="customerDate">Customer Date</Label>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <Button id="customerDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.customerDate && "text-muted-foreground")}>
-                                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {formData.customerDate ? format(formData.customerDate, "PPP") : <span>Pick a date</span>}
-                                                </Button>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.customerDate} onSelect={handleDateChange} initialFocus/></PopoverContent>
-                                        </Popover>
                                     </div>
                                 </div>
                             </div>
