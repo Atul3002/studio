@@ -124,10 +124,6 @@ function SupplierDashboard() {
                                         <Label htmlFor="catNo">CAT No</Label>
                                         <Input id="catNo" value={formData.catNo} onChange={handleInputChange} required />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="customerPo">Customer PO Nos</Label>
-                                        <Input id="customerPo" value={formData.customerPo} onChange={handleInputChange} required />
-                                    </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label htmlFor="description">Description</Label>
                                         <Textarea id="description" value={formData.description} onChange={handleInputChange} required />
@@ -191,6 +187,10 @@ function SupplierDashboard() {
                             <div className="space-y-4 pt-4 border-t">
                                 <h3 className="text-lg font-semibold">Process Tracking</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="customerPo">Customer PO Nos</Label>
+                                        <Input id="customerPo" value={formData.customerPo} onChange={handleInputChange} required />
+                                    </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="blankCutting">Blank Cutting</Label>
                                         <Input id="blankCutting" value={formData.blankCutting} onChange={handleInputChange} />
@@ -262,3 +262,5 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
+
+    
