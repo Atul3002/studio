@@ -485,5 +485,32 @@
     "machineCapacity": "2",
     "settingTime": "2",
     "machineSpeed": "2"
+  },
+  {
+    "id": "2025-12-05T17:03:28.190Z",
+    "entryType": "supplierData",
+    "srNo": "3",
+    "catNo": "3",
+    "description": "3r3",
+    "finishQty": "3",
+    "customerPo": "3",
+    "customerDate": "December 3rd, 2025",
+    "rmDescription": "3",
+    "rmRate": "3",
+    "scrapKg": "2",
+    "rmLeadTime": "3",
+    "blankCutting": "33",
+    "tapping": "33",
+    "finishing": "3",
+    "inspection": "3",
+    "packing": "3",
+    "dispatch": "3",
+    "machineName": "33",
+    "machineNumber": "3",
+    "machinePower": "3",
+    "tonnage": "3",
+    "machineCapacity": "3",
+    "settingTime": "3",
+    "machineSpeed": "3"
   }
 ]

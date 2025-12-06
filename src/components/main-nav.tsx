@@ -102,6 +102,14 @@ export function MainNav() {
         </SidebarMenuButton>
       </SidebarMenuItem>
 
+       <SidebarMenuItem>
+        <SidebarMenuButton asChild tooltip={{ children: "Supplier" }}>
+          <Link href="/admin/supplier">
+            <Truck />
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+
       <SidebarMenuItem>
         <SidebarMenuButton asChild tooltip={{ children: "Contact Us" }}>
           <Link href="#">

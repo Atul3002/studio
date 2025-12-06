@@ -3,12 +3,12 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart, Users, X } from "lucide-react";
+import { BarChart, Truck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-function SkillMatrixDashboard() {
+function SupplierDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -17,11 +17,11 @@ function SkillMatrixDashboard() {
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
   };
-  
+
   const handleYearSelect = (year: number) => {
     setSelectedYear(year);
   };
-
+  
   const clearFilters = () => {
     setSelectedMonth(null);
     setSelectedYear(null);
@@ -44,8 +44,8 @@ function SkillMatrixDashboard() {
             <Link href="/admin/machine" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Machine</Link>
             <Link href="/admin/inventory" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Inventory</Link>
             <Link href="/admin/oee" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">OEE</Link>
-            <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Skill Matrix</Link>
-            <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Supplier</Link>
+            <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
+            <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Supplier</Link>
         </nav>
       </header>
       <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
@@ -100,8 +100,8 @@ function SkillMatrixDashboard() {
         <div className="py-4">
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Users /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Skill Matrix</CardTitle>
-                    <CardDescription>Skill Matrix data and charts will be displayed here.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Truck /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Supplier</CardTitle>
+                    <CardDescription>Supplier data and charts will be displayed here.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <p>Coming soon...</p>
@@ -113,8 +113,6 @@ function SkillMatrixDashboard() {
   );
 }
 
-export default function SkillMatrixPage() {
-    return <SkillMatrixDashboard />
+export default function SupplierAdminPage() {
+    return <SupplierDashboard />
 }
-
-    
