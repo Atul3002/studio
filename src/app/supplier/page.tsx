@@ -24,7 +24,6 @@ const initialFormState = {
     srNo: "",
     catNo: "",
     description: "",
-    finishQty: "",
     customerQuantity: "",
     customerDate: undefined as Date | undefined,
     rmDescription: "",
@@ -64,9 +63,10 @@ function SupplierDashboard() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const { finishQty, ...submissionData } = formData;
     await saveSubmission({
       entryType: 'supplierData',
-      ...formData,
+      ...submissionData,
       customerDate: formData.customerDate ? format(formData.customerDate, "PPP") : "",
     });
     setIsSubmitting(false);
@@ -136,10 +136,6 @@ function SupplierDashboard() {
                                     <div className="space-y-2">
                                         <Label htmlFor="customerQuantity">Customer Quantity</Label>
                                         <Input id="customerQuantity" value={formData.customerQuantity} onChange={handleInputChange} required />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="finishQty">Finish QTY</Label>
-                                        <Input id="finishQty" type="number" value={formData.finishQty} onChange={handleInputChange} required />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="customerDate">Customer Date</Label>
