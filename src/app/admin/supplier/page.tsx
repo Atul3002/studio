@@ -67,8 +67,16 @@ function SupplierDashboard() {
 
   useEffect(() => {
     getSubmissions().then(data => {
-        // TODO: Filter by month/year if needed
-        const processed = getProcessedTimelines(data);
+        const supplierSubmissions = data.filter(s => s.entryType === 'supplierData');
+
+        const filteredData = supplierSubmissions.filter(s => {
+             const submissionDate = new Date(s.customerDate);
+             const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
+             const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
+             return monthMatch && yearMatch;
+        });
+        
+        const processed = getProcessedTimelines(filteredData);
         setTimelines(processed);
     })
   }, [selectedMonth, selectedYear]);
@@ -156,7 +164,7 @@ function SupplierDashboard() {
             )}
           </Card>
         </aside>
-        <div className="py-4">
+        <div className="py-4 space-y-4">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Truck /> {selectedYear ? `${selectedYear} ` : ''}{selectedMonth !== null ? `${months[selectedMonth]} ` : ''}Supplier Process Tracking</CardTitle>
@@ -185,5 +193,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-    
