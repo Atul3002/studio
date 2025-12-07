@@ -84,7 +84,7 @@ function SupplierDashboard() {
             return Array.from(dataMap, ([name, value]) => ({ name, value }));
         };
         
-        setScrapData(processChartData('scrapKg', 'description'));
+        setScrapData(processChartData('scrapKg', 'catNo'));
         setCustomerQtyData(processChartData('customerQuantity', 'description'));
         setMachineTimeData(processChartData('settingTime', 'catNo'));
         setInspectionData(processChartData('inspection', 'catNo'));
