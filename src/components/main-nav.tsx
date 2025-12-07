@@ -71,7 +71,7 @@ export function MainNav() {
             <SidebarMenuSub>
               {departmentLinks.map((item, index) => (
                 <SidebarMenuSubItem key={index}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuSubButton
                       isActive={pathname.startsWith(item.href)}
                     >
