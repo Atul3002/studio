@@ -70,16 +70,24 @@ function SupplierDashboard() {
         setTotalScrap(totalScrapValue);
         
         // Chart data processing
-        const processChartData = (key: string) => {
-            return filteredData
-                .map(s => ({ name: s.catNo, value: parseInt(s[key], 10) || 0 }))
-                .filter(d => d.value > 0);
+        const processChartData = (key: string, nameKey: "catNo" | "description" = "catNo") => {
+            const dataMap = new Map<string, number>();
+
+            filteredData.forEach(s => {
+                const name = s[nameKey];
+                const value = parseInt(s[key], 10) || 0;
+                if (name && value > 0) {
+                   dataMap.set(name, (dataMap.get(name) || 0) + value);
+                }
+            });
+            
+            return Array.from(dataMap, ([name, value]) => ({ name, value }));
         };
         
-        setScrapData(processChartData('scrapKg'));
-        setCustomerQtyData(processChartData('customerQuantity'));
-        setMachineTimeData(processChartData('settingTime'));
-        setInspectionData(processChartData('inspection'));
+        setScrapData(processChartData('scrapKg', 'description'));
+        setCustomerQtyData(processChartData('customerQuantity', 'description'));
+        setMachineTimeData(processChartData('settingTime', 'catNo'));
+        setInspectionData(processChartData('inspection', 'catNo'));
     })
   }, [selectedMonth, selectedYear]);
 
@@ -98,12 +106,12 @@ function SupplierDashboard() {
   
   const renderChart = (data: any[], dataKey: string, name: string, color: string) => (
       <ResponsiveContainer width="100%" height="100%">
-          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={80} />
               <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
+              <Legend wrapperStyle={{ top: -10, right: 0 }}/>
               <Bar dataKey={dataKey} name={name} fill={color} />
           </RechartsBarChart>
       </ResponsiveContainer>
@@ -220,7 +228,7 @@ function SupplierDashboard() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base"><AlertCircle /> RM Scrap vs Supplier</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[400px]">
                         {renderChart(scrapData, 'value', 'Scrap (kg)', 'hsl(var(--destructive))')}
                     </CardContent>
                 </Card>
@@ -228,7 +236,7 @@ function SupplierDashboard() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[400px]">
                         {renderChart(customerQtyData, 'value', 'Customer Quantity', 'hsl(var(--chart-1))')}
                     </CardContent>
                 </Card>
@@ -236,7 +244,7 @@ function SupplierDashboard() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base"><Timer /> Machine Setting Time</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[400px]">
                         {renderChart(machineTimeData, 'value', 'Setting Time (min)', 'hsl(var(--chart-3))')}
                     </CardContent>
                 </Card>
@@ -244,7 +252,7 @@ function SupplierDashboard() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base"><CheckCircle /> Inspection Quantity</CardTitle>
                     </CardHeader>
-                    <CardContent className="h-[300px]">
+                    <CardContent className="h-[400px]">
                         {renderChart(inspectionData, 'value', 'Inspection Qty', 'hsl(var(--chart-2))')}
                     </CardContent>
                 </Card>
@@ -258,3 +266,7 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+
+    
+    
