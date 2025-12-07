@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
-import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, GanttChart } from "recharts";
+import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle, List, Timer, Bot } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,13 +80,16 @@ function SupplierDashboard() {
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
   
-  const [leadTimeData, setLeadTimeData] = useState<any[]>([]);
-  const [scrapData, setScrapData] = useState<any[]>([]);
   const [supplierCount, setSupplierCount] = useState(0);
   const [avgLeadTime, setAvgLeadTime] = useState(0);
+  const [totalCustomerQty, setTotalCustomerQty] = useState(0);
+  const [totalScrap, setTotalScrap] = useState(0);
 
-  const [leadTimeChartType, setLeadTimeChartType] = useState<'bar' | 'line'>('bar');
-  const [scrapChartType, setScrapChartType] = useState<'bar' | 'line'>('bar');
+  const [scrapData, setScrapData] = useState<any[]>([]);
+  const [customerQtyData, setCustomerQtyData] = useState<any[]>([]);
+  const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
+  const [inspectionData, setInspectionData] = useState<any[]>([]);
+
 
   useEffect(() => {
     getSubmissions().then(data => {
@@ -105,14 +108,29 @@ function SupplierDashboard() {
         const uniqueSuppliers = [...new Set(filteredData.map(s => s.catNo))];
         setSupplierCount(uniqueSuppliers.length);
 
-        const leadTimes = filteredData.map(s => ({ name: s.catNo, value: parseInt(s.rmLeadTime, 10) || 0 })).filter(d => d.value > 0);
-        setLeadTimeData(leadTimes);
-        
-        const totalLeadTime = leadTimes.reduce((acc, curr) => acc + curr.value, 0);
+        const leadTimes = filteredData.map(s => parseInt(s.rmLeadTime, 10) || 0).filter(d => d > 0);
+        const totalLeadTime = leadTimes.reduce((acc, curr) => acc + curr, 0);
         setAvgLeadTime(leadTimes.length > 0 ? parseFloat((totalLeadTime / leadTimes.length).toFixed(1)) : 0);
 
-        const scrap = filteredData.map(s => ({ name: s.catNo, value: parseInt(s.scrapKg, 10) || 0 })).filter(d => d.value > 0);
-        setScrapData(scrap);
+        const customerQuantities = filteredData.map(s => parseInt(s.customerQuantity, 10) || 0);
+        const totalQty = customerQuantities.reduce((acc, curr) => acc + curr, 0);
+        setTotalCustomerQty(totalQty);
+        
+        const scrapValues = filteredData.map(s => parseInt(s.scrapKg, 10) || 0);
+        const totalScrapValue = scrapValues.reduce((acc, curr) => acc + curr, 0);
+        setTotalScrap(totalScrapValue);
+        
+        // Chart data processing
+        const processChartData = (key: string) => {
+            return filteredData
+                .map(s => ({ name: s.catNo, value: parseInt(s[key], 10) || 0 }))
+                .filter(d => d.value > 0);
+        };
+        
+        setScrapData(processChartData('scrapKg'));
+        setCustomerQtyData(processChartData('customerQuantity'));
+        setMachineTimeData(processChartData('settingTime'));
+        setInspectionData(processChartData('inspection'));
     })
   }, [selectedMonth, selectedYear]);
 
@@ -129,23 +147,18 @@ function SupplierDashboard() {
     setSelectedYear(null);
   };
   
-  const renderChart = (type: 'bar' | 'line', data: any[], dataKey: string, name: string, color: string) => {
-    const ChartComponent = type === 'bar' ? RechartsBarChart : RechartsLineChart;
-    const ChartElement = type === 'bar' ? <Bar dataKey={dataKey} name={name} fill={color} /> : <Line type="monotone" dataKey={dataKey} name={name} stroke={color} />;
-
-    return (
-        <ResponsiveContainer width="100%" height="100%">
-            <ChartComponent data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
-                {ChartElement}
-            </ChartComponent>
-        </ResponsiveContainer>
+  const renderChart = (data: any[], dataKey: string, name: string, color: string) => (
+      <ResponsiveContainer width="100%" height="100%">
+          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+              <YAxis stroke="hsl(var(--muted-foreground))" />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Bar dataKey={dataKey} name={name} fill={color} />
+          </RechartsBarChart>
+      </ResponsiveContainer>
     );
-}
 
 
   return (
@@ -219,7 +232,7 @@ function SupplierDashboard() {
           </Card>
         </aside>
         <div className="py-4 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-card/80">
                     <CardHeader>
                         <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Package /> TOTAL SUPPLIERS</CardTitle>
@@ -236,24 +249,54 @@ function SupplierDashboard() {
                         <p className="text-3xl font-bold">{avgLeadTime} <span className="text-lg text-muted-foreground">days</span></p>
                     </CardContent>
                 </Card>
+                 <Card className="bg-card/80">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><List /> TOTAL CUST. QTY</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-between">
+                        <p className="text-3xl font-bold">{totalCustomerQty}</p>
+                    </CardContent>
+                </Card>
+                 <Card className="bg-card/80">
+                    <CardHeader>
+                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Bot /> TOTAL SCRAP (KG)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-between">
+                        <p className="text-3xl font-bold">{totalScrap}</p>
+                    </CardContent>
+                </Card>
             </div>
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-base"><Clock /> Lead Time Analysis</CardTitle>
-                        <ChartTypeSwitcher currentType={leadTimeChartType} onTypeChange={setLeadTimeChartType} availableTypes={['bar', 'line']} />
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base"><AlertCircle /> RM Scrap vs Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px]">
-                        {renderChart(leadTimeChartType, leadTimeData, 'value', 'Lead Time (Days)', 'hsl(var(--chart-4))')}
+                        {renderChart(scrapData, 'value', 'Scrap (kg)', 'hsl(var(--destructive))')}
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-base"><AlertCircle /> Scrap Analysis</CardTitle>
-                        <ChartTypeSwitcher currentType={scrapChartType} onTypeChange={setScrapChartType} availableTypes={['bar', 'line']} />
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[300px]">
-                        {renderChart(scrapChartType, scrapData, 'value', 'Scrap (kg)', 'hsl(var(--destructive))')}
+                        {renderChart(customerQtyData, 'value', 'Customer Quantity', 'hsl(var(--chart-1))')}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base"><Timer /> Machine Setting Time</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        {renderChart(machineTimeData, 'value', 'Setting Time (min)', 'hsl(var(--chart-3))')}
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-base"><CheckCircle /> Inspection Quantity</CardTitle>
+                    </CardHeader>
+                    <CardContent className="h-[300px]">
+                        {renderChart(inspectionData, 'value', 'Inspection Qty', 'hsl(var(--chart-2))')}
                     </CardContent>
                 </Card>
              </div>
