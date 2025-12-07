@@ -192,5 +192,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-    
