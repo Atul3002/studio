@@ -45,7 +45,6 @@ function SupplierDashboard() {
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
   const [processStageData, setProcessStageData] = useState<any[]>([]);
-  const [deliveryData, setDeliveryData] = useState<any[]>([]);
 
 
   useEffect(() => {
@@ -113,24 +112,6 @@ function SupplierDashboard() {
           }
         });
         setProcessStageData(Array.from(stageDataMap.values()));
-
-        const deliveryPerformanceData = filteredData.map(s => {
-            const customerDate = s.customerDate ? new Date(s.customerDate) : null;
-            // Assuming 'dispatch' is a number representing days from customerDate. This is a guess.
-            // If dispatch is a date, logic needs to change.
-            const dispatchValue = parseInt(s.dispatch, 10) || 0;
-            let dispatchDate = null;
-            if(customerDate && dispatchValue > 0) {
-                dispatchDate = new Date(customerDate);
-                dispatchDate.setDate(dispatchDate.getDate() + dispatchValue);
-            }
-            return {
-                name: s.catNo,
-                poDate: customerDate ? customerDate.getTime() : 0,
-                dispatchDate: dispatchDate ? dispatchDate.getTime() : 0,
-            };
-        }).filter(d => d.poDate > 0);
-        setDeliveryData(deliveryPerformanceData);
     })
   }, [selectedMonth, selectedYear]);
 
@@ -327,32 +308,6 @@ function SupplierDashboard() {
                           <Bar dataKey="packing" stackId="a" fill={PIE_COLORS[4]} name="Packing" />
                           <Bar dataKey="dispatch" stackId="a" fill={"hsl(var(--primary))"} name="Dispatch" />
                       </RechartsBarChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base"><CalendarCheck2 /> Delivery Performance</CardTitle>
-                    <CardDescription>Comparison of Customer PO date vs. Dispatch date.</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[400px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <RechartsBarChart data={deliveryData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
-                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
-                            <YAxis 
-                                stroke="hsl(var(--muted-foreground))" 
-                                tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
-                                domain={['dataMin', 'dataMax']}
-                            />
-                            <Tooltip 
-                                contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
-                                labelFormatter={(label) => `CAT No: ${label}`}
-                                formatter={(value, name) => [new Date(value as number).toLocaleDateString(), name === 'poDate' ? 'Customer PO Date' : 'Dispatch Date']}
-                            />
-                            <Legend wrapperStyle={{ top: -10, right: 0 }}/>
-                            <Bar dataKey="poDate" name="Customer PO Date" fill={'hsl(var(--chart-4))'} />
-                            <Bar dataKey="dispatchDate" name="Dispatch Date" fill={'hsl(var(--chart-1))'} />
-                        </RechartsBarChart>
                     </ResponsiveContainer>
                 </CardContent>
             </Card>
