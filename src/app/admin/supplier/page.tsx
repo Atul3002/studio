@@ -3,13 +3,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from "recharts";
-import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle, List, Timer, Bot, Layers } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, CalendarDays, CalendarCheck2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions } from "@/app/actions";
-import { ChartTypeSwitcher } from "@/components/chart-type-switcher";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -39,18 +39,21 @@ function SupplierDashboard() {
   const [totalCustomerQty, setTotalCustomerQty] = useState(0);
   const [totalScrap, setTotalScrap] = useState(0);
 
+  const [supplierSubmissions, setSupplierSubmissions] = useState<any[]>([]);
   const [scrapData, setScrapData] = useState<any[]>([]);
   const [customerQtyData, setCustomerQtyData] = useState<any[]>([]);
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
   const [processStageData, setProcessStageData] = useState<any[]>([]);
+  const [deliveryData, setDeliveryData] = useState<any[]>([]);
 
 
   useEffect(() => {
     getSubmissions().then(data => {
-        const supplierSubmissions = data.filter(s => s.entryType === 'supplierData');
+        const filteredSupplierSubmissions = data.filter(s => s.entryType === 'supplierData');
+        setSupplierSubmissions(filteredSupplierSubmissions);
 
-        const filteredData = supplierSubmissions.filter(s => {
+        const filteredData = filteredSupplierSubmissions.filter(s => {
              const submissionDate = new Date(s.customerDate);
              const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
              const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
@@ -110,6 +113,24 @@ function SupplierDashboard() {
           }
         });
         setProcessStageData(Array.from(stageDataMap.values()));
+
+        const deliveryPerformanceData = filteredData.map(s => {
+            const customerDate = s.customerDate ? new Date(s.customerDate) : null;
+            // Assuming 'dispatch' is a number representing days from customerDate. This is a guess.
+            // If dispatch is a date, logic needs to change.
+            const dispatchValue = parseInt(s.dispatch, 10) || 0;
+            let dispatchDate = null;
+            if(customerDate && dispatchValue > 0) {
+                dispatchDate = new Date(customerDate);
+                dispatchDate.setDate(dispatchDate.getDate() + dispatchValue);
+            }
+            return {
+                name: s.catNo,
+                poDate: customerDate ? customerDate.getTime() : 0,
+                dispatchDate: dispatchDate ? dispatchDate.getTime() : 0,
+            };
+        }).filter(d => d.poDate > 0);
+        setDeliveryData(deliveryPerformanceData);
     })
   }, [selectedMonth, selectedYear]);
 
@@ -237,7 +258,7 @@ function SupplierDashboard() {
                 </Card>
                  <Card className="bg-card/80">
                     <CardHeader>
-                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><Bot /> TOTAL SCRAP (KG)</CardTitle>
+                        <CardTitle className="text-sm font-medium text-primary flex items-center gap-2"><AlertCircle /> TOTAL SCRAP (KG)</CardTitle>
                     </CardHeader>
                     <CardContent className="flex items-center justify-between">
                         <p className="text-3xl font-bold">{totalScrap}</p>
@@ -273,7 +294,7 @@ function SupplierDashboard() {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-base"><Timer /> Machine Setting Time</CardTitle>
+                        <CardTitle className="flex items-center gap-2 text-base"><Clock /> Machine Setting Time</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         {renderChart(machineTimeData, 'value', 'Setting Time (min)', 'hsl(var(--chart-3))')}
@@ -292,7 +313,7 @@ function SupplierDashboard() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base"><Layers /> Process Stage Analysis</CardTitle>
                 </CardHeader>
-                <CardContent className="h-[400px]">
+                <CardContent className="h-[500px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsBarChart data={processStageData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
                           <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
@@ -307,6 +328,88 @@ function SupplierDashboard() {
                           <Bar dataKey="dispatch" stackId="a" fill={"hsl(var(--primary))"} name="Dispatch" />
                       </RechartsBarChart>
                     </ResponsiveContainer>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base"><CalendarCheck2 /> Delivery Performance</CardTitle>
+                    <CardDescription>Comparison of Customer PO date vs. Dispatch date.</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <RechartsBarChart data={deliveryData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
+                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
+                            <YAxis 
+                                stroke="hsl(var(--muted-foreground))" 
+                                tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
+                                domain={['dataMin', 'dataMax']}
+                            />
+                            <Tooltip 
+                                contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
+                                labelFormatter={(label) => `CAT No: ${label}`}
+                                formatter={(value, name) => [new Date(value as number).toLocaleDateString(), name === 'poDate' ? 'Customer PO Date' : 'Dispatch Date']}
+                            />
+                            <Legend wrapperStyle={{ top: -10, right: 0 }}/>
+                            <Bar dataKey="poDate" name="Customer PO Date" fill={'hsl(var(--chart-4))'} />
+                            <Bar dataKey="dispatchDate" name="Dispatch Date" fill={'hsl(var(--chart-1))'} />
+                        </RechartsBarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Supplier Submission Data</CardTitle>
+                    <CardDescription>A comprehensive table of all supplier data entries.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="w-full overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Sr No</TableHead>
+                                    <TableHead>CAT No</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>Cust. Qty</TableHead>
+                                    <TableHead>Cust. Date</TableHead>
+                                    <TableHead>RM Desc.</TableHead>
+                                    <TableHead>RM Rate</TableHead>
+                                    <TableHead>Scrap (kg)</TableHead>
+                                    <TableHead>RM Lead Time</TableHead>
+                                    <TableHead>Blank Cutting</TableHead>
+                                    <TableHead>Tapping</TableHead>
+                                    <TableHead>Finishing</TableHead>
+                                    <TableHead>Inspection</TableHead>
+                                    <TableHead>Packing</TableHead>
+                                    <TableHead>Dispatch</TableHead>
+                                    <TableHead>Machine Name</TableHead>
+                                    <TableHead>Machine Number</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {supplierSubmissions.map((s, index) => (
+                                    <TableRow key={s.id || index}>
+                                        <TableCell>{s.srNo}</TableCell>
+                                        <TableCell>{s.catNo}</TableCell>
+                                        <TableCell>{s.description}</TableCell>
+                                        <TableCell>{s.customerQuantity}</TableCell>
+                                        <TableCell>{s.customerDate}</TableCell>
+                                        <TableCell>{s.rmDescription}</TableCell>
+                                        <TableCell>{s.rmRate}</TableCell>
+                                        <TableCell>{s.scrapKg}</TableCell>
+                                        <TableCell>{s.rmLeadTime}</TableCell>
+                                        <TableCell>{s.blankCutting}</TableCell>
+                                        <TableCell>{s.tapping}</TableCell>
+                                        <TableCell>{s.finishing}</TableCell>
+                                        <TableCell>{s.inspection}</TableCell>
+                                        <TableCell>{s.packing}</TableCell>
+                                        <TableCell>{s.dispatch}</TableCell>
+                                        <TableCell>{s.machineName}</TableCell>
+                                        <TableCell>{s.machineNumber}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>
