@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
+import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle, List, Timer, Bot } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
-        <p className="label text-sm text-foreground font-semibold">{`${label}`}</p>
+        <p className="label text-sm text-foreground font-semibold">{`${label || payload[0].name}`}</p>
          {payload.map((pld: any, index: number) => (
              <p key={index} className="intro text-xs" style={{ color: pld.color || pld.fill }}>{`${pld.name}: ${pld.value}`}</p>
         ))}
@@ -24,6 +24,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   }
   return null;
 };
+
+const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 
 function SupplierDashboard() {
@@ -236,7 +238,17 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        {renderChart(customerQtyData, 'value', 'Customer Quantity', 'hsl(var(--chart-1))')}
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Tooltip content={<CustomTooltip />} />
+                                <Legend />
+                                <Pie data={customerQtyData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label>
+                                     {customerQtyData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                    ))}
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
                     </CardContent>
                 </Card>
                 <Card>
@@ -268,4 +280,6 @@ export default function SupplierAdminPage() {
 
 
     
+    
+
     
