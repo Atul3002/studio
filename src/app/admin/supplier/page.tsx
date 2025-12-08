@@ -15,13 +15,14 @@ import { differenceInDays, startOfYear } from "date-fns";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const isTimelineChart = payload[0].payload.name === 'Timeline';
-    if(isTimelineChart) {
+    const data = payload[0].payload;
+    if (data.timeline) {
          return (
              <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
-                <p className="label text-sm text-foreground font-semibold">{payload[0].payload.catNo}</p>
-                <p className="intro text-xs text-blue-400">Due Date (Day of Year): {payload[0].payload.dueDate}</p>
-                <p className="intro text-xs text-green-400">Completion (Day of Year): {payload[0].payload.completionDate}</p>
+                <p className="label text-sm text-foreground font-semibold">{data.catNo}</p>
+                <p className="intro text-xs text-blue-400">Start (Day of Year): {data.startDay}</p>
+                <p className="intro text-xs text-red-400">Due (Day of Year): {data.endDay}</p>
+                <p className="intro text-xs text-green-400">Completed (Day of Year): {data.completionDay}</p>
              </div>
          )
     }
@@ -69,7 +70,7 @@ function SupplierDashboard() {
         setSupplierSubmissions(filteredSupplierSubmissions);
 
         const filteredData = filteredSupplierSubmissions.filter(s => {
-             const submissionDate = new Date(s.startDate);
+             const submissionDate = new Date(s.startDate || s.id);
              const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
              const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
              return monthMatch && yearMatch;
@@ -135,13 +136,21 @@ function SupplierDashboard() {
         // Timeline Chart Data Processing
         if (selectedCatNo) {
             const catNoData = filteredData.find(s => s.catNo === selectedCatNo);
-            if (catNoData && catNoData.endDate && catNoData.completionDate) {
-                const yearStart = startOfYear(new Date(catNoData.endDate));
-                const dueDate = differenceInDays(new Date(catNoData.endDate), yearStart);
-                const completionDate = differenceInDays(new Date(catNoData.completionDate), yearStart);
-
+            if (catNoData && catNoData.startDate && catNoData.endDate && catNoData.completionDate) {
+                const yearStart = startOfYear(new Date(catNoData.startDate));
+                const startDay = differenceInDays(new Date(catNoData.startDate), yearStart);
+                const endDay = differenceInDays(new Date(catNoData.endDate), yearStart);
+                const completionDay = differenceInDays(new Date(catNoData.completionDate), yearStart);
+                
                 setTimelineData([
-                    { name: 'Timeline', completionDate, dueDate, catNo: selectedCatNo }
+                    {
+                        name: 'Timeline',
+                        timeline: [startDay, completionDay],
+                        startDay,
+                        endDay,
+                        completionDay,
+                        catNo: selectedCatNo,
+                    }
                 ]);
             } else {
                  setTimelineData([]);
@@ -368,17 +377,26 @@ function SupplierDashboard() {
                     </div>
                 </CardHeader>
                 <CardContent className="h-[250px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <RechartsBarChart layout="vertical" data={timelineData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                            <XAxis type="number" domain={[0, 365]} />
-                            <YAxis type="category" dataKey="name" hide />
+                     <ResponsiveContainer width="100%" height="100%">
+                        <RechartsBarChart
+                            layout="vertical"
+                            data={timelineData}
+                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                        >
+                            <XAxis type="number" domain={[0, 365]} stroke="hsl(var(--muted-foreground))" />
+                            <YAxis dataKey="name" type="category" hide />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend verticalAlign="top" wrapperStyle={{ top: -10 }} payload={[
-                                { value: 'Due Date', type: 'line', color: 'hsl(var(--chart-3))' },
-                                { value: 'Completion Date', type: 'rect', color: 'hsl(var(--chart-2))' },
-                            ]} />
-                            <Bar dataKey="completionDate" name="Completion Date" fill="hsl(var(--chart-2))" barSize={30} />
-                            <ReferenceLine x={timelineData[0]?.dueDate} stroke="hsl(var(--chart-3))" strokeWidth={3} />
+                                { value: 'Project Duration (Start to Completion)', type: 'rect', color: 'hsl(var(--chart-2))' },
+                                { value: 'Due Date', type: 'line', color: 'hsl(var(--destructive))' },
+                            ]}/>
+                            <Bar dataKey="timeline" name="Project Duration" fill="hsl(var(--chart-2))" barSize={30} />
+                            <ReferenceLine
+                                x={timelineData[0]?.endDay}
+                                stroke="hsl(var(--destructive))"
+                                strokeWidth={2}
+                                strokeDasharray="3 3"
+                            />
                         </RechartsBarChart>
                     </ResponsiveContainer>
                 </CardContent>
@@ -452,3 +470,5 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+    

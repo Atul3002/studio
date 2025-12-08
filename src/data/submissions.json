@@ -564,5 +564,33 @@
     "machineCapacity": "5",
     "settingTime": "5",
     "machineSpeed": "5"
+  },
+  {
+    "id": "2025-12-08T01:50:35.885Z",
+    "entryType": "supplierData",
+    "srNo": "999",
+    "catNo": "999",
+    "description": "ytydhtgn ",
+    "customerQuantity": "300",
+    "startDate": "December 8th, 2025",
+    "endDate": "December 10th, 2025",
+    "completionDate": "December 12th, 2025",
+    "rmDescription": "DIA 60.5 - T6",
+    "rmRate": "68",
+    "scrapKg": "76",
+    "rmLeadTime": "7",
+    "blankCutting": "500",
+    "tapping": "424",
+    "finishing": "3",
+    "inspection": "100",
+    "packing": "60",
+    "dispatch": "60",
+    "machineName": "AMADA",
+    "machineNumber": "3",
+    "machinePower": "87",
+    "tonnage": "76",
+    "machineCapacity": "7",
+    "settingTime": "56",
+    "machineSpeed": "76"
   }
 ]
