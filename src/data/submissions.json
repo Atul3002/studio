@@ -538,5 +538,31 @@
     "machineCapacity": "53",
     "settingTime": "235",
     "machineSpeed": "35"
+  },
+  {
+    "id": "2025-12-07T10:55:51.750Z",
+    "entryType": "supplierData",
+    "srNo": "555",
+    "catNo": "555",
+    "description": "helllo",
+    "customerQuantity": "5",
+    "customerDate": "December 1st, 2025",
+    "rmDescription": "5",
+    "rmRate": "55",
+    "scrapKg": "5",
+    "rmLeadTime": "5",
+    "blankCutting": "5",
+    "tapping": "5",
+    "finishing": "5",
+    "inspection": "5",
+    "packing": "5",
+    "dispatch": "5",
+    "machineName": "AMADA",
+    "machineNumber": "5",
+    "machinePower": "5",
+    "tonnage": "5",
+    "machineCapacity": "5",
+    "settingTime": "5",
+    "machineSpeed": "5"
   }
 ]

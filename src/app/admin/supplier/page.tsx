@@ -106,9 +106,8 @@ function SupplierDashboard() {
   
   const renderChart = (data: any[], dataKey: string, name: string, color: string) => (
       <ResponsiveContainer width="100%" height="100%">
-          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={80} />
+          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
               <YAxis stroke="hsl(var(--muted-foreground))" />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ top: -10, right: 0 }}/>
