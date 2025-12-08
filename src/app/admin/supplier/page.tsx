@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, Line, LineChart as RechartsLineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from "recharts";
-import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle, List, Timer, Bot } from "lucide-react";
+import { BarChart, Truck, X, CheckCircle, Circle, Package, Clock, AlertCircle, List, Timer, Bot, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,7 @@ function SupplierDashboard() {
   const [customerQtyData, setCustomerQtyData] = useState<any[]>([]);
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
+  const [processStageData, setProcessStageData] = useState<any[]>([]);
 
 
   useEffect(() => {
@@ -90,6 +91,25 @@ function SupplierDashboard() {
         setCustomerQtyData(processChartData('customerQuantity', 'description'));
         setMachineTimeData(processChartData('settingTime', 'catNo'));
         setInspectionData(processChartData('inspection', 'catNo'));
+
+        const processStages = ['blankCutting', 'tapping', 'finishing', 'inspection', 'packing', 'dispatch'];
+        const stageDataMap = new Map<string, any>();
+
+        filteredData.forEach(s => {
+          const catNo = s.catNo;
+          if (catNo) {
+            if (!stageDataMap.has(catNo)) {
+              stageDataMap.set(catNo, { name: catNo });
+            }
+            const entry = stageDataMap.get(catNo);
+            processStages.forEach(stage => {
+              const value = parseInt(s[stage], 10) || 0;
+              entry[stage] = (entry[stage] || 0) + value;
+            });
+            stageDataMap.set(catNo, entry);
+          }
+        });
+        setProcessStageData(Array.from(stageDataMap.values()));
     })
   }, [selectedMonth, selectedYear]);
 
@@ -268,6 +288,27 @@ function SupplierDashboard() {
                     </CardContent>
                 </Card>
              </div>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base"><Layers /> Process Stage Analysis</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsBarChart data={processStageData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
+                          <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
+                          <YAxis stroke="hsl(var(--muted-foreground))" />
+                          <Tooltip content={<CustomTooltip />} />
+                          <Legend wrapperStyle={{ top: -10, right: 0 }} />
+                          <Bar dataKey="blankCutting" stackId="a" fill={PIE_COLORS[0]} name="Blank Cutting" />
+                          <Bar dataKey="tapping" stackId="a" fill={PIE_COLORS[1]} name="Tapping" />
+                          <Bar dataKey="finishing" stackId="a" fill={PIE_COLORS[2]} name="Finishing" />
+                          <Bar dataKey="inspection" stackId="a" fill={PIE_COLORS[3]} name="Inspection" />
+                          <Bar dataKey="packing" stackId="a" fill={PIE_COLORS[4]} name="Packing" />
+                          <Bar dataKey="dispatch" stackId="a" fill={"hsl(var(--primary))"} name="Dispatch" />
+                      </RechartsBarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
         </div>
       </main>
     </div>
@@ -277,9 +318,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-
-    
-    
-
-    
