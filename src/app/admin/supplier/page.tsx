@@ -3,16 +3,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ReferenceLine } from "recharts";
 import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, CalendarDays, CalendarCheck2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions } from "@/app/actions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { differenceInDays, startOfYear } from "date-fns";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
+    const isTimelineChart = payload[0].payload.name === 'Timeline';
+    if(isTimelineChart) {
+         return (
+             <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
+                <p className="label text-sm text-foreground font-semibold">{payload[0].payload.catNo}</p>
+                <p className="intro text-xs text-blue-400">Due Date (Day of Year): {payload[0].payload.dueDate}</p>
+                <p className="intro text-xs text-green-400">Completion (Day of Year): {payload[0].payload.completionDate}</p>
+             </div>
+         )
+    }
+
     return (
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
         <p className="label text-sm text-foreground font-semibold">{`${label || payload[0].name}`}</p>
@@ -45,6 +58,9 @@ function SupplierDashboard() {
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
   const [processStageData, setProcessStageData] = useState<any[]>([]);
+  const [timelineData, setTimelineData] = useState<any[]>([]);
+  const [selectedCatNo, setSelectedCatNo] = useState<string | null>(null);
+  const [uniqueCatNos, setUniqueCatNos] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -61,6 +77,10 @@ function SupplierDashboard() {
         
         const uniqueSuppliers = [...new Set(filteredData.map(s => s.catNo))];
         setSupplierCount(uniqueSuppliers.length);
+        setUniqueCatNos(uniqueSuppliers);
+        if (uniqueSuppliers.length > 0 && !selectedCatNo) {
+            setSelectedCatNo(uniqueSuppliers[0]);
+        }
 
         const leadTimes = filteredData.map(s => parseInt(s.rmLeadTime, 10) || 0).filter(d => d > 0);
         const totalLeadTime = leadTimes.reduce((acc, curr) => acc + curr, 0);
@@ -74,7 +94,6 @@ function SupplierDashboard() {
         const totalScrapValue = scrapValues.reduce((acc, curr) => acc + curr, 0);
         setTotalScrap(totalScrapValue);
         
-        // Chart data processing
         const processChartData = (key: string, nameKey: "catNo" | "description" = "catNo") => {
             const dataMap = new Map<string, number>();
 
@@ -112,8 +131,27 @@ function SupplierDashboard() {
           }
         });
         setProcessStageData(Array.from(stageDataMap.values()));
+        
+        // Timeline Chart Data Processing
+        if (selectedCatNo) {
+            const catNoData = filteredData.find(s => s.catNo === selectedCatNo);
+            if (catNoData) {
+                const yearStart = startOfYear(new Date(catNoData.customerDate));
+                const dueDate = differenceInDays(new Date(catNoData.customerDate), yearStart);
+                const completionDate = differenceInDays(new Date(catNoData.id), yearStart);
+
+                setTimelineData([
+                    { name: 'Timeline', completionDate, dueDate, catNo: selectedCatNo }
+                ]);
+            } else {
+                 setTimelineData([]);
+            }
+        } else {
+             setTimelineData([]);
+        }
+
     })
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, selectedCatNo]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -308,6 +346,40 @@ function SupplierDashboard() {
                           <Bar dataKey="packing" stackId="a" fill={PIE_COLORS[4]} name="Packing" />
                           <Bar dataKey="dispatch" stackId="a" fill={"hsl(var(--primary))"} name="Dispatch" />
                       </RechartsBarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <CardTitle className="flex items-center gap-2 text-base"><CalendarCheck2 /> Delivery Timeline</CardTitle>
+                        <div className="w-1/3">
+                            <Select value={selectedCatNo || ''} onValueChange={(value) => setSelectedCatNo(value)}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select CAT No..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {uniqueCatNos.map(catNo => (
+                                        <SelectItem key={catNo} value={catNo}>{catNo}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="h-[250px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <RechartsBarChart layout="vertical" data={timelineData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                            <XAxis type="number" domain={[0, 365]} />
+                            <YAxis type="category" dataKey="name" hide />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Legend verticalAlign="top" wrapperStyle={{ top: -10 }} payload={[
+                                { value: 'Due Date', type: 'line', color: 'hsl(var(--chart-3))' },
+                                { value: 'Completion Date', type: 'rect', color: 'hsl(var(--chart-2))' },
+                            ]} />
+                            <Bar dataKey="completionDate" name="Completion Date" fill="hsl(var(--chart-2))" barSize={30} />
+                            <ReferenceLine x={timelineData[0]?.dueDate} stroke="hsl(var(--chart-3))" strokeWidth={3} />
+                        </RechartsBarChart>
                     </ResponsiveContainer>
                 </CardContent>
             </Card>
