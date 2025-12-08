@@ -25,7 +25,9 @@ const initialFormState = {
     catNo: "",
     description: "",
     customerQuantity: "",
-    customerDate: undefined as Date | undefined,
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    completionDate: undefined as Date | undefined,
     rmDescription: "",
     rmRate: "",
     scrapKg: "",
@@ -56,18 +58,19 @@ function SupplierDashboard() {
     setFormData(prev => ({ ...prev, [id]: value }));
   };
   
-  const handleDateChange = (date: Date | undefined) => {
-    setFormData(prev => ({ ...prev, customerDate: date }));
+  const handleDateChange = (fieldName: 'startDate' | 'endDate' | 'completionDate', date: Date | undefined) => {
+    setFormData(prev => ({ ...prev, [fieldName]: date }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const { finishQty, ...submissionData } = formData;
     await saveSubmission({
       entryType: 'supplierData',
-      ...submissionData,
-      customerDate: formData.customerDate ? format(formData.customerDate, "PPP") : "",
+      ...formData,
+      startDate: formData.startDate ? format(formData.startDate, "PPP") : "",
+      endDate: formData.endDate ? format(formData.endDate, "PPP") : "",
+      completionDate: formData.completionDate ? format(formData.completionDate, "PPP") : "",
     });
     setIsSubmitting(false);
     setIsSubmitted(true);
@@ -115,7 +118,7 @@ function SupplierDashboard() {
                         <CardContent className="space-y-8">
                            <div className="space-y-4 pt-4">
                                 <h3 className="text-lg font-semibold">Product & Customer Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                    <div className="space-y-2">
                                         <Label htmlFor="srNo">Sr No</Label>
                                         <Input id="srNo" value={formData.srNo} onChange={handleInputChange} required />
@@ -124,7 +127,7 @@ function SupplierDashboard() {
                                         <Label htmlFor="catNo">CAT No</Label>
                                         <Input id="catNo" value={formData.catNo} onChange={handleInputChange} required />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
+                                    <div className="space-y-2 md:col-span-2 lg:col-span-3">
                                         <Label htmlFor="description">Description</Label>
                                         <Textarea id="description" value={formData.description} onChange={handleInputChange} required />
                                     </div>
@@ -132,21 +135,45 @@ function SupplierDashboard() {
                             </div>
                             <div className="space-y-4 pt-4 border-t">
                                 <h3 className="text-lg font-semibold">Process Tracking</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="customerQuantity">Customer Quantity</Label>
                                         <Input id="customerQuantity" value={formData.customerQuantity} onChange={handleInputChange} required />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="customerDate">Customer Date</Label>
+                                        <Label htmlFor="startDate">Start Date</Label>
                                         <Popover>
                                             <PopoverTrigger asChild>
-                                                <Button id="customerDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.customerDate && "text-muted-foreground")}>
+                                                <Button id="startDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.startDate && "text-muted-foreground")}>
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                                    {formData.customerDate ? format(formData.customerDate, "PPP") : <span>Pick a date</span>}
+                                                    {formData.startDate ? format(formData.startDate, "PPP") : <span>Pick a date</span>}
                                                 </Button>
                                             </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.customerDate} onSelect={handleDateChange} initialFocus/></PopoverContent>
+                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.startDate} onSelect={(date) => handleDateChange('startDate', date)} initialFocus/></PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="endDate">End Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button id="endDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.endDate && "text-muted-foreground")}>
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.endDate ? format(formData.endDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.endDate} onSelect={(date) => handleDateChange('endDate', date)} initialFocus/></PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="completionDate">Completion Date</Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button id="completionDate" variant={"outline"} className={cn("w-full justify-start text-left font-normal",!formData.completionDate && "text-muted-foreground")}>
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {formData.completionDate ? format(formData.completionDate, "PPP") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={formData.completionDate} onSelect={(date) => handleDateChange('completionDate', date)} initialFocus/></PopoverContent>
                                         </Popover>
                                     </div>
                                     <div className="space-y-2">
@@ -177,7 +204,7 @@ function SupplierDashboard() {
                             </div>
                              <div className="space-y-4 pt-4 border-t">
                                 <h3 className="text-lg font-semibold">Raw Material Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                      <div className="space-y-2">
                                         <Label htmlFor="rmDescription">RM Description</Label>
                                         <Input id="rmDescription" value={formData.rmDescription} onChange={handleInputChange} required />
@@ -198,7 +225,7 @@ function SupplierDashboard() {
                             </div>
                              <div className="space-y-4 pt-4 border-t">
                                 <h3 className="text-lg font-semibold flex items-center gap-2"><Cog />Machine Details</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                      <div className="space-y-2">
                                         <Label htmlFor="machineName">Machine Name</Label>
                                         <Input id="machineName" value={formData.machineName} onChange={handleInputChange} />
@@ -258,5 +285,3 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
-
-    

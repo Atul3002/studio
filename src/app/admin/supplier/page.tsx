@@ -69,7 +69,7 @@ function SupplierDashboard() {
         setSupplierSubmissions(filteredSupplierSubmissions);
 
         const filteredData = filteredSupplierSubmissions.filter(s => {
-             const submissionDate = new Date(s.customerDate);
+             const submissionDate = new Date(s.startDate);
              const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
              const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
              return monthMatch && yearMatch;
@@ -135,10 +135,10 @@ function SupplierDashboard() {
         // Timeline Chart Data Processing
         if (selectedCatNo) {
             const catNoData = filteredData.find(s => s.catNo === selectedCatNo);
-            if (catNoData) {
-                const yearStart = startOfYear(new Date(catNoData.customerDate));
-                const dueDate = differenceInDays(new Date(catNoData.customerDate), yearStart);
-                const completionDate = differenceInDays(new Date(catNoData.id), yearStart);
+            if (catNoData && catNoData.endDate && catNoData.completionDate) {
+                const yearStart = startOfYear(new Date(catNoData.endDate));
+                const dueDate = differenceInDays(new Date(catNoData.endDate), yearStart);
+                const completionDate = differenceInDays(new Date(catNoData.completionDate), yearStart);
 
                 setTimelineData([
                     { name: 'Timeline', completionDate, dueDate, catNo: selectedCatNo }
@@ -397,7 +397,9 @@ function SupplierDashboard() {
                                     <TableHead>CAT No</TableHead>
                                     <TableHead>Description</TableHead>
                                     <TableHead>Cust. Qty</TableHead>
-                                    <TableHead>Cust. Date</TableHead>
+                                    <TableHead>Start Date</TableHead>
+                                    <TableHead>End Date</TableHead>
+                                    <TableHead>Completion Date</TableHead>
                                     <TableHead>RM Desc.</TableHead>
                                     <TableHead>RM Rate</TableHead>
                                     <TableHead>Scrap (kg)</TableHead>
@@ -419,7 +421,9 @@ function SupplierDashboard() {
                                         <TableCell>{s.catNo}</TableCell>
                                         <TableCell>{s.description}</TableCell>
                                         <TableCell>{s.customerQuantity}</TableCell>
-                                        <TableCell>{s.customerDate}</TableCell>
+                                        <TableCell>{s.startDate}</TableCell>
+                                        <TableCell>{s.endDate}</TableCell>
+                                        <TableCell>{s.completionDate}</TableCell>
                                         <TableCell>{s.rmDescription}</TableCell>
                                         <TableCell>{s.rmRate}</TableCell>
                                         <TableCell>{s.scrapKg}</TableCell>
