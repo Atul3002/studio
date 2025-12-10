@@ -3,15 +3,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ReferenceLine } from "recharts";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
 import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions } from "@/app/actions";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { differenceInDays, startOfYear } from "date-fns";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -108,28 +106,19 @@ function SupplierDashboard() {
         setInspectionData(processChartData('inspection', 'catNo'));
         
         // Machine Process Data
-        const machineData: { [key: string]: Set<string> } = {
-          'CNC': new Set(),
-          'VMC': new Set(),
+        const machineData: { [key: string]: number } = {
+          'CNC1': 0, 'CNC2': 0, 'CNC3': 0, 'VMC1': 0, 'VMC2': 0,
         };
 
         filteredSupplierSubmissions.forEach(s => {
-            const machineName = s.machineName?.toUpperCase() || '';
-            const catNo = s.catNo;
-            if (catNo) {
-                if (machineName.includes('CNC')) {
-                    machineData['CNC'].add(catNo);
-                }
-                if (machineName.includes('VMC')) {
-                    machineData['VMC'].add(catNo);
-                }
-            }
+          if (s.cnc1) machineData['CNC1']++;
+          if (s.cnc2) machineData['CNC2']++;
+          if (s.cnc3) machineData['CNC3']++;
+          if (s.vmc1) machineData['VMC1']++;
+          if (s.vmc2) machineData['VMC2']++;
         });
-        
-        setMachineProcessData([
-            { name: 'CNC', count: machineData['CNC'].size },
-            { name: 'VMC', count: machineData['VMC'].size },
-        ]);
+
+        setMachineProcessData(Object.entries(machineData).map(([name, count]) => ({ name, count })));
 
     })
   }, [selectedMonth, selectedYear]);
@@ -279,7 +268,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                         <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%">
                             <RechartsBarChart data={customerQtyData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
                                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -317,7 +306,7 @@ function SupplierDashboard() {
                                 <YAxis stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ top: -10, right: 0 }}/>
-                                <Bar dataKey="count" name="Unique CAT No. Count" fill={'hsl(var(--chart-5))'} />
+                                <Bar dataKey="count" name="Usage Count" fill={'hsl(var(--chart-5))'} />
                             </RechartsBarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -402,9 +391,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-    
-
-    
-
-    
