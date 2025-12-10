@@ -279,7 +279,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%">
+                         <ResponsiveContainer width="100%" height="100%">
                             <RechartsBarChart data={customerQtyData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
                                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
                                 <YAxis stroke="hsl(var(--muted-foreground))" />
@@ -352,6 +352,11 @@ function SupplierDashboard() {
                                     <TableHead>Dispatch</TableHead>
                                     <TableHead>Machine Name</TableHead>
                                     <TableHead>Machine Number</TableHead>
+                                    <TableHead>CNC1</TableHead>
+                                    <TableHead>CNC2</TableHead>
+                                    <TableHead>CNC3</TableHead>
+                                    <TableHead>VMC1</TableHead>
+                                    <TableHead>VMC2</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -376,6 +381,11 @@ function SupplierDashboard() {
                                         <TableCell>{s.dispatch}</TableCell>
                                         <TableCell>{s.machineName}</TableCell>
                                         <TableCell>{s.machineNumber}</TableCell>
+                                        <TableCell>{s.cnc1}</TableCell>
+                                        <TableCell>{s.cnc2}</TableCell>
+                                        <TableCell>{s.cnc3}</TableCell>
+                                        <TableCell>{s.vmc1}</TableCell>
+                                        <TableCell>{s.vmc2}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -392,6 +402,8 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+    
 
     
 

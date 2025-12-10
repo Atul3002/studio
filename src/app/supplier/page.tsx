@@ -45,6 +45,11 @@ const initialFormState = {
     machineCapacity: "",
     settingTime: "",
     machineSpeed: "",
+    cnc1: "",
+    cnc2: "",
+    cnc3: "",
+    vmc1: "",
+    vmc2: "",
 };
 
 
@@ -255,6 +260,28 @@ function SupplierDashboard() {
                                         <Input id="machineSpeed" type="number" value={formData.machineSpeed} onChange={handleInputChange} />
                                     </div>
                                 </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 pt-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="cnc1">CNC1</Label>
+                                        <Input id="cnc1" value={formData.cnc1} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="cnc2">CNC2</Label>
+                                        <Input id="cnc2" value={formData.cnc2} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="cnc3">CNC3</Label>
+                                        <Input id="cnc3" value={formData.cnc3} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="vmc1">VMC1</Label>
+                                        <Input id="vmc1" value={formData.vmc1} onChange={handleInputChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="vmc2">VMC2</Label>
+                                        <Input id="vmc2" value={formData.vmc2} onChange={handleInputChange} />
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                         <CardFooter>
@@ -285,3 +312,6 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
+
+
+    
