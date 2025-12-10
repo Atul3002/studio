@@ -254,17 +254,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend />
-                                <Pie data={customerQtyData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} label>
-                                     {customerQtyData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                       {renderChart(customerQtyData, 'value', 'Customer PO Qty', 'hsl(var(--chart-1))')}
                     </CardContent>
                 </Card>
                 <Card>
@@ -354,3 +344,4 @@ export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
 
+    
