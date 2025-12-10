@@ -58,10 +58,6 @@ function SupplierDashboard() {
   const [customerQtyData, setCustomerQtyData] = useState<any[]>([]);
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
-  const [processStageData, setProcessStageData] = useState<any[]>([]);
-  const [timelineData, setTimelineData] = useState<any[]>([]);
-  const [selectedCatNo, setSelectedCatNo] = useState<string | null>(null);
-  const [uniqueCatNos, setUniqueCatNos] = useState<string[]>([]);
 
 
   useEffect(() => {
@@ -78,10 +74,6 @@ function SupplierDashboard() {
         
         const uniqueSuppliers = [...new Set(filteredData.map(s => s.catNo))];
         setSupplierCount(uniqueSuppliers.length);
-        setUniqueCatNos(uniqueSuppliers);
-        if (uniqueSuppliers.length > 0 && !selectedCatNo) {
-            setSelectedCatNo(uniqueSuppliers[0]);
-        }
 
         const leadTimes = filteredData.map(s => parseInt(s.rmLeadTime, 10) || 0).filter(d => d > 0);
         const totalLeadTime = leadTimes.reduce((acc, curr) => acc + curr, 0);
@@ -114,53 +106,8 @@ function SupplierDashboard() {
         setMachineTimeData(processChartData('settingTime', 'catNo'));
         setInspectionData(processChartData('inspection', 'catNo'));
 
-        const processStages = ['blankCutting', 'tapping', 'finishing', 'inspection', 'packing', 'dispatch'];
-        const stageDataMap = new Map<string, any>();
-
-        filteredData.forEach(s => {
-          const catNo = s.catNo;
-          if (catNo) {
-            if (!stageDataMap.has(catNo)) {
-              stageDataMap.set(catNo, { name: catNo });
-            }
-            const entry = stageDataMap.get(catNo);
-            processStages.forEach(stage => {
-              const value = parseInt(s[stage], 10) || 0;
-              entry[stage] = (entry[stage] || 0) + value;
-            });
-            stageDataMap.set(catNo, entry);
-          }
-        });
-        setProcessStageData(Array.from(stageDataMap.values()));
-        
-        // Timeline Chart Data Processing
-        if (selectedCatNo) {
-            const catNoData = filteredData.find(s => s.catNo === selectedCatNo);
-            if (catNoData && catNoData.startDate && catNoData.endDate && catNoData.completionDate) {
-                const yearStart = startOfYear(new Date(catNoData.startDate));
-                const startDay = differenceInDays(new Date(catNoData.startDate), yearStart);
-                const endDay = differenceInDays(new Date(catNoData.endDate), yearStart);
-                const completionDay = differenceInDays(new Date(catNoData.completionDate), yearStart);
-                
-                setTimelineData([
-                    {
-                        name: 'Timeline',
-                        timeline: [startDay, completionDay],
-                        startDay,
-                        endDay,
-                        completionDay,
-                        catNo: selectedCatNo,
-                    }
-                ]);
-            } else {
-                 setTimelineData([]);
-            }
-        } else {
-             setTimelineData([]);
-        }
-
     })
-  }, [selectedMonth, selectedYear, selectedCatNo]);
+  }, [selectedMonth, selectedYear]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -337,70 +284,6 @@ function SupplierDashboard() {
                     </CardContent>
                 </Card>
              </div>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base"><Layers /> Process Stage Analysis</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[500px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RechartsBarChart data={processStageData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
-                          <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
-                          <YAxis stroke="hsl(var(--muted-foreground))" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend wrapperStyle={{ top: -10, right: 0 }} />
-                          <Bar dataKey="blankCutting" stackId="a" fill={PIE_COLORS[0]} name="Blank Cutting" />
-                          <Bar dataKey="tapping" stackId="a" fill={PIE_COLORS[1]} name="Tapping" />
-                          <Bar dataKey="finishing" stackId="a" fill={PIE_COLORS[2]} name="Finishing" />
-                          <Bar dataKey="inspection" stackId="a" fill={PIE_COLORS[3]} name="Inspection" />
-                          <Bar dataKey="packing" stackId="a" fill={PIE_COLORS[4]} name="Packing" />
-                          <Bar dataKey="dispatch" stackId="a" fill={"hsl(var(--primary))"} name="Dispatch" />
-                      </RechartsBarChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <div className="flex justify-between items-center">
-                        <CardTitle className="flex items-center gap-2 text-base"><CalendarCheck2 /> Delivery Timeline</CardTitle>
-                        <div className="w-1/3">
-                            <Select value={selectedCatNo || ''} onValueChange={(value) => setSelectedCatNo(value)}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select CAT No..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {uniqueCatNos.map(catNo => (
-                                        <SelectItem key={catNo} value={catNo}>{catNo}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="h-[250px]">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <RechartsBarChart
-                            layout="vertical"
-                            data={timelineData}
-                            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                        >
-                            <XAxis type="number" domain={[0, 365]} stroke="hsl(var(--muted-foreground))" />
-                            <YAxis dataKey="name" type="category" hide />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend verticalAlign="top" wrapperStyle={{ top: -10 }} payload={[
-                                { value: 'Project Duration (Start to Completion)', type: 'rect', color: 'hsl(var(--chart-2))' },
-                                { value: 'Due Date', type: 'line', color: 'hsl(var(--destructive))' },
-                            ]}/>
-                            <Bar dataKey="timeline" name="Project Duration" fill="hsl(var(--chart-2))" barSize={30} />
-                            <ReferenceLine
-                                x={timelineData[0]?.endDay}
-                                stroke="hsl(var(--destructive))"
-                                strokeWidth={2}
-                                strokeDasharray="3 3"
-                            />
-                        </RechartsBarChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Supplier Submission Data</CardTitle>
@@ -471,4 +354,3 @@ export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
 
-    
