@@ -47,7 +47,7 @@ function SupplierDashboard() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const years = [2023, 2024, 2025];
+  const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
   
   const [supplierCount, setSupplierCount] = useState(0);
   const [avgLeadTime, setAvgLeadTime] = useState(0);

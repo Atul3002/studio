@@ -51,7 +51,7 @@ function SalesDashboard() {
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const years = [2023, 2024, 2025];
+    const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
     const [monthlySalesChartType, setMonthlySalesChartType] = useState<'bar' | 'line' | 'pie'>('bar');

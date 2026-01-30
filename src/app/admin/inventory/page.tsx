@@ -33,7 +33,7 @@ function InventoryDashboard() {
   const [soldData, setSoldData] = useState(initialSoldData);
 
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const years = [2023, 2024, 2025];
+  const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
 
   useEffect(() => {
     if (selectedMonth !== null || selectedYear !== null) {
