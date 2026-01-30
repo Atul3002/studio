@@ -244,7 +244,7 @@ export default function ProductionPage() {
     return (
       <LoginForm
         role="Production Team"
-        correctPassword="prod123"
+        correctPassword="admin@123"
         onLoginSuccess={() => setIsAuthenticated(true)}
       />
     );

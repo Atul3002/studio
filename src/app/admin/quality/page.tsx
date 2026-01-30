@@ -346,7 +346,7 @@ export default function QualityPage() {
         return (
             <LoginForm
                 role="Admin"
-                correctPassword="admin123"
+                correctPassword="admin@123"
                 onLoginSuccess={handleLogin}
             />
         );

@@ -424,7 +424,7 @@ export default function SalesPage() {
     return (
       <LoginForm
         role="Admin"
-        correctPassword="admin123"
+        correctPassword="admin@123"
         onLoginSuccess={handleLogin}
       />
     );

@@ -304,7 +304,7 @@ export default function SupplierPage() {
     return (
       <LoginForm
         role="Supplier Team"
-        correctPassword="supplier123"
+        correctPassword="admin@123"
         onLoginSuccess={() => setIsAuthenticated(true)}
       />
     );

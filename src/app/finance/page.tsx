@@ -227,7 +227,7 @@ export default function FinancePage() {
     return (
       <LoginForm
         role="Finance Team"
-        correctPassword="finance123"
+        correctPassword="admin@123"
         onLoginSuccess={() => setIsAuthenticated(true)}
       />
     );

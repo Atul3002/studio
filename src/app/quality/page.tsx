@@ -198,7 +198,7 @@ export default function QualityPage() {
     return (
       <LoginForm
         role="Quality Team"
-        correctPassword="quality123"
+        correctPassword="admin@123"
         onLoginSuccess={() => setIsAuthenticated(true)}
       />
     );

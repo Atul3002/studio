@@ -203,7 +203,7 @@ export default function StorePage() {
     return (
       <LoginForm
         role="Store Team"
-        correctPassword="store123"
+        correctPassword="admin@123"
         onLoginSuccess={() => setIsAuthenticated(true)}
       />
     );

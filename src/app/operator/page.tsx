@@ -580,7 +580,7 @@ export default function OperatorPage() {
         return (
             <LoginForm
                 role={`Operator (Station ${station})`}
-                correctPassword={`op${station}123`}
+                correctPassword="admin@123"
                 onLoginSuccess={handleLoginSuccess}
             />
         );
