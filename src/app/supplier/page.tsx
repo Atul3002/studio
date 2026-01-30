@@ -71,7 +71,6 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
     const expectedKeys = Object.keys(initialFormState);
     const keyMap = new Map<string, string>();
     expectedKeys.forEach(key => {
-        // This creates a mapping from a normalized key (lowercase, no spaces) to the original camelCase key
         keyMap.set(key.toLowerCase().replace(/\s/g, ''), key);
     });
 
@@ -83,8 +82,33 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
             const normalizedHeader = header.trim().toLowerCase().replace(/\s/g, '');
             if (keyMap.has(normalizedHeader)) {
                 const originalKey = keyMap.get(normalizedHeader)!;
-                submissionRecord[originalKey] = record[header];
-                if (record[header] !== null && record[header] !== '') {
+                let value = record[header];
+                
+                // Standardize date fields
+                if (['startDate', 'endDate', 'completionDate'].includes(originalKey)) {
+                    if (value) {
+                        let dateObj;
+                        if (value instanceof Date) {
+                            dateObj = value;
+                        } else {
+                            // Attempt to parse string dates. This is not foolproof but covers many cases.
+                            dateObj = new Date(value);
+                        }
+                        
+                        // If we have a valid date, format it. Otherwise, keep the original value for inspection.
+                        if (dateObj && !isNaN(dateObj.getTime())) {
+                            submissionRecord[originalKey] = format(dateObj, "PPP");
+                        } else {
+                            submissionRecord[originalKey] = value;
+                        }
+                    } else {
+                         submissionRecord[originalKey] = value;
+                    }
+                } else {
+                    submissionRecord[originalKey] = value;
+                }
+
+                if (submissionRecord[originalKey] !== null && submissionRecord[originalKey] !== '') {
                     hasData = true;
                 }
             }
@@ -122,10 +146,10 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
           }
           records = result.data;
         } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
-          const workbook = read(data, { type: 'array' });
+          const workbook = read(data, { type: 'array', cellDates: true });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          records = utils.sheet_to_json(worksheet, { cellDates: true });
+          records = utils.sheet_to_json(worksheet, {raw: false});
         } else {
            throw new Error("Unsupported file type. Please upload a CSV or Excel file.");
         }
@@ -447,3 +471,5 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
+
+    
