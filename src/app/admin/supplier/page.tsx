@@ -156,11 +156,11 @@ function SupplierDashboard() {
     setSelectedDay(null);
   };
   
-  const renderChart = (data: any[], dataKey: string, name: string, color: string) => (
+  const renderChart = (data: any[], dataKey: string, name: string, color: string, xAxisLabel: string, yAxisLabel: string) => (
       <ResponsiveContainer width="100%" height="100%">
-          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
-              <YAxis stroke="hsl(var(--muted-foreground))" />
+          <RechartsBarChart data={data} margin={{ top: 5, right: 20, left: 30, bottom: 80 }}>
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} label={{ value: xAxisLabel, position: 'insideBottom', dy: 20 }} />
+              <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: yAxisLabel, angle: -90, position: 'insideLeft' }} />
               <Tooltip content={<CustomTooltip />} />
               <Legend wrapperStyle={{ top: -10, right: 0 }}/>
               <Bar dataKey={dataKey} name={name} fill={color} />
@@ -303,7 +303,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><AlertCircle /> RM Scrap vs Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        {renderChart(scrapData, 'value', 'Scrap (kg)', 'hsl(var(--destructive))')}
+                        {renderChart(scrapData, 'value', 'Scrap (kg)', 'hsl(var(--destructive))', 'Supplier (CAT No)', 'Scrap (kg)')}
                     </CardContent>
                 </Card>
                  <Card>
@@ -312,9 +312,9 @@ function SupplierDashboard() {
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsBarChart data={customerQtyData} margin={{ top: 5, right: 20, left: 20, bottom: 80 }}>
-                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} />
-                                <YAxis stroke="hsl(var(--muted-foreground))" />
+                            <RechartsBarChart data={customerQtyData} margin={{ top: 5, right: 20, left: 30, bottom: 80 }}>
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} label={{ value: 'Supplier (Description)', position: 'insideBottom', dy: 20 }}/>
+                                <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Customer PO Qty', angle: -90, position: 'insideLeft' }}/>
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ top: -10, right: 0 }}/>
                                 <Bar dataKey="value" name="Customer PO Qty" fill={'hsl(var(--chart-1))'} />
@@ -327,7 +327,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><Clock /> Machine Setting Time</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        {renderChart(machineTimeData, 'value', 'Setting Time (min)', 'hsl(var(--chart-3))')}
+                        {renderChart(machineTimeData, 'value', 'Setting Time (min)', 'hsl(var(--chart-3))', 'Supplier (CAT No)', 'Setting Time (min)')}
                     </CardContent>
                 </Card>
                 <Card>
@@ -335,7 +335,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><CheckCircle /> Inspection Quantity</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        {renderChart(inspectionData, 'value', 'Inspection Qty', 'hsl(var(--chart-2))')}
+                        {renderChart(inspectionData, 'value', 'Inspection Qty', 'hsl(var(--chart-2))', 'Supplier (CAT No)', 'Inspection Quantity')}
                     </CardContent>
                 </Card>
                 <Card className="lg:col-span-2">
@@ -344,9 +344,9 @@ function SupplierDashboard() {
                     </CardHeader>
                     <CardContent className="h-[400px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsBarChart data={machineProcessData} margin={{ top: 5, right: 20, left: 20, bottom: 20 }}>
-                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                                <YAxis stroke="hsl(var(--muted-foreground))" allowDecimals={false} />
+                            <RechartsBarChart data={machineProcessData} margin={{ top: 5, right: 20, left: 30, bottom: 30 }}>
+                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" label={{ value: 'Machine', position: 'insideBottom', dy: 10 }} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" allowDecimals={false} label={{ value: 'Usage Count', angle: -90, position: 'insideLeft' }}/>
                                 <Tooltip content={<CustomTooltip />} />
                                 <Legend wrapperStyle={{ top: -10, right: 0 }}/>
                                 <Bar dataKey="count" name="Usage Count" fill={'hsl(var(--chart-5))'} />
@@ -365,6 +365,7 @@ function SupplierDashboard() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
+                                    <TableHead>Submission Date</TableHead>
                                     <TableHead>Sr No</TableHead>
                                     <TableHead>CAT No</TableHead>
                                     <TableHead>Description</TableHead>
@@ -394,6 +395,7 @@ function SupplierDashboard() {
                             <TableBody>
                                 {supplierSubmissions.map((s, index) => (
                                     <TableRow key={s.id || index}>
+                                        <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
                                         <TableCell>{s.srNo}</TableCell>
                                         <TableCell>{s.catNo}</TableCell>
                                         <TableCell>{s.description}</TableCell>
@@ -434,5 +436,7 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+    
 
     
