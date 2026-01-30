@@ -97,7 +97,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
                         
                         // If we have a valid date, format it. Otherwise, keep the original value for inspection.
                         if (dateObj && !isNaN(dateObj.getTime())) {
-                            submissionRecord[originalKey] = format(dateObj, "PPP");
+                            submissionRecord[originalKey] = format(dateObj, "yyyy-MM-dd");
                         } else {
                             submissionRecord[originalKey] = value;
                         }
@@ -248,9 +248,9 @@ function SupplierDashboard() {
     await saveSubmission({
       entryType: 'supplierData',
       ...formData,
-      startDate: formData.startDate ? format(formData.startDate, "PPP") : "",
-      endDate: formData.endDate ? format(formData.endDate, "PPP") : "",
-      completionDate: formData.completionDate ? format(formData.completionDate, "PPP") : "",
+      startDate: formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : "",
+      endDate: formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : "",
+      completionDate: formData.completionDate ? format(formData.completionDate, "yyyy-MM-dd") : "",
     });
     setIsSubmitting(false);
     setIsSubmitted(true);
@@ -471,5 +471,7 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
+
+    
 
     
