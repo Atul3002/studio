@@ -78,7 +78,15 @@ function SupplierDashboard() {
         const allSupplierSubmissions = data.filter(s => s.entryType === 'supplierData');
         
         const filteredData = allSupplierSubmissions.filter(s => {
-             const submissionDate = new Date(s.startDate || s.id);
+             const dateValue = s.startDate || s.id;
+             // Try to parse the date. Handles ISO strings, common date formats.
+             const submissionDate = new Date(dateValue);
+
+             // If the date is invalid, we only show the entry if no date filters are active.
+             if (isNaN(submissionDate.getTime())) {
+                 return selectedYear === null && selectedMonth === null && selectedDay === null;
+             }
+
              const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
              const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
              const dayMatch = selectedDay !== null ? submissionDate.getDate() === selectedDay : true;
@@ -438,3 +446,4 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
