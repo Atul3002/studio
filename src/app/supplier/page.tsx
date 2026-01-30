@@ -2,8 +2,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Truck, CheckCircle, Cog } from "lucide-react";
+import { read, utils } from 'xlsx';
+import Papa from 'papaparse';
+import { Calendar as CalendarIcon, Truck, CheckCircle, Cog, Upload } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
@@ -52,6 +55,146 @@ const initialFormState = {
     vmc2: "",
 };
 
+// New component for file upload
+function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setError(null);
+    }
+  };
+
+  const processAndSave = async (records: any[]) => {
+    const expectedKeys = Object.keys(initialFormState);
+
+    for (const record of records) {
+        const submissionRecord: { [key: string]: any } = { entryType: 'supplierData' };
+        let hasData = false;
+        for (const key in record) {
+            const trimmedKey = key.trim();
+            if (expectedKeys.includes(trimmedKey as keyof typeof initialFormState)) {
+                 submissionRecord[trimmedKey] = record[key];
+                 if(record[key] !== null && record[key] !== '') hasData = true;
+            }
+        }
+        
+        if (hasData) {
+           await saveSubmission(submissionRecord);
+        }
+    }
+  };
+
+  const handleProcessFile = async () => {
+    if (!file) {
+      setError("Please select a file first.");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target?.result;
+        if (!data) {
+          throw new Error("Failed to read file.");
+        }
+
+        let records: any[] = [];
+        if (file.name.toLowerCase().endsWith('.csv')) {
+          const result = Papa.parse(data as string, { header: true, skipEmptyLines: true });
+          if (result.errors.length > 0) {
+              console.error("CSV Parsing errors: ", result.errors);
+              throw new Error("Failed to parse CSV file. Check console for details.");
+          }
+          records = result.data;
+        } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+          const workbook = read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          records = utils.sheet_to_json(worksheet);
+        } else {
+           throw new Error("Unsupported file type. Please upload a CSV or Excel file.");
+        }
+
+        if (records.length > 0) {
+            await processAndSave(records);
+            onUploadSuccess();
+        } else {
+            setError("No data found in the file.");
+        }
+
+      } catch (err: any) {
+        setError(err.message || "An error occurred during file processing.");
+        console.error(err);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    
+    reader.onerror = () => {
+        setIsUploading(false);
+        setError("Failed to read the file.");
+    }
+
+    if (file.name.toLowerCase().endsWith('.csv')) {
+        reader.readAsText(file);
+    } else {
+        reader.readAsArrayBuffer(file);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-headline flex items-center gap-2 text-2xl"><Upload /> Upload Bulk Data</CardTitle>
+        <CardDescription>Upload an Excel (.xlsx, .xls) or CSV file for bulk supplier data entry.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="file-upload">Data File</Label>
+          <Input id="file-upload" type="file" accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleFileChange} />
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </CardContent>
+      <CardFooter>
+        <Button onClick={handleProcessFile} disabled={!file || isUploading} className="w-full">
+          {isUploading ? "Processing..." : "Upload and Process File"}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+
+function SubmissionSuccess({ onReset }: { onReset: () => void }) {
+    return (
+        <main className="flex min-h-screen flex-col items-center justify-center p-4">
+            <Card className="w-full max-w-lg text-center shadow-lg">
+                <CardHeader>
+                    <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
+                        <CheckCircle className="w-12 h-12 text-primary" />
+                    </div>
+                    <CardTitle className="font-headline text-2xl">Submission Successful</CardTitle>
+                    <CardDescription>Supplier data has been recorded.</CardDescription>
+                </CardHeader>
+                <CardFooter className="flex-col gap-2">
+                    <Button onClick={onReset} className="w-full">
+                        Enter More Supplier Data
+                    </Button>
+                    <Button asChild variant="outline" className="w-full">
+                        <Link href="/admin/supplier">View Supplier Dashboard</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+        </main>
+    )
+}
 
 function SupplierDashboard() {
   const [formData, setFormData] = useState(initialFormState);
@@ -87,24 +230,7 @@ function SupplierDashboard() {
   }
 
   if (isSubmitted) {
-      return (
-          <main className="flex min-h-screen flex-col items-center justify-center p-4">
-              <Card className="w-full max-w-lg text-center shadow-lg">
-                  <CardHeader>
-                      <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
-                          <CheckCircle className="w-12 h-12 text-primary" />
-                      </div>
-                      <CardTitle className="font-headline text-2xl">Submission Successful</CardTitle>
-                      <CardDescription>Supplier data has been recorded.</CardDescription>
-                  </CardHeader>
-                  <CardFooter>
-                      <Button onClick={resetForm} className="w-full">
-                          Enter More Supplier Data
-                      </Button>
-                  </CardFooter>
-              </Card>
-          </main>
-      )
+      return <SubmissionSuccess onReset={resetForm} />;
   }
 
   return (
@@ -113,7 +239,8 @@ function SupplierDashboard() {
             <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
                 <h1 className="font-headline text-2xl font-semibold pl-20">Supplier Data Entry</h1>
             </header>
-            <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+            <main className="grid flex-1 items-start gap-8 p-4 sm:px-6 sm:py-0 md:gap-8">
+                <SupplierFileUpload onUploadSuccess={() => setIsSubmitted(true)} />
                 <Card>
                     <form onSubmit={handleSubmit}>
                         <CardHeader>
@@ -312,6 +439,3 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
-
-
-    
