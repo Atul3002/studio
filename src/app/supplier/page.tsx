@@ -55,7 +55,6 @@ const initialFormState = {
     vmc2: "",
 };
 
-// New component for file upload
 function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -70,15 +69,24 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
 
   const processAndSave = async (records: any[]) => {
     const expectedKeys = Object.keys(initialFormState);
+    const keyMap = new Map<string, string>();
+    expectedKeys.forEach(key => {
+        // This creates a mapping from a normalized key (lowercase, no spaces) to the original camelCase key
+        keyMap.set(key.toLowerCase().replace(/\s/g, ''), key);
+    });
 
     for (const record of records) {
         const submissionRecord: { [key: string]: any } = { entryType: 'supplierData' };
         let hasData = false;
-        for (const key in record) {
-            const trimmedKey = key.trim();
-            if (expectedKeys.includes(trimmedKey as keyof typeof initialFormState)) {
-                 submissionRecord[trimmedKey] = record[key];
-                 if(record[key] !== null && record[key] !== '') hasData = true;
+
+        for (const header in record) {
+            const normalizedHeader = header.trim().toLowerCase().replace(/\s/g, '');
+            if (keyMap.has(normalizedHeader)) {
+                const originalKey = keyMap.get(normalizedHeader)!;
+                submissionRecord[originalKey] = record[header];
+                if (record[header] !== null && record[header] !== '') {
+                    hasData = true;
+                }
             }
         }
         
@@ -110,14 +118,14 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
           const result = Papa.parse(data as string, { header: true, skipEmptyLines: true });
           if (result.errors.length > 0) {
               console.error("CSV Parsing errors: ", result.errors);
-              throw new Error("Failed to parse CSV file. Check console for details.");
+              throw new Error("Failed to parse CSV file. For dates, please use a format like YYYY-MM-DD.");
           }
           records = result.data;
         } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
           const workbook = read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          records = utils.sheet_to_json(worksheet);
+          records = utils.sheet_to_json(worksheet, { cellDates: true });
         } else {
            throw new Error("Unsupported file type. Please upload a CSV or Excel file.");
         }
