@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions } from "@/app/actions";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -43,6 +44,8 @@ const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--cha
 function SupplierDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
   const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const years = [2023, 2024, 2025];
   
@@ -60,16 +63,29 @@ function SupplierDashboard() {
 
 
   useEffect(() => {
-    getSubmissions().then(data => {
-        const filteredSupplierSubmissions = data.filter(s => s.entryType === 'supplierData');
-        setSupplierSubmissions(filteredSupplierSubmissions);
+    if (selectedMonth !== null) {
+      const year = selectedYear || new Date().getFullYear();
+      const numDays = new Date(year, selectedMonth + 1, 0).getDate();
+      setDaysInMonth(Array.from({ length: numDays }, (_, i) => i + 1));
+    } else {
+      setDaysInMonth([]);
+      setSelectedDay(null);
+    }
+  }, [selectedMonth, selectedYear]);
 
-        const filteredData = filteredSupplierSubmissions.filter(s => {
+  useEffect(() => {
+    getSubmissions().then(data => {
+        const allSupplierSubmissions = data.filter(s => s.entryType === 'supplierData');
+        
+        const filteredData = allSupplierSubmissions.filter(s => {
              const submissionDate = new Date(s.startDate || s.id);
-             const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
              const yearMatch = selectedYear !== null ? submissionDate.getFullYear() === selectedYear : true;
-             return monthMatch && yearMatch;
+             const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
+             const dayMatch = selectedDay !== null ? submissionDate.getDate() === selectedDay : true;
+             return yearMatch && monthMatch && dayMatch;
         });
+        
+        setSupplierSubmissions(filteredData);
         
         const uniqueSuppliers = [...new Set(filteredData.map(s => s.catNo))];
         setSupplierCount(uniqueSuppliers.length);
@@ -105,12 +121,11 @@ function SupplierDashboard() {
         setMachineTimeData(processChartData('settingTime', 'catNo'));
         setInspectionData(processChartData('inspection', 'catNo'));
         
-        // Machine Process Data
         const machineData: { [key: string]: number } = {
           'CNC1': 0, 'CNC2': 0, 'CNC3': 0, 'VMC1': 0, 'VMC2': 0,
         };
 
-        filteredSupplierSubmissions.forEach(s => {
+        filteredData.forEach(s => {
           if (s.cnc1) machineData['CNC1']++;
           if (s.cnc2) machineData['CNC2']++;
           if (s.cnc3) machineData['CNC3']++;
@@ -119,21 +134,26 @@ function SupplierDashboard() {
         });
 
         setMachineProcessData(Object.entries(machineData).map(([name, count]) => ({ name, count })));
-
     })
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, selectedDay]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
+    setSelectedDay(null);
   };
 
   const handleYearSelect = (year: number) => {
     setSelectedYear(year);
   };
+
+  const handleDaySelect = (day: number) => {
+    setSelectedDay(day);
+  };
   
   const clearFilters = () => {
     setSelectedMonth(null);
     setSelectedYear(null);
+    setSelectedDay(null);
   };
   
   const renderChart = (data: any[], dataKey: string, name: string, color: string) => (
@@ -218,6 +238,29 @@ function SupplierDashboard() {
                </CardHeader>
             )}
           </Card>
+          {selectedMonth !== null && (
+            <Card className="bg-card/50">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-md">Day Filter</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ScrollArea className="h-60">
+                        <div className="flex flex-col space-y-2 pr-4">
+                            {daysInMonth.map((day) => (
+                            <Button
+                                key={day}
+                                variant={selectedDay === day ? "secondary" : "ghost"}
+                                className="justify-start"
+                                onClick={() => handleDaySelect(day)}
+                            >
+                                {day}
+                            </Button>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </CardContent>
+            </Card>
+          )}
         </aside>
         <div className="py-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -391,3 +434,5 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
+
+    
