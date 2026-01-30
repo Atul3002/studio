@@ -385,6 +385,7 @@ function SupplierDashboard() {
                                     <TableHead>Dispatch</TableHead>
                                     <TableHead>Machine Name</TableHead>
                                     <TableHead>Machine Number</TableHead>
+                                    <TableHead>Setting Time</TableHead>
                                     <TableHead>CNC1</TableHead>
                                     <TableHead>CNC2</TableHead>
                                     <TableHead>CNC3</TableHead>
@@ -415,6 +416,7 @@ function SupplierDashboard() {
                                         <TableCell>{s.dispatch}</TableCell>
                                         <TableCell>{s.machineName}</TableCell>
                                         <TableCell>{s.machineNumber}</TableCell>
+                                        <TableCell>{s.settingTime}</TableCell>
                                         <TableCell>{s.cnc1}</TableCell>
                                         <TableCell>{s.cnc2}</TableCell>
                                         <TableCell>{s.cnc3}</TableCell>
@@ -436,7 +438,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-    
-
-    
