@@ -87,10 +87,7 @@ function SupplierDashboard() {
         
         const filteredData = allSupplierSubmissions.filter(s => {
              const dateValue = s.startDate || s.id;
-             // Try to parse the date. Handles ISO strings, common date formats.
              const submissionDate = new Date(dateValue);
-
-             // If the date is invalid, we only show the entry if no date filters are active.
              if (isNaN(submissionDate.getTime())) {
                  return selectedYear === null && selectedMonth === null && selectedDay === null;
              }
@@ -217,7 +214,7 @@ function SupplierDashboard() {
                   A comprehensive table of all supplier data entries.
                 </DialogDescription>
               </DialogHeader>
-              <div className="w-full overflow-x-auto">
+              <ScrollArea className="h-[70vh] rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -282,7 +279,7 @@ function SupplierDashboard() {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>
