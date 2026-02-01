@@ -292,6 +292,14 @@ function SupplierDashboard() {
              return yearMatch && monthMatch && dayMatch;
         });
         
+        filteredData.sort((a, b) => {
+            const dateA = new Date(a.entryDate || a.id);
+            const dateB = new Date(b.entryDate || b.id);
+            if (isNaN(dateA.getTime())) return 1;
+            if (isNaN(dateB.getTime())) return -1;
+            return dateA.getTime() - dateB.getTime();
+        });
+
         setSupplierSubmissions(filteredData);
         
         const uniqueSuppliers = [...new Set(filteredData.map(s => s.catNo))];
