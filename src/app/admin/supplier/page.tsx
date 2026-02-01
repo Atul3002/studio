@@ -268,11 +268,13 @@ function SupplierDashboard() {
         const allSupplierSubmissions = data.filter(s => s.entryType === 'supplierData');
         
         const filteredData = allSupplierSubmissions.filter(s => {
-             const dateValue = s.startDate || s.id;
+             const dateValue = s.entryDate || s.startDate || s.id;
              let submissionDate: Date;
 
             if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
                 submissionDate = new Date(dateValue);
+                 // Adjust for timezone to avoid off-by-one day errors
+                submissionDate = new Date(submissionDate.valueOf() + submissionDate.getTimezoneOffset() * 60 * 1000);
             } else if (dateValue instanceof Date) {
                 submissionDate = dateValue;
             } else {
@@ -415,6 +417,7 @@ function SupplierDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Submission Date</TableHead>
+                      <TableHead>Entry Date</TableHead>
                       <TableHead>Sr No</TableHead>
                       <TableHead>CAT No</TableHead>
                       <TableHead>Description</TableHead>
@@ -446,6 +449,7 @@ function SupplierDashboard() {
                     {supplierSubmissions.map((s, index) => (
                       <TableRow key={s.id || index}>
                         <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
+                        <TableCell>{s.entryDate}</TableCell>
                         <TableCell>{s.srNo}</TableCell>
                         <TableCell>{s.catNo}</TableCell>
                         <TableCell>{s.description}</TableCell>

@@ -85,7 +85,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
                 let value = record[header];
                 
                 // Standardize date fields
-                if (['startDate', 'endDate', 'completionDate'].includes(originalKey)) {
+                if (['startDate', 'endDate', 'completionDate', 'entryDate'].includes(originalKey)) {
                     if (value) {
                         let dateObj;
                         if (value instanceof Date) {
@@ -232,6 +232,7 @@ function SupplierDashboard() {
   const [formData, setFormData] = useState(initialFormState);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [entryDate, setEntryDate] = useState<Date | undefined>(new Date());
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -247,6 +248,7 @@ function SupplierDashboard() {
     setIsSubmitting(true);
     await saveSubmission({
       entryType: 'supplierData',
+      entryDate: entryDate ? format(entryDate, "yyyy-MM-dd") : "",
       ...formData,
       startDate: formData.startDate ? format(formData.startDate, "yyyy-MM-dd") : "",
       endDate: formData.endDate ? format(formData.endDate, "yyyy-MM-dd") : "",
@@ -258,6 +260,7 @@ function SupplierDashboard() {
   
   const resetForm = () => {
     setFormData(initialFormState);
+    setEntryDate(new Date());
     setIsSubmitted(false);
   }
 
@@ -280,7 +283,19 @@ function SupplierDashboard() {
                             <CardDescription>Fill in the details for the new supplier data record.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-8">
-                           <div className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="entryDate">Entry Date</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button id="entryDate" variant={"outline"} className={cn("w-full max-w-sm justify-start text-left font-normal",!entryDate && "text-muted-foreground")}>
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {entryDate ? format(entryDate, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={entryDate} onSelect={setEntryDate} initialFocus/></PopoverContent>
+                                </Popover>
+                            </div>
+                           <div className="space-y-4 pt-4 border-t">
                                 <h3 className="text-lg font-semibold">Product & Customer Details</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                    <div className="space-y-2">
@@ -471,7 +486,3 @@ export default function SupplierPage() {
 
   return <SupplierDashboard />;
 }
-
-    
-
-    
