@@ -4,7 +4,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
-import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog } from "lucide-react";
+import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog, Upload } from "lucide-react";
+import { read, utils } from 'xlsx';
+import Papa from 'papaparse';
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,10 +18,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -48,6 +54,180 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
+const initialFormState = {
+    srNo: "",
+    catNo: "",
+    description: "",
+    customerQuantity: "",
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+    completionDate: undefined as Date | undefined,
+    rmDescription: "",
+    rmRate: "",
+    scrapKg: "",
+    rmLeadTime: "",
+    blankCutting: "",
+    tapping: "",
+    finishing: "",
+    inspection: "",
+    packing: "",
+    dispatch: "",
+    machineName: "",
+    machineNumber: "",
+    settingTime: "",
+    cnc1: "",
+    cnc2: "",
+    cnc3: "",
+    vmc1: "",
+    vmc2: "",
+};
+
+
+function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setError(null);
+    }
+  };
+
+  const processAndSave = async (records: any[]) => {
+    const expectedKeys = Object.keys(initialFormState);
+    const keyMap = new Map<string, string>();
+    expectedKeys.forEach(key => {
+        keyMap.set(key.toLowerCase().replace(/\s/g, ''), key);
+    });
+
+    for (const record of records) {
+        const submissionRecord: { [key: string]: any } = { entryType: 'supplierData' };
+        let hasData = false;
+
+        for (const header in record) {
+            const normalizedHeader = header.trim().toLowerCase().replace(/\s/g, '');
+            if (keyMap.has(normalizedHeader)) {
+                const originalKey = keyMap.get(normalizedHeader)!;
+                let value = record[header];
+                
+                if (['startDate', 'endDate', 'completionDate'].includes(originalKey)) {
+                    if (value) {
+                        let dateObj;
+                        if (value instanceof Date) {
+                            dateObj = value;
+                        } else {
+                            dateObj = new Date(value);
+                        }
+                        
+                        if (dateObj && !isNaN(dateObj.getTime())) {
+                            submissionRecord[originalKey] = format(dateObj, "yyyy-MM-dd");
+                        } else {
+                            submissionRecord[originalKey] = value;
+                        }
+                    } else {
+                         submissionRecord[originalKey] = value;
+                    }
+                } else {
+                    submissionRecord[originalKey] = value;
+                }
+
+                if (submissionRecord[originalKey] !== null && submissionRecord[originalKey] !== '') {
+                    hasData = true;
+                }
+            }
+        }
+        
+        if (hasData) {
+           await saveSubmission(submissionRecord);
+        }
+    }
+  };
+
+  const handleProcessFile = async () => {
+    if (!file) {
+      setError("Please select a file first.");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target?.result;
+        if (!data) {
+          throw new Error("Failed to read file.");
+        }
+
+        let records: any[] = [];
+        if (file.name.toLowerCase().endsWith('.csv')) {
+          const result = Papa.parse(data as string, { header: true, skipEmptyLines: true });
+          if (result.errors.length > 0) {
+              console.error("CSV Parsing errors: ", result.errors);
+              throw new Error("Failed to parse CSV file. For dates, please use a format like YYYY-MM-DD.");
+          }
+          records = result.data;
+        } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+          const workbook = read(data, { type: 'array', cellDates: true });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          records = utils.sheet_to_json(worksheet, {raw: false});
+        } else {
+           throw new Error("Unsupported file type. Please upload a CSV or Excel file.");
+        }
+
+        if (records.length > 0) {
+            await processAndSave(records);
+            onUploadSuccess();
+        } else {
+            setError("No data found in the file.");
+        }
+
+      } catch (err: any) {
+        setError(err.message || "An error occurred during file processing.");
+        console.error(err);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    
+    reader.onerror = () => {
+        setIsUploading(false);
+        setError("Failed to read the file.");
+    }
+
+    if (file.name.toLowerCase().endsWith('.csv')) {
+        reader.readAsText(file);
+    } else {
+        reader.readAsArrayBuffer(file);
+    }
+  };
+
+  return (
+    <div>
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2"><Upload /> Upload Bulk Data</DialogTitle>
+        <DialogDescription>Upload an Excel (.xlsx, .xls) or CSV file for bulk supplier data entry.</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4 py-4">
+        <div className="space-y-2">
+          <Label htmlFor="file-upload">Data File</Label>
+          <Input id="file-upload" type="file" accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleFileChange} />
+        </div>
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
+      <DialogFooter>
+        <Button onClick={handleProcessFile} disabled={!file || isUploading} className="w-full">
+          {isUploading ? "Processing..." : "Upload and Process File"}
+        </Button>
+      </DialogFooter>
+    </div>
+  );
+}
+
 
 function SupplierDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -68,6 +248,8 @@ function SupplierDashboard() {
   const [machineTimeData, setMachineTimeData] = useState<any[]>([]);
   const [inspectionData, setInspectionData] = useState<any[]>([]);
   const [machineProcessData, setMachineProcessData] = useState<any[]>([]);
+  const [dataVersion, setDataVersion] = useState(0);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
 
   useEffect(() => {
@@ -87,7 +269,16 @@ function SupplierDashboard() {
         
         const filteredData = allSupplierSubmissions.filter(s => {
              const dateValue = s.startDate || s.id;
-             const submissionDate = new Date(dateValue);
+             let submissionDate: Date;
+
+            if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                submissionDate = new Date(dateValue);
+            } else if (dateValue instanceof Date) {
+                submissionDate = dateValue;
+            } else {
+                 submissionDate = new Date(dateValue);
+            }
+
              if (isNaN(submissionDate.getTime())) {
                  return selectedYear === null && selectedMonth === null && selectedDay === null;
              }
@@ -148,7 +339,7 @@ function SupplierDashboard() {
 
         setMachineProcessData(Object.entries(machineData).map(([name, count]) => ({ name, count })));
     })
-  }, [selectedMonth, selectedYear, selectedDay]);
+  }, [selectedMonth, selectedYear, selectedDay, dataVersion]);
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -167,6 +358,11 @@ function SupplierDashboard() {
     setSelectedMonth(null);
     setSelectedYear(null);
     setSelectedDay(null);
+  };
+
+  const handleUploadSuccess = () => {
+    setIsUploadDialogOpen(false);
+    setDataVersion(v => v + 1);
   };
   
   const renderChart = (data: any[], dataKey: string, name: string, color: string, xAxisLabel: string, yAxisLabel: string) => (
@@ -202,7 +398,7 @@ function SupplierDashboard() {
             <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
             <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Supplier</Link>
         </nav>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
           <Dialog>
             <DialogTrigger asChild>
               <Button>Data entry table</Button>
@@ -282,6 +478,14 @@ function SupplierDashboard() {
               </ScrollArea>
             </DialogContent>
           </Dialog>
+           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline"><Upload className="h-4 w-4 mr-2"/>Upload Data</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <SupplierFileUpload onUploadSuccess={handleUploadSuccess} />
+              </DialogContent>
+            </Dialog>
         </div>
       </header>
       <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
@@ -458,5 +662,3 @@ function SupplierDashboard() {
 export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
-
-    
