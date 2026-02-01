@@ -11,6 +11,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions } from "@/app/actions";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -197,6 +205,87 @@ function SupplierDashboard() {
             <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
             <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Supplier</Link>
         </nav>
+        <div className="ml-auto">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Data entry table</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[90vw]">
+              <DialogHeader>
+                <DialogTitle>Supplier Submission Data</DialogTitle>
+                <DialogDescription>
+                  A comprehensive table of all supplier data entries.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="w-full overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Submission Date</TableHead>
+                      <TableHead>Sr No</TableHead>
+                      <TableHead>CAT No</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Cust. Qty</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
+                      <TableHead>Completion Date</TableHead>
+                      <TableHead>RM Desc.</TableHead>
+                      <TableHead>RM Rate</TableHead>
+                      <TableHead>Scrap (kg)</TableHead>
+                      <TableHead>RM Lead Time</TableHead>
+                      <TableHead>Blank Cutting</TableHead>
+                      <TableHead>Tapping</TableHead>
+                      <TableHead>Finishing</TableHead>
+                      <TableHead>Inspection</TableHead>
+                      <TableHead>Packing</TableHead>
+                      <TableHead>Dispatch</TableHead>
+                      <TableHead>Machine Name</TableHead>
+                      <TableHead>Machine Number</TableHead>
+                      <TableHead>Setting Time</TableHead>
+                      <TableHead>CNC1</TableHead>
+                      <TableHead>CNC2</TableHead>
+                      <TableHead>CNC3</TableHead>
+                      <TableHead>VMC1</TableHead>
+                      <TableHead>VMC2</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {supplierSubmissions.map((s, index) => (
+                      <TableRow key={s.id || index}>
+                        <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
+                        <TableCell>{s.srNo}</TableCell>
+                        <TableCell>{s.catNo}</TableCell>
+                        <TableCell>{s.description}</TableCell>
+                        <TableCell>{s.customerQuantity}</TableCell>
+                        <TableCell>{s.startDate}</TableCell>
+                        <TableCell>{s.endDate}</TableCell>
+                        <TableCell>{s.completionDate}</TableCell>
+                        <TableCell>{s.rmDescription}</TableCell>
+                        <TableCell>{s.rmRate}</TableCell>
+                        <TableCell>{s.scrapKg}</TableCell>
+                        <TableCell>{s.rmLeadTime}</TableCell>
+                        <TableCell>{s.blankCutting}</TableCell>
+                        <TableCell>{s.tapping}</TableCell>
+                        <TableCell>{s.finishing}</TableCell>
+                        <TableCell>{s.inspection}</TableCell>
+                        <TableCell>{s.packing}</TableCell>
+                        <TableCell>{s.dispatch}</TableCell>
+                        <TableCell>{s.machineName}</TableCell>
+                        <TableCell>{s.machineNumber}</TableCell>
+                        <TableCell>{s.settingTime}</TableCell>
+                        <TableCell>{s.cnc1}</TableCell>
+                        <TableCell>{s.cnc2}</TableCell>
+                        <TableCell>{s.cnc3}</TableCell>
+                        <TableCell>{s.vmc1}</TableCell>
+                        <TableCell>{s.vmc2}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </header>
       <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:grid-cols-[240px_1fr]">
         <aside className="py-4 space-y-4">
@@ -363,80 +452,6 @@ function SupplierDashboard() {
                     </CardContent>
                 </Card>
              </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Supplier Submission Data</CardTitle>
-                    <CardDescription>A comprehensive table of all supplier data entries.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="w-full overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Submission Date</TableHead>
-                                    <TableHead>Sr No</TableHead>
-                                    <TableHead>CAT No</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Cust. Qty</TableHead>
-                                    <TableHead>Start Date</TableHead>
-                                    <TableHead>End Date</TableHead>
-                                    <TableHead>Completion Date</TableHead>
-                                    <TableHead>RM Desc.</TableHead>
-                                    <TableHead>RM Rate</TableHead>
-                                    <TableHead>Scrap (kg)</TableHead>
-                                    <TableHead>RM Lead Time</TableHead>
-                                    <TableHead>Blank Cutting</TableHead>
-                                    <TableHead>Tapping</TableHead>
-                                    <TableHead>Finishing</TableHead>
-                                    <TableHead>Inspection</TableHead>
-                                    <TableHead>Packing</TableHead>
-                                    <TableHead>Dispatch</TableHead>
-                                    <TableHead>Machine Name</TableHead>
-                                    <TableHead>Machine Number</TableHead>
-                                    <TableHead>Setting Time</TableHead>
-                                    <TableHead>CNC1</TableHead>
-                                    <TableHead>CNC2</TableHead>
-                                    <TableHead>CNC3</TableHead>
-                                    <TableHead>VMC1</TableHead>
-                                    <TableHead>VMC2</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {supplierSubmissions.map((s, index) => (
-                                    <TableRow key={s.id || index}>
-                                        <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
-                                        <TableCell>{s.srNo}</TableCell>
-                                        <TableCell>{s.catNo}</TableCell>
-                                        <TableCell>{s.description}</TableCell>
-                                        <TableCell>{s.customerQuantity}</TableCell>
-                                        <TableCell>{s.startDate}</TableCell>
-                                        <TableCell>{s.endDate}</TableCell>
-                                        <TableCell>{s.completionDate}</TableCell>
-                                        <TableCell>{s.rmDescription}</TableCell>
-                                        <TableCell>{s.rmRate}</TableCell>
-                                        <TableCell>{s.scrapKg}</TableCell>
-                                        <TableCell>{s.rmLeadTime}</TableCell>
-                                        <TableCell>{s.blankCutting}</TableCell>
-                                        <TableCell>{s.tapping}</TableCell>
-                                        <TableCell>{s.finishing}</TableCell>
-                                        <TableCell>{s.inspection}</TableCell>
-                                        <TableCell>{s.packing}</TableCell>
-                                        <TableCell>{s.dispatch}</TableCell>
-                                        <TableCell>{s.machineName}</TableCell>
-                                        <TableCell>{s.machineNumber}</TableCell>
-                                        <TableCell>{s.settingTime}</TableCell>
-                                        <TableCell>{s.cnc1}</TableCell>
-                                        <TableCell>{s.cnc2}</TableCell>
-                                        <TableCell>{s.cnc3}</TableCell>
-                                        <TableCell>{s.vmc1}</TableCell>
-                                        <TableCell>{s.vmc2}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </CardContent>
-            </Card>
         </div>
       </main>
     </div>
@@ -447,3 +462,4 @@ export default function SupplierAdminPage() {
     return <SupplierDashboard />
 }
 
+    
