@@ -55,6 +55,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 const initialFormState = {
+    entryDate: undefined as Date | undefined,
     srNo: "",
     catNo: "",
     description: "",
@@ -112,7 +113,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
                 const originalKey = keyMap.get(normalizedHeader)!;
                 let value = record[header];
                 
-                if (['startDate', 'endDate', 'completionDate'].includes(originalKey)) {
+                if (['startDate', 'endDate', 'completionDate', 'entryDate'].includes(originalKey)) {
                     if (value) {
                         let dateObj;
                         if (value instanceof Date) {
