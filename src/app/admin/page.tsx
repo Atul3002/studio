@@ -1,9 +1,7 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { utils, writeFile } from "xlsx";
 import { BarChart, Briefcase, Users, FileText, Target, Shield, X, Archive, Cog, Download, Building2 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, PolarGrid, PolarAngleAxis, Radar, RadarChart, Text, Label as RechartsLabel, Sector } from "recharts";
 
@@ -153,7 +151,6 @@ function AdminDashboard() {
     });
 
     if (selectedMonth !== null || selectedYear !== null) {
-      // In a real app, you'd fetch and filter data. Here, we'll just randomize for visual effect.
       const newChartData = initialChartData.map(item => ({
         ...item,
         value: Math.floor(Math.random() * (95 - 60 + 1)) + 60,
@@ -177,7 +174,8 @@ function AdminDashboard() {
     setSelectedYear(null);
   };
 
-  const downloadExcel = () => {
+  const downloadExcel = async () => {
+        const { utils, writeFile } = await import("xlsx");
         const groupedData: { [key: string]: any[] } = {};
 
         allSubmissions.forEach(submission => {
@@ -185,7 +183,6 @@ function AdminDashboard() {
             if (!groupedData[type]) {
                 groupedData[type] = [];
             }
-            // Simple flatten for nested objects like dimensionChecks
             const flatSubmission: {[key: string]: any} = {};
             for(const key in submission) {
                 if (typeof submission[key] === 'object' && submission[key] !== null) {
@@ -355,5 +352,3 @@ export default function AdminPage() {
     
   return <AdminDashboard />
 }
-
-    

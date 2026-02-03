@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
 import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog, Upload, Edit, Trash2, History, KeyRound } from "lucide-react";
-import { read, utils } from 'xlsx';
 import Papa from 'papaparse';
 import { format } from "date-fns";
 
@@ -209,6 +208,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
           }
           records = result.data;
         } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+          const { read, utils } = await import('xlsx');
           const workbook = read(data, { type: 'array', cellDates: true });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
@@ -477,7 +477,7 @@ function SupplierDashboard() {
             <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium bg-background text-foreground shadow-sm">Supplier</Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={fetchLogs} tooltip="Change History">
+          <Button variant="ghost" size="icon" onClick={fetchLogs}>
             <History className="h-5 w-5" />
           </Button>
           <Dialog>
@@ -740,7 +740,6 @@ function SupplierDashboard() {
         </div>
       </main>
 
-      {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
@@ -798,7 +797,6 @@ function SupplierDashboard() {
           </DialogContent>
       </Dialog>
 
-      {/* History Dialog */}
       <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
           <DialogContent className="max-w-3xl">
               <DialogHeader>

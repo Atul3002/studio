@@ -1,10 +1,8 @@
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { read, utils } from 'xlsx';
 import Papa from 'papaparse';
 import { Calendar as CalendarIcon, Truck, CheckCircle, Cog, Upload } from "lucide-react";
 
@@ -84,18 +82,15 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
                 const originalKey = keyMap.get(normalizedHeader)!;
                 let value = record[header];
                 
-                // Standardize date fields
                 if (['startDate', 'endDate', 'completionDate', 'entryDate'].includes(originalKey)) {
                     if (value) {
                         let dateObj;
                         if (value instanceof Date) {
                             dateObj = value;
                         } else {
-                            // Attempt to parse string dates. This is not foolproof but covers many cases.
                             dateObj = new Date(value);
                         }
                         
-                        // If we have a valid date, format it. Otherwise, keep the original value for inspection.
                         if (dateObj && !isNaN(dateObj.getTime())) {
                             submissionRecord[originalKey] = format(dateObj, "yyyy-MM-dd");
                         } else {
@@ -146,6 +141,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
           }
           records = result.data;
         } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+          const { read, utils } = await import('xlsx');
           const workbook = read(data, { type: 'array', cellDates: true });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
