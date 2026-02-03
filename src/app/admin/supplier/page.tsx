@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from "recharts";
-import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog, Upload } from "lucide-react";
+import { BarChart, Truck, X, Package, Clock, AlertCircle, List, Layers, CheckCircle, Cog, Upload, Edit, Trash2, History, KeyRound } from "lucide-react";
 import { read, utils } from 'xlsx';
 import Papa from 'papaparse';
 import { format } from "date-fns";
@@ -12,7 +11,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getSubmissions } from "@/app/actions";
+import { getSubmissions, saveSubmission, deleteSubmission, updateSubmission, getLogs } from "@/app/actions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -25,21 +24,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    if (data.timeline) {
-         return (
-             <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
-                <p className="label text-sm text-foreground font-semibold">{data.catNo}</p>
-                <p className="intro text-xs text-blue-400">Start (Day of Year): {data.startDay}</p>
-                <p className="intro text-xs text-red-400">Due (Day of Year): {data.endDay}</p>
-                <p className="intro text-xs text-green-400">Completed (Day of Year): {data.completionDay}</p>
-             </div>
-         )
-    }
-
     return (
       <div className="p-2 bg-background/80 border border-border rounded-lg shadow-lg">
         <p className="label text-sm text-foreground font-semibold">{`${label || payload[0].name}`}</p>
@@ -52,17 +42,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const PIE_COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
-
 const initialFormState = {
-    entryDate: undefined as Date | undefined,
+    entryDate: undefined as string | undefined,
     srNo: "",
     catNo: "",
     description: "",
     customerQuantity: "",
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
-    completionDate: undefined as Date | undefined,
+    startDate: "",
+    endDate: "",
+    completionDate: "",
     rmDescription: "",
     rmRate: "",
     scrapKg: "",
@@ -83,6 +71,56 @@ const initialFormState = {
     vmc2: "",
 };
 
+function AdminPasswordDialog({ 
+    isOpen, 
+    onOpenChange, 
+    onSuccess 
+}: { 
+    isOpen: boolean, 
+    onOpenChange: (open: boolean) => void, 
+    onSuccess: () => void 
+}) {
+    const [password, setPassword] = useState("");
+    const { toast } = useToast();
+
+    const handleSubmit = () => {
+        if (password === "admin@123") {
+            onSuccess();
+            setPassword("");
+            onOpenChange(false);
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Incorrect Password",
+                description: "The password you entered is incorrect."
+            });
+        }
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5"/> Admin Verification</DialogTitle>
+                    <DialogDescription>Enter password to authorize this action.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                    <Input 
+                        type="password" 
+                        placeholder="Enter admin password" 
+                        value={password} 
+                        onChange={(e) => setPassword(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                    />
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button onClick={handleSubmit}>Verify</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -167,8 +205,7 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
         if (file.name.toLowerCase().endsWith('.csv')) {
           const result = Papa.parse(data as string, { header: true, skipEmptyLines: true });
           if (result.errors.length > 0) {
-              console.error("CSV Parsing errors: ", result.errors);
-              throw new Error("Failed to parse CSV file. For dates, please use a format like YYYY-MM-DD.");
+              throw new Error("Failed to parse CSV file.");
           }
           records = result.data;
         } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
@@ -176,8 +213,6 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
           records = utils.sheet_to_json(worksheet, {raw: false});
-        } else {
-           throw new Error("Unsupported file type. Please upload a CSV or Excel file.");
         }
 
         if (records.length > 0) {
@@ -186,20 +221,13 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
         } else {
             setError("No data found in the file.");
         }
-
       } catch (err: any) {
         setError(err.message || "An error occurred during file processing.");
-        console.error(err);
       } finally {
         setIsUploading(false);
       }
     };
     
-    reader.onerror = () => {
-        setIsUploading(false);
-        setError("Failed to read the file.");
-    }
-
     if (file.name.toLowerCase().endsWith('.csv')) {
         reader.readAsText(file);
     } else {
@@ -211,12 +239,12 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
     <div>
       <DialogHeader>
         <DialogTitle className="flex items-center gap-2"><Upload /> Upload Bulk Data</DialogTitle>
-        <DialogDescription>Upload an Excel (.xlsx, .xls) or CSV file for bulk supplier data entry.</DialogDescription>
+        <DialogDescription>Upload an Excel or CSV file.</DialogDescription>
       </DialogHeader>
       <div className="space-y-4 py-4">
         <div className="space-y-2">
           <Label htmlFor="file-upload">Data File</Label>
-          <Input id="file-upload" type="file" accept=".csv, .xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" onChange={handleFileChange} />
+          <Input id="file-upload" type="file" accept=".csv, .xlsx, .xls" onChange={handleFileChange} />
         </div>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
@@ -228,7 +256,6 @@ function SupplierFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }
     </div>
   );
 }
-
 
 function SupplierDashboard() {
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -251,7 +278,15 @@ function SupplierDashboard() {
   const [machineProcessData, setMachineProcessData] = useState<any[]>([]);
   const [dataVersion, setDataVersion] = useState(0);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<{ type: 'edit' | 'delete', id: string, data?: any } | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingEntry, setEditDialogOpenData] = useState<any>(null);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
 
+  const { toast } = useToast();
 
   useEffect(() => {
     if (selectedMonth !== null) {
@@ -274,7 +309,6 @@ function SupplierDashboard() {
 
             if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
                 submissionDate = new Date(dateValue);
-                 // Adjust for timezone to avoid off-by-one day errors
                 submissionDate = new Date(submissionDate.valueOf() + submissionDate.getTimezoneOffset() * 60 * 1000);
             } else if (dateValue instanceof Date) {
                 submissionDate = dateValue;
@@ -319,7 +353,6 @@ function SupplierDashboard() {
         
         const processChartData = (key: string, nameKey: "catNo" | "description" = "catNo") => {
             const dataMap = new Map<string, number>();
-
             filteredData.forEach(s => {
                 const name = s[nameKey];
                 const value = parseInt(s[key], 10) || 0;
@@ -327,7 +360,6 @@ function SupplierDashboard() {
                    dataMap.set(name, (dataMap.get(name) || 0) + value);
                 }
             });
-            
             return Array.from(dataMap, ([name, value]) => ({ name, value }));
         };
         
@@ -339,7 +371,6 @@ function SupplierDashboard() {
         const machineData: { [key: string]: number } = {
           'CNC1': 0, 'CNC2': 0, 'CNC3': 0, 'VMC1': 0, 'VMC2': 0,
         };
-
         filteredData.forEach(s => {
           if (s.cnc1) machineData['CNC1']++;
           if (s.cnc2) machineData['CNC2']++;
@@ -347,10 +378,47 @@ function SupplierDashboard() {
           if (s.vmc1) machineData['VMC1']++;
           if (s.vmc2) machineData['VMC2']++;
         });
-
         setMachineProcessData(Object.entries(machineData).map(([name, count]) => ({ name, count })));
     })
   }, [selectedMonth, selectedYear, selectedDay, dataVersion]);
+
+  const fetchLogs = async () => {
+      const history = await getLogs();
+      setLogs(history);
+      setIsHistoryDialogOpen(true);
+  };
+
+  const handleActionClick = (type: 'edit' | 'delete', entry: any) => {
+      setPendingAction({ type, id: entry.id, data: entry });
+      setIsPasswordDialogOpen(true);
+  };
+
+  const handlePasswordSuccess = async () => {
+      if (!pendingAction) return;
+
+      if (pendingAction.type === 'delete') {
+          await deleteSubmission(pendingAction.id);
+          setDataVersion(v => v + 1);
+          toast({ title: "Deleted", description: "Record deleted successfully." });
+      } else {
+          setEditDialogOpenData({ ...pendingAction.data });
+          setIsEditDialogOpen(true);
+      }
+      setPendingAction(null);
+  };
+
+  const handleUpdateEntry = async () => {
+      if (editingEntry) {
+          await updateSubmission(editingEntry);
+          setDataVersion(v => v + 1);
+          setIsEditDialogOpen(false);
+          toast({ title: "Updated", description: "Record updated successfully." });
+      }
+  };
+
+  const handleEditChange = (field: string, value: string) => {
+      setEditDialogOpenData((prev: any) => ({ ...prev, [field]: value }));
+  };
 
   const handleMonthSelect = (monthIndex: number) => {
     setSelectedMonth(monthIndex);
@@ -388,7 +456,6 @@ function SupplierDashboard() {
       </ResponsiveContainer>
     );
 
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/40 bg-background/95 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -399,70 +466,83 @@ function SupplierDashboard() {
           </div>
         </div>
         <nav className="flex-1 text-center">
-            <Link href="/admin" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Overall</Link>
-            <Link href="/admin/sales" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Sales</Link>
-            <Link href="/admin/quality" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Quality</Link>
-            <Link href="/admin/production" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Production</Link>
-            <Link href="/admin/machine" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Machine</Link>
-            <Link href="/admin/inventory" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Inventory</Link>
-            <Link href="/admin/oee" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">OEE</Link>
-            <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-muted-foreground">Skill Matrix</Link>
-            <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-background text-foreground shadow-sm">Supplier</Link>
+            <Link href="/admin" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Overall</Link>
+            <Link href="/admin/sales" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Sales</Link>
+            <Link href="/admin/quality" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Quality</Link>
+            <Link href="/admin/production" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Production</Link>
+            <Link href="/admin/machine" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Machine</Link>
+            <Link href="/admin/inventory" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Inventory</Link>
+            <Link href="/admin/oee" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">OEE</Link>
+            <Link href="/admin/skill-matrix" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium text-muted-foreground">Skill Matrix</Link>
+            <Link href="/admin/supplier" className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-4 py-2 text-base font-medium bg-background text-foreground shadow-sm">Supplier</Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={fetchLogs} tooltip="Change History">
+            <History className="h-5 w-5" />
+          </Button>
           <Dialog>
             <DialogTrigger asChild>
               <Button>Data entry table</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[90vw]">
+            <DialogContent className="max-w-[95vw] w-full">
               <DialogHeader>
                 <DialogTitle>Supplier Submission Data</DialogTitle>
-                <DialogDescription>
-                  A comprehensive table of all supplier data entries.
-                </DialogDescription>
+                <DialogDescription>Manage existing supplier data records.</DialogDescription>
               </DialogHeader>
               <ScrollArea className="h-[70vh] rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Submission Date</TableHead>
-                      <TableHead>Entry Date</TableHead>
-                      <TableHead>Sr No</TableHead>
-                      <TableHead>CAT No</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Cust. Qty</TableHead>
-                      <TableHead>Start Date</TableHead>
-                      <TableHead>End Date</TableHead>
-                      <TableHead>Completion Date</TableHead>
-                      <TableHead>RM Desc.</TableHead>
-                      <TableHead>RM Rate</TableHead>
-                      <TableHead>Scrap (kg)</TableHead>
-                      <TableHead>RM Lead Time</TableHead>
-                      <TableHead>Blank Cutting</TableHead>
-                      <TableHead>Tapping</TableHead>
-                      <TableHead>Finishing</TableHead>
-                      <TableHead>Inspection</TableHead>
-                      <TableHead>Packing</TableHead>
-                      <TableHead>Dispatch</TableHead>
-                      <TableHead>Machine Name</TableHead>
-                      <TableHead>Machine Number</TableHead>
-                      <TableHead>Setting Time</TableHead>
-                      <TableHead>CNC1</TableHead>
-                      <TableHead>CNC2</TableHead>
-                      <TableHead>CNC3</TableHead>
-                      <TableHead>VMC1</TableHead>
-                      <TableHead>VMC2</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Actions</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Submission Date</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Entry Date</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Sr No</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">CAT No</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Description</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Cust. Qty</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Setting Time</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Start Date</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">End Date</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Completion Date</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">RM Desc.</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">RM Rate</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Scrap (kg)</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">RM Lead Time</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Blank Cutting</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Tapping</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Finishing</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Inspection</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Packing</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Dispatch</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Machine Name</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">Machine Number</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">CNC1</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">CNC2</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">CNC3</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">VMC1</TableHead>
+                      <TableHead className="sticky top-0 bg-background z-10">VMC2</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {supplierSubmissions.map((s, index) => (
                       <TableRow key={s.id || index}>
+                        <TableCell>
+                            <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleActionClick('edit', s)}>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleActionClick('delete', s)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </TableCell>
                         <TableCell>{new Date(s.id).toLocaleString()}</TableCell>
                         <TableCell>{s.entryDate}</TableCell>
                         <TableCell>{s.srNo}</TableCell>
                         <TableCell>{s.catNo}</TableCell>
-                        <TableCell>{s.description}</TableCell>
+                        <TableCell className="max-w-[200px] truncate">{s.description}</TableCell>
                         <TableCell>{s.customerQuantity}</TableCell>
+                        <TableCell>{s.settingTime}</TableCell>
                         <TableCell>{s.startDate}</TableCell>
                         <TableCell>{s.endDate}</TableCell>
                         <TableCell>{s.completionDate}</TableCell>
@@ -478,7 +558,6 @@ function SupplierDashboard() {
                         <TableCell>{s.dispatch}</TableCell>
                         <TableCell>{s.machineName}</TableCell>
                         <TableCell>{s.machineNumber}</TableCell>
-                        <TableCell>{s.settingTime}</TableCell>
                         <TableCell>{s.cnc1}</TableCell>
                         <TableCell>{s.cnc2}</TableCell>
                         <TableCell>{s.cnc3}</TableCell>
@@ -622,15 +701,7 @@ function SupplierDashboard() {
                         <CardTitle className="flex items-center gap-2 text-base"><List /> Customer PO Qty by Supplier</CardTitle>
                     </CardHeader>
                     <CardContent className="h-[400px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <RechartsBarChart data={customerQtyData} margin={{ top: 5, right: 20, left: 30, bottom: 80 }}>
-                                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" angle={-45} textAnchor="end" interval={0} height={100} label={{ value: 'Supplier (Description)', position: 'insideBottom', dy: 20 }}/>
-                                <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Customer PO Qty', angle: -90, position: 'insideLeft' }}/>
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend wrapperStyle={{ top: -10, right: 0 }}/>
-                                <Bar dataKey="value" name="Customer PO Qty" fill={'hsl(var(--chart-1))'} />
-                            </RechartsBarChart>
-                        </ResponsiveContainer>
+                        {renderChart(customerQtyData, 'value', 'Customer PO Qty', 'hsl(var(--chart-1))', 'Supplier (Description)', 'Customer PO Qty')}
                     </CardContent>
                 </Card>
                 <Card>
@@ -668,6 +739,99 @@ function SupplierDashboard() {
              </div>
         </div>
       </main>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                  <DialogTitle>Edit Supplier Entry</DialogTitle>
+                  <DialogDescription>Modify the data for this entry.</DialogDescription>
+              </DialogHeader>
+              {editingEntry && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                      <div className="space-y-2">
+                          <Label>Entry Date</Label>
+                          <Input type="date" value={editingEntry.entryDate || ""} onChange={(e) => handleEditChange('entryDate', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Sr No</Label>
+                          <Input value={editingEntry.srNo || ""} onChange={(e) => handleEditChange('srNo', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>CAT No</Label>
+                          <Input value={editingEntry.catNo || ""} onChange={(e) => handleEditChange('catNo', e.target.value)} />
+                      </div>
+                      <div className="space-y-2 md:col-span-2">
+                          <Label>Description</Label>
+                          <Textarea value={editingEntry.description || ""} onChange={(e) => handleEditChange('description', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Customer Qty</Label>
+                          <Input value={editingEntry.customerQuantity || ""} onChange={(e) => handleEditChange('customerQuantity', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Setting Time (min)</Label>
+                          <Input type="number" value={editingEntry.settingTime || ""} onChange={(e) => handleEditChange('settingTime', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>RM Desc</Label>
+                          <Input value={editingEntry.rmDescription || ""} onChange={(e) => handleEditChange('rmDescription', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>RM Rate</Label>
+                          <Input type="number" value={editingEntry.rmRate || ""} onChange={(e) => handleEditChange('rmRate', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Scrap (kg)</Label>
+                          <Input type="number" value={editingEntry.scrapKg || ""} onChange={(e) => handleEditChange('scrapKg', e.target.value)} />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>RM Lead Time</Label>
+                          <Input type="number" value={editingEntry.rmLeadTime || ""} onChange={(e) => handleEditChange('rmLeadTime', e.target.value)} />
+                      </div>
+                  </div>
+              )}
+              <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleUpdateEntry}>Save Changes</Button>
+              </DialogFooter>
+          </DialogContent>
+      </Dialog>
+
+      {/* History Dialog */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+          <DialogContent className="max-w-3xl">
+              <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2"><History className="h-5 w-5"/> Change History</DialogTitle>
+                  <DialogDescription>A log of all edits and deletions.</DialogDescription>
+              </DialogHeader>
+              <ScrollArea className="h-[60vh]">
+                  {logs.length > 0 ? (
+                      <div className="space-y-4 p-1">
+                          {logs.map((log, i) => (
+                              <div key={i} className="p-3 border rounded-lg bg-muted/30">
+                                  <div className="flex justify-between items-start mb-1">
+                                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${log.action === 'DELETE' ? 'bg-destructive/20 text-destructive' : 'bg-primary/20 text-primary'}`}>
+                                          {log.action}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">{new Date(log.timestamp).toLocaleString()}</span>
+                                  </div>
+                                  <p className="text-sm font-medium">{log.details}</p>
+                              </div>
+                          ))}
+                      </div>
+                  ) : (
+                      <div className="py-12 text-center text-muted-foreground">No history found.</div>
+                  )}
+              </ScrollArea>
+          </DialogContent>
+      </Dialog>
+
+      <AdminPasswordDialog 
+          isOpen={isPasswordDialogOpen} 
+          onOpenChange={setIsPasswordDialogOpen} 
+          onSuccess={handlePasswordSuccess} 
+      />
     </div>
   );
 }
