@@ -1,10 +1,9 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart } from "recharts";
+import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, CartesianGrid } from "recharts";
 import { Download, BarChart, PieChart as PieChartIcon, LineChart as LineChartIcon, TrendingUp, X, DollarSign, CreditCard, Banknote, Building, Wrench, Wallet, TrendingDown, History, KeyRound, Edit, Trash2 } from "lucide-react";
 
 import LoginForm from "@/components/login-form";
@@ -147,6 +146,18 @@ function SalesDashboard() {
         }
     };
 
+    const chartData = financeSubmissions.reduce((acc: any[], curr: any) => {
+        const name = curr.date || 'Unknown';
+        const amount = parseFloat(curr.amount) || 0;
+        const existing = acc.find(item => item.name === name);
+        if (existing) {
+            existing.value += amount;
+        } else {
+            acc.push({ name, value: amount });
+        }
+        return acc;
+    }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b border-border/40 bg-background/95 px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -229,22 +240,25 @@ function SalesDashboard() {
                 </CardContent>
                 {(selectedMonth !== null || selectedYear !== null) && (
                    <CardHeader className="pt-0">
-                      <Button variant="outline" size="sm" onClick={clearFilters}><X className="w-4 h-4 mr-2" />Clear Filters</Button>
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
+                        <X className="w-4 h-4 mr-2" />
+                        Clear Filters
+                      </Button>
                    </CardHeader>
                 )}
               </Card>
             </aside>
             <div className="py-4 space-y-4">
                 <Card>
-                    <CardHeader><CardTitle>Sales Trend</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Finance Trend</CardTitle></CardHeader>
                     <CardContent className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
-                            <RechartsBarChart data={[]} margin={{ bottom: 20, left: 40 }}>
+                            <RechartsBarChart data={chartData} margin={{ bottom: 20, left: 40 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" label={{ value: 'Period', position: 'insideBottom', dy: 10 }} />
-                                <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Revenue (₹)', angle: -90, position: 'insideLeft', dx: -10 }} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" label={{ value: 'Amount (₹)', angle: -90, position: 'insideLeft', dx: -10 }} />
                                 <Tooltip content={<CustomTooltip />} />
-                                <Bar dataKey="value" fill="hsl(var(--primary))" name="Total Sales" />
+                                <Bar dataKey="value" fill="hsl(var(--primary))" name="Total Finance" />
                             </RechartsBarChart>
                         </ResponsiveContainer>
                     </CardContent>
