@@ -3,14 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, Pie, PieChart as RechartsPieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, CartesianGrid } from "recharts";
-import { Download, BarChart, PieChart as PieChartIcon, LineChart as LineChartIcon, TrendingUp, X, DollarSign, CreditCard, Banknote, Building, Wrench, Wallet, TrendingDown, History, KeyRound, Edit, Trash2 } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, CartesianGrid, Upload, History, KeyRound, Edit, Trash2, DollarSign, X } from "lucide-react";
+import { format } from "date-fns";
 
 import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getSubmissions, deleteSubmission, updateSubmission, getLogs } from "@/app/actions";
-import { ChartTypeSwitcher } from "@/components/chart-type-switcher";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { getSubmissions, deleteSubmission, updateSubmission, getLogs, saveSubmission } from "@/app/actions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -43,6 +42,90 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+function SalesFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setError(null);
+    }
+  };
+
+  const handleProcessFile = async () => {
+    if (!file) {
+      setError("Please select a file first.");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target?.result;
+        if (!data) throw new Error("Failed to read file.");
+
+        let records: any[] = [];
+        if (file.name.toLowerCase().endsWith('.csv')) {
+          const result = Papa.parse(data as string, { header: true, skipEmptyLines: true });
+          records = result.data;
+        } else if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+          const { read, utils } = await import('xlsx');
+          const workbook = read(data, { type: 'array', cellDates: true });
+          const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+          records = utils.sheet_to_json(worksheet, { raw: false });
+        }
+
+        for (const record of records) {
+            const amount = record.amount || record.Amount || 0;
+            const date = record.date || record.Date || format(new Date(), "yyyy-MM-dd");
+            const type = record.type || record.Type || 'finance-operator';
+            const description = record.description || record.Description || '';
+            const machine = record.machine || record.Machine || '';
+
+            await saveSubmission({
+                entryType: type.startsWith('finance-') ? type : `finance-${type.toLowerCase()}`,
+                date: typeof date === 'string' ? date : format(new Date(date), "yyyy-MM-dd"),
+                amount: parseFloat(amount),
+                description,
+                machine
+            });
+        }
+        onUploadSuccess();
+      } catch (err: any) {
+        setError(err.message || "An error occurred.");
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    
+    if (file.name.toLowerCase().endsWith('.csv')) reader.readAsText(file);
+    else reader.readAsArrayBuffer(file);
+  };
+
+  return (
+    <div>
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2"><Upload /> Upload Finance Data</DialogTitle>
+        <DialogDescription>Upload CSV/Excel with headers: date, type, amount, description, machine</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4 py-4">
+        <Input type="file" accept=".csv, .xlsx, .xls" onChange={handleFileChange} />
+        {error && <p className="text-sm text-destructive">{error}</p>}
+      </div>
+      <DialogFooter>
+        <Button onClick={handleProcessFile} disabled={!file || isUploading} className="w-full">
+          {isUploading ? "Processing..." : "Process Upload"}
+        </Button>
+      </DialogFooter>
+    </div>
+  );
+}
+
 function AdminPasswordDialog({ isOpen, onOpenChange, onSuccess }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onSuccess: () => void }) {
     const [password, setPassword] = useState("");
     const { toast } = useToast();
@@ -60,10 +143,9 @@ function AdminPasswordDialog({ isOpen, onOpenChange, onSuccess }: { isOpen: bool
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5"/> Admin Verification</DialogTitle>
-                    <DialogDescription>Enter password to authorize this action.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                    <Input type="password" placeholder="Enter admin password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSubmit()} />
+                    <Input type="password" placeholder="Enter password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSubmit()} />
                 </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
@@ -75,7 +157,6 @@ function AdminPasswordDialog({ isOpen, onOpenChange, onSuccess }: { isOpen: bool
 }
 
 function SalesDashboard() {
-    const [allSubmissions, setAllSubmissions] = useState<any[]>([]);
     const [financeSubmissions, setFinanceSubmissions] = useState<any[]>([]);
     const [dataVersion, setDataVersion] = useState(0);
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
@@ -86,18 +167,14 @@ function SalesDashboard() {
     const [editingEntry, setEditingEntry] = useState<any>(null);
     const [logs, setLogs] = useState<any[]>([]);
     const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
-
-    const [monthlySalesChartType, setMonthlySalesChartType] = useState<'bar' | 'line' | 'pie'>('bar');
-    const [paymentModeChartType, setPaymentModeChartType] = useState<'pie' | 'bar'>('pie');
+    const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const { toast } = useToast();
 
     useEffect(() => {
         getSubmissions().then(data => {
-            setAllSubmissions(data);
             const filtered = data.filter(s => s.entryType?.startsWith('finance-')).filter(s => {
                 const submissionDate = new Date(s.date || s.id);
                 const monthMatch = selectedMonth !== null ? submissionDate.getMonth() === selectedMonth : true;
@@ -150,11 +227,8 @@ function SalesDashboard() {
         const name = curr.date || 'Unknown';
         const amount = parseFloat(curr.amount) || 0;
         const existing = acc.find(item => item.name === name);
-        if (existing) {
-            existing.value += amount;
-        } else {
-            acc.push({ name, value: amount });
-        }
+        if (existing) existing.value += amount;
+        else acc.push({ name, value: amount });
         return acc;
     }, []);
 
@@ -178,6 +252,10 @@ function SalesDashboard() {
             </nav>
             <div className="ml-auto flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={fetchLogs}><History className="h-5 w-5" /></Button>
+                <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                    <DialogTrigger asChild><Button variant="outline"><Upload className="h-4 w-4 mr-2" />Upload</Button></DialogTrigger>
+                    <DialogContent><SalesFileUpload onUploadSuccess={() => { setIsUploadDialogOpen(false); setDataVersion(v => v+1); }} /></DialogContent>
+                </Dialog>
                 <Dialog>
                     <DialogTrigger asChild><Button>Data entry table</Button></DialogTrigger>
                     <DialogContent className="max-w-[95vw] w-full">
@@ -240,10 +318,7 @@ function SalesDashboard() {
                 </CardContent>
                 {(selectedMonth !== null || selectedYear !== null) && (
                    <CardHeader className="pt-0">
-                      <Button variant="outline" size="sm" onClick={clearFilters}>
-                        <X className="w-4 h-4 mr-2" />
-                        Clear Filters
-                      </Button>
+                      <Button variant="outline" size="sm" onClick={clearFilters}><X className="w-4 h-4 mr-2" />Clear Filters</Button>
                    </CardHeader>
                 )}
               </Card>
@@ -283,7 +358,7 @@ function SalesDashboard() {
         <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
             <DialogContent className="max-w-3xl">
                 <DialogHeader><DialogTitle className="flex items-center gap-2"><History className="h-5 w-5"/> Change History</DialogTitle></DialogHeader>
-                <ScrollArea className="h-[60vh]">{logs.length > 0 ? (<div className="space-y-4">{logs.map((log, i) => (<div key={i} className="p-3 border rounded-lg"><div className="flex justify-between"><span className="font-bold">{log.action}</span><span className="text-xs">{new Date(log.timestamp).toLocaleString()}</span></div><p className="text-sm">{log.details}</p></div>))}</div>) : (<div className="text-center py-12">No history.</div>)}</ScrollArea>
+                <ScrollArea className="h-[60vh]">{logs.length > 0 ? (<div className="space-y-4">{logs.map((log, i) => (<div key={i} className="p-3 border rounded-lg"><div className="flex justify-between"><span className="font-bold">{log.action}</span><span className="text-xs">{new Date(log.timestamp).toLocaleString()}</span></div><p className="text-sm">{log.details}</p></div>))}</div>) : (<div className="text-center py-12">No history found.</div>)}</ScrollArea>
             </DialogContent>
         </Dialog>
 
