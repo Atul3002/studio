@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { BarChart, Shield, X, TrendingDown, TrendingUp, Trash2, History, KeyRound, Edit, Upload, Layers } from "lucide-react";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Bar, BarChart as RechartsBarChart } from "recharts";
+import { Upload, History, KeyRound, Edit, Trash2, X, Shield, BarChart } from "lucide-react";
 import { format } from "date-fns";
 
+import LoginForm from "@/components/login-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getSubmissions, saveSubmission, deleteSubmission, updateSubmission, getLogs } from "@/app/actions";
-import LoginForm from "@/components/login-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -56,7 +56,7 @@ function QualityFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void })
         for (const r of records) {
           await saveSubmission({
             entryType: 'qualityAnalysis',
-            timestamp: r.timestamp || format(new Date(), "yyyy-MM-dd HH:mm:ss"),
+            timestamp: r.timestamp || r.entryDate || format(new Date(), "yyyy-MM-dd HH:mm:ss"),
             extractedText: r.extractedText || r.text || ''
           });
         }
@@ -106,8 +106,6 @@ function QualityDashboard() {
   const [dataVersion, setDataVersion] = useState(0);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ type: 'edit' | 'delete', id: string, data?: any } | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -150,20 +148,8 @@ function QualityDashboard() {
           await deleteSubmission(pendingAction.id);
           setDataVersion(v => v + 1);
           toast({ title: "Deleted" });
-      } else {
-          setEditingEntry({ ...pendingAction.data });
-          setIsEditDialogOpen(true);
       }
       setPendingAction(null);
-  };
-
-  const handleUpdateEntry = async () => {
-      if (editingEntry) {
-          await updateSubmission(editingEntry);
-          setDataVersion(v => v + 1);
-          setIsEditDialogOpen(false);
-          toast({ title: "Updated" });
-      }
   };
 
   return (
@@ -208,7 +194,6 @@ function QualityDashboard() {
                                     <TableRow key={sub.id}>
                                         <TableCell>
                                             <div className="flex gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleActionClick('edit', sub)}><Edit className="h-4 w-4" /></Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleActionClick('delete', sub)}><Trash2 className="h-4 w-4" /></Button>
                                             </div>
                                         </TableCell>

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { BarChart as RechartsBarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell, Cog, X, History, KeyRound, Edit, Trash2, Settings, Server, Activity, Upload } from "lucide-react";
+import { BarChart as RechartsBarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
+import { Upload, History, KeyRound, Edit, Trash2, X, BarChart } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -104,8 +105,6 @@ function MachineDashboard() {
   const [dataVersion, setDataVersion] = useState(0);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<{ type: 'edit' | 'delete', id: string, data?: any } | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<any>(null);
   const [logs, setLogs] = useState<any[]>([]);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
@@ -148,20 +147,8 @@ function MachineDashboard() {
           await deleteSubmission(pendingAction.id);
           setDataVersion(v => v + 1);
           toast({ title: "Deleted" });
-      } else {
-          setEditingEntry({ ...pendingAction.data });
-          setIsEditDialogOpen(true);
       }
       setPendingAction(null);
-  };
-
-  const handleUpdateEntry = async () => {
-      if (editingEntry) {
-          await updateSubmission(editingEntry);
-          setDataVersion(v => v + 1);
-          setIsEditDialogOpen(false);
-          toast({ title: "Updated" });
-      }
   };
 
   const machineTypeCounts = machineSubmissions.reduce((acc, curr) => {
@@ -217,7 +204,6 @@ function MachineDashboard() {
                                     <TableRow key={s.id}>
                                         <TableCell>
                                             <div className="flex gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleActionClick('edit', s)}><Edit className="h-4 w-4" /></Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleActionClick('delete', s)}><Trash2 className="h-4 w-4" /></Button>
                                             </div>
                                         </TableCell>

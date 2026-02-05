@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, ReferenceLine, LineChart, Line, Cell, Upload, History, KeyRound, Edit, Trash2, X, Cog, Star, Trophy, AlertTriangle, TrendingDown, Clock } from "recharts";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
+import { Upload, History, KeyRound, Edit, Trash2, X, BarChart } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getSubmissions, saveSubmission, deleteSubmission, updateSubmission, getLogs } from "@/app/actions";
-import { ChartTypeSwitcher } from "@/components/chart-type-switcher";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,19 +42,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 interface WaterfallData {
     name: string;
     value: number;
-    start?: number;
-    end?: number;
+    bar: [number, number];
     fill: string;
 }
-
-const initialLineData = [
-  { month: 'Jan', defectRate: 2.5, availability: 98, leadTime: 5 },
-  { month: 'Feb', defectRate: 2.1, availability: 95, leadTime: 6 },
-  { month: 'Mar', defectRate: 2.3, availability: 96, leadTime: 5.5 },
-  { month: 'Apr', defectRate: 1.9, availability: 99, leadTime: 4.8 },
-  { month: 'May', defectRate: 1.5, availability: 97, leadTime: 5.2 },
-  { month: 'Jun', defectRate: 1.8, availability: 94, leadTime: 6.5 },
-];
 
 function ProductionFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -87,11 +76,11 @@ function ProductionFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void
           await saveSubmission({
             entryType: 'productionData',
             entryDate: r.entryDate || format(new Date(), "yyyy-MM-dd"),
-            dailyProductionTarget: r.target || 0,
-            rejectionQuantity: r.rejections || 0,
-            rejectionReason: r.reason || '',
-            shiftDetails: r.shift || '',
-            toolWearDetails: r.toolWear || ''
+            dailyProductionTarget: r.target || r.dailyProductionTarget || 0,
+            rejectionQuantity: r.rejections || r.rejectionQuantity || 0,
+            rejectionReason: r.reason || r.rejectionReason || '',
+            shiftDetails: r.shift || r.shiftDetails || '',
+            toolWearDetails: r.toolWear || r.toolWearDetails || ''
           });
         }
         onUploadSuccess();
@@ -138,24 +127,14 @@ function ProductionDashboard() {
     const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
     const [selectedYear, setSelectedYear] = useState<number | null>(null);
     const [totalJobs, setTotalJobs] = useState(0);
-    const [performance, setPerformance] = useState(0);
-    const [topMachine, setTopMachine] = useState({ type: 'N/A', count: 0 });
-    const [topProblem, setTopProblem] = useState({ type: 'N/A', count: 0 });
-    const [lineChartData, setLineChartData] = useState(initialLineData);
 
     const [productionSubmissions, setProductionSubmissions] = useState<any[]>([]);
     const [dataVersion, setDataVersion] = useState(0);
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [pendingAction, setPendingAction] = useState<{ type: 'edit' | 'delete', id: string, data?: any } | null>(null);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [editingEntry, setEditingEntry] = useState<any>(null);
     const [logs, setLogs] = useState<any[]>([]);
     const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-
-    const [defectRateChartType, setDefectRateChartType] = useState<'line' | 'bar'>('line');
-    const [availabilityChartType, setAvailabilityChartType] = useState<'line' | 'bar'>('line');
-    const [leadTimeChartType, setDefectRateChartTypeLine] = useState<'line' | 'bar'>('line');
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const years = [2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030];
@@ -180,12 +159,12 @@ function ProductionDashboard() {
                 totalRejection += parseInt(s.rejectionQuantity || 0, 10);
             });
             const goodParts = totalTarget - totalRejection;
-            const processedData = [
+            const processedData: WaterfallData[] = [
                 { name: 'Target', value: totalTarget, bar: [0, totalTarget], fill: 'hsl(var(--primary))' },
                 { name: 'Rejections', value: -totalRejection, bar: [goodParts, totalTarget], fill: 'hsl(var(--destructive))' },
                 { name: 'Actual', value: goodParts, bar: [0, goodParts], fill: 'hsl(var(--chart-2))' }
             ];
-            setWaterfallData(processedData as any);
+            setWaterfallData(processedData);
 
             const operatorSubmissions = allData.filter(s => s.operatorName);
             setTotalJobs(operatorSubmissions.length);
@@ -213,20 +192,8 @@ function ProductionDashboard() {
             await deleteSubmission(pendingAction.id);
             setDataVersion(v => v + 1);
             toast({ title: "Deleted" });
-        } else {
-            setEditingEntry({ ...pendingAction.data });
-            setIsEditDialogOpen(true);
         }
         setPendingAction(null);
-    };
-
-    const handleUpdateEntry = async () => {
-        if (editingEntry) {
-            await updateSubmission(editingEntry);
-            setDataVersion(v => v + 1);
-            setIsEditDialogOpen(false);
-            toast({ title: "Updated" });
-        }
     };
 
   return (
@@ -275,7 +242,6 @@ function ProductionDashboard() {
                                         <TableRow key={s.id}>
                                             <TableCell>
                                                 <div className="flex gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleActionClick('edit', s)}><Edit className="h-4 w-4" /></Button>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleActionClick('delete', s)}><Trash2 className="h-4 w-4" /></Button>
                                                 </div>
                                             </TableCell>

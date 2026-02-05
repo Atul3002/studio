@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { BarChart as RechartsBarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell, BarChart, Archive, X, Package, DollarSign, Boxes, ShoppingCart, TrendingUp, History, KeyRound, Edit, Trash2, Upload } from "lucide-react";
+import { BarChart as RechartsBarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
+import { Upload, History, KeyRound, Edit, Trash2, X, Archive, BarChart } from "lucide-react";
 import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
@@ -59,12 +60,12 @@ function InventoryFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void 
           // Flatten items into rawMaterials for simplicity in bulk upload
           await saveSubmission({
             entryType: 'storeData',
-            date: r.date || format(new Date(), "yyyy-MM-dd"),
+            date: r.date || r.entryDate || format(new Date(), "yyyy-MM-dd"),
             rawMaterials: [{
                 catNumber: r.catNumber || '',
                 description: r.description || '',
-                openingStock: r.opening || 0,
-                closingStock: r.closing || 0
+                openingStock: r.opening || r.openingStock || 0,
+                closingStock: r.closing || r.closingStock || 0
             }]
           });
         }

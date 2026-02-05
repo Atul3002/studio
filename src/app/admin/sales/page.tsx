@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Papa from "papaparse";
-import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, CartesianGrid, Upload, History, KeyRound, Edit, Trash2, DollarSign, X } from "lucide-react";
+import { Bar, BarChart as RechartsBarChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend, Cell, Line, LineChart as RechartsLineChart, CartesianGrid } from "recharts";
+import { Upload, History, KeyRound, Edit, Trash2, DollarSign, X, BarChart } from "lucide-react";
 import { format } from "date-fns";
 
 import LoginForm from "@/components/login-form";
@@ -25,8 +26,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-
-const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -82,7 +81,7 @@ function SalesFileUpload({ onUploadSuccess }: { onUploadSuccess: () => void }) {
 
         for (const record of records) {
             const amount = record.amount || record.Amount || 0;
-            const date = record.date || record.Date || format(new Date(), "yyyy-MM-dd");
+            const date = record.date || record.Date || record.entryDate || format(new Date(), "yyyy-MM-dd");
             const type = record.type || record.Type || 'finance-operator';
             const description = record.description || record.Description || '';
             const machine = record.machine || record.Machine || '';
@@ -318,7 +317,10 @@ function SalesDashboard() {
                 </CardContent>
                 {(selectedMonth !== null || selectedYear !== null) && (
                    <CardHeader className="pt-0">
-                      <Button variant="outline" size="sm" onClick={clearFilters}><X className="w-4 h-4 mr-2" />Clear Filters</Button>
+                      <Button variant="outline" size="sm" onClick={clearFilters}>
+                        <X className="w-4 h-4 mr-2" />
+                        Clear Filters
+                      </Button>
                    </CardHeader>
                 )}
               </Card>
