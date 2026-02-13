@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
@@ -8,8 +7,8 @@ import { MainNav } from '@/components/main-nav';
 
 
 export const metadata: Metadata = {
-  title: 'Job Tracker',
-  description: 'Track the daily production of Jobs.',
+  title: 'AS Techno System',
+  description: 'Track the daily production and operations of AS Techno System.',
 };
 
 export default function RootLayout({
@@ -33,7 +32,7 @@ export default function RootLayout({
             <Sidebar>
                 <SidebarHeader>
                      <Link href="/" className="font-headline text-2xl font-bold flex items-center gap-2">
-                        <span>Job Tracker</span>
+                        <span>AS Techno System</span>
                     </Link>
                 </SidebarHeader>
                 <SidebarContent>

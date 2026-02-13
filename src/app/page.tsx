@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
 
-const fullText = "Job Tracker";
-const baseText = "Job ";
-const wordToAnimate = "Tracker";
+const fullText = "AS Techno System";
+const baseText = "AS Techno ";
+const wordToAnimate = "System";
 const dots = ".....";
 
 function Typewriter() {
@@ -18,7 +17,7 @@ function Typewriter() {
 
     useEffect(() => {
         if (isInitialPhase) {
-            // Initial typing of "Job Tracker"
+            // Initial typing of full name
             if (index < fullText.length) {
                 const timeout = setTimeout(() => {
                     setText(fullText.substring(0, index + 1));
@@ -49,7 +48,7 @@ function Typewriter() {
                 }, 1500);
             }
         } else {
-            // Loop phase for "Tracker"
+            // Loop phase for the last word
             const typeSpeed = isDeleting ? 100 : 200;
             const timeout = setTimeout(() => {
                 if (isDeleting) {
